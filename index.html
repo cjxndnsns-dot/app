@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#040404">
+<title>SENSI ULTRALOCK - iOS</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#040404;color:#fff;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+body{background:radial-gradient(circle at 50% -18%,rgba(255,210,0,.12),transparent 36%),linear-gradient(180deg,#090909 0%,#020202 100%)}
+button,input,select{font-family:inherit;-webkit-appearance:none;appearance:none}
+
+.gate{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:18px;background:rgba(0,0,0,.52);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.gate-card{width:min(440px,92vw);padding:28px;border:1px solid rgba(255,255,255,.10);border-radius:32px;background:rgba(10,10,10,.88);box-shadow:0 26px 70px rgba(0,0,0,.62);text-align:center}
+.brand-logo img{width:180px;height:180px;object-fit:contain;border-radius:22px;filter:drop-shadow(0 0 22px rgba(255,211,0,.30))}
+.gate h1{font-size:38px;letter-spacing:.9px;margin:10px 0}.gate h1 span{color:#facc15}
+.byline{color:#facc15;font-weight:900;letter-spacing:1px;margin-bottom:20px}
+.platform-badge{background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);padding:5px 16px;border-radius:999px;font-size:13px;font-weight:900;display:inline-block;margin-bottom:10px}
+.ios-version-warning{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:12px;margin:10px 0;display:none;color:#f87171;font-size:13px;font-weight:800}
+.ios-version-warning.show{display:block}
+.input-row{height:60px;display:grid;grid-template-columns:36px 1fr;gap:6px;align-items:center;border:1px solid rgba(255,255,255,.14);background:rgba(18,18,18,.92);border-radius:20px;padding:0 15px;margin:8px 0}
+.input-row input{width:100%;height:100%;border:0;background:transparent;color:#fff;font-size:18px;outline:none;-webkit-appearance:none}
+.primary-btn{width:100%;height:60px;margin-top:15px;border:0;border-radius:20px;color:#0b0b0b;font-size:19px;font-weight:950;background:linear-gradient(135deg,#ffe55a,#f4b400);cursor:pointer;-webkit-tap-highlight-color:transparent}
+#keyExpiryDisplay{color:#facc15;font-size:16px;font-weight:900;padding:10px;border-radius:12px;background:rgba(250,204,21,0.1);border:1px solid rgba(250,204,21,0.2);margin:10px 0}
+.message{min-height:24px;margin:10px 0;text-align:center;font-size:14px}.message.err{color:#fecaca}.message.ok{color:#bbf7d0}
+.toast{position:fixed;left:50%;bottom:92px;z-index:90;transform:translate(-50%,20px);opacity:0;padding:12px 16px;border-radius:999px;background:rgba(18,18,18,.96);color:#e5e7eb;border:1px solid rgba(250,204,21,.20);transition:.25s;white-space:nowrap;pointer-events:none}
+.toast.active{opacity:1;transform:translate(-50%,0)}
+
+[hidden] { display: none !important; }
+
+.contact-link { color: #facc15; font-weight: 900; text-decoration: none; }
+
+.success-card {
+    width: min(440px, 92vw);
+    padding: 28px;
+    border: 1px solid rgba(250,204,21,.25);
+    border-radius: 32px;
+    background: rgba(10,10,10,.94);
+    box-shadow: 0 26px 70px rgba(0,0,0,.62);
+    text-align: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 80;
+}
+
+.success-icon {
+    width: 64px; height: 64px;
+    margin: 0 auto 12px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: rgba(34,197,94,.16);
+    border: 1px solid rgba(34,197,94,.35);
+    color: #4ade80;
+    font-size: 34px; font-weight: 950;
+}
+
+.success-card h2 { margin: 5px 0; color: #facc15; font-size: 27px; }
+.success-card p { color: #9ca3af; font-size: 13px; margin: 7px 0 16px; }
+
+.success-info {
+    text-align: left;
+    border: 1px solid rgba(250,204,21,.16);
+    border-radius: 18px;
+    padding: 10px 14px;
+    background: rgba(250,204,21,.05);
+    margin-bottom: 12px;
+}
+.success-info div { display: flex; justify-content: space-between; gap: 15px; padding: 8px 0; }
+.success-info span { color: #9ca3af; font-size: 12px; font-weight: 800; }
+.success-info strong { color: #facc15; font-size: 12px; text-align: right; word-break: break-all; }
+
+@media(max-width:430px){
+    .gate-card{padding:18px}
+    .brand-logo img{width:140px;height:140px}
+    .gate h1{font-size:28px}
+}
+</style>
+</head>
+<body>
+
+<div class="gate" id="loginGate">
+    <div class="gate-card">
+        <div class="brand-logo">
+            <img src="https://i.postimg.cc/pLj6h1mL/logo.png" alt="SENSI ULTRALOCK">
+        </div>
+
+        <h1>SENSI <span>ULTRALOCK</span></h1>
+        <div class="byline">VIP EDITION</div>
+
+        <div style="display:flex;justify-content:center;gap:10px;margin-bottom:15px;">
+            <span class="platform-badge">🍎 iOS</span>
+        </div>
+
+        <div id="iosVersionWarning" class="ios-version-warning">
+            ⚠️ iOS 27 không được hỗ trợ! Vui lòng sử dụng iOS 26 hoặc thấp hơn.
+        </div>
+
+        <div id="keyExpiryDisplay" style="display:none;">🔑 Còn: --</div>
+
+        <div class="input-row">
+            <span style="font-size:20px;color:#facc15;">⌨</span>
+            <input type="text" id="keyInput" placeholder="Nhập key iOS..." autocomplete="off" autocapitalize="off" spellcheck="false">
+        </div>
+
+        <div class="message" id="loginMessage"></div>
+
+        <button class="primary-btn" id="loginBtnFull">LOGIN</button>
+
+        <div style="margin-top:15px;font-size:13px;color:#9ca3af;">
+            Liên hệ:
+            <a class="contact-link" href="https://zalo.me/976457016" target="_blank" rel="noopener noreferrer">0976457016</a>
+        </div>
+    </div>
+</div>
+
+<div class="success-card" id="successCard" hidden>
+    <div class="success-icon">✓</div>
+    <h2>KEY HỢP LỆ</h2>
+    <p id="successText">Đang chuẩn bị chuyển hướng...</p>
+
+    <div class="success-info">
+        <div><span>KEY</span><strong id="keyDisplay">---</strong></div>
+        <div><span>LOẠI</span><strong id="keyTypeDisplay">---</strong></div>
+        <div><span>HẠN</span><strong id="expiryDisplay">---</strong></div>
+        <div><span>NỀN TẢNG</span><strong id="platformDisplay">iOS</strong></div>
+    </div>
+
+    <button class="primary-btn" id="continueBtn">VÀO ỨNG DỤNG</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+    "use strict";
+
+    /* ==========================================================
+       CẤU HÌNH - SỬA 2 DÒNG NÀY
+    ========================================================== */
+    const FIREBASE_URL = "https://aimlock-key-default-rtdb.firebaseio.com";
+    const REDIRECT_URL = "https://your-domain.com/app/"; // URL sau khi key đúng
+    /* ========================================================== */
+
+    const PLATFORM = "ios";
+
+    const loginGate = document.getElementById("loginGate");
+    const successCard = document.getElementById("successCard");
+    const keyInput = document.getElementById("keyInput");
+    const loginBtn = document.getElementById("loginBtnFull");
+    const loginMessage = document.getElementById("loginMessage");
+    const iosWarning = document.getElementById("iosVersionWarning");
+    const keyExpiryDisplay = document.getElementById("keyExpiryDisplay");
+    const continueBtn = document.getElementById("continueBtn");
+    const toast = document.getElementById("toast");
+
+    const keyDisplay = document.getElementById("keyDisplay");
+    const keyTypeDisplay = document.getElementById("keyTypeDisplay");
+    const expiryDisplay = document.getElementById("expiryDisplay");
+    const platformDisplay = document.getElementById("platformDisplay");
+
+    let redirectUrl = "";
+    let validKey = false;
+
+    function getIOSVersion() {
+        const ua = navigator.userAgent || "";
+        const match = ua.match(/OS (\d+)_(\d+)/);
+        return match ? parseInt(match[1], 10) : 0;
+    }
+
+    const iosVersion = getIOSVersion();
+
+    function showToast(message) {
+        if (!toast) return;
+        toast.textContent = message;
+        toast.classList.add("active");
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => {
+            toast.classList.remove("active");
+        }, 2500);
+    }
+
+    function setMessage(message, type = "") {
+        loginMessage.textContent = message;
+        loginMessage.className = "message" + (type ? " " + type : "");
+    }
+
+    function getDaysLeft(expiry) {
+        if (!expiry) return "vĩnh viễn";
+        const diff = Number(expiry) - Date.now();
+        if (diff <= 0) return "ĐÃ HẾT HẠN";
+        return Math.ceil(diff / 86400000) + " ngày";
+    }
+
+    function disableForIOS27() {
+        if (iosVersion === 27) {
+            iosWarning.classList.add("show");
+            loginBtn.disabled = true;
+            keyInput.disabled = true;
+            loginBtn.style.opacity = "0.4";
+            loginBtn.style.cursor = "not-allowed";
+            showToast("⚠️ iOS 27 không được hỗ trợ!");
+            return true;
+        }
+        return false;
+    }
+
+    function normalizeLevel(data) {
+        if (!data) return "free";
+        const type = String(data.type || "").toLowerCase();
+        if (type === "vip") return "vip";
+        if (type === "thuong" || type === "pro") return "thuong";
+        if (type === "free") return "free";
+        if (data.vip) return "vip";
+        if (data.thuong) return "thuong";
+        return "free";
+    }
+
+    function platformAllowed(data, platform) {
+        if (!data.platform) return true;
+        const value = String(data.platform).toLowerCase();
+        return value === platform || value === "both";
+    }
+
+    /* Gọi trực tiếp Firebase Realtime Database */
+    async function firebaseGetKey(key) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10000);
+
+        try {
+            const url = FIREBASE_URL + "/keys/" + encodeURIComponent(key) + ".json";
+            const response = await fetch(url, {
+                method: "GET",
+                headers: { "Accept": "application/json" },
+                cache: "no-store",
+                signal: controller.signal
+            });
+
+            if (!response.ok) {
+                throw new Error("Firebase HTTP " + response.status);
+            }
+
+            return await response.json();
+        } finally {
+            clearTimeout(timeout);
+        }
+    }
+
+    async function checkKey(key) {
+        try {
+            const data = await firebaseGetKey(key);
+
+            if (!data) {
+                return { success: false, message: "Key không tồn tại!" };
+            }
+
+            if (!platformAllowed(data, PLATFORM)) {
+                return {
+                    success: false,
+                    message: "Key dành cho " + String(data.platform).toUpperCase() + ", không dùng cho iOS!"
+                };
+            }
+
+            if (data.expiry) {
+                const expiry = Number(data.expiry);
+                if (Number.isFinite(expiry) && expiry <= Date.now()) {
+                    return { success: false, message: "Key đã hết hạn!", expired: true };
+                }
+            }
+
+            if (data.deviceLimit) {
+                const devices = Array.isArray(data.devices) ? data.devices : [];
+                if (devices.length >= Number(data.deviceLimit)) {
+                    return { success: false, message: "Giới hạn thiết bị đã đạt!" };
+                }
+            }
+
+            return {
+                success: true,
+                redirectUrl: REDIRECT_URL,
+                data: {
+                    key,
+                    type: normalizeLevel(data),
+                    expiry: data.expiry || null,
+                    platform: data.platform || "ios"
+                }
+            };
+        } catch (error) {
+            if (error.name === "AbortError") {
+                return { success: false, message: "⏱️ Server phản hồi quá lâu." };
+            }
+            return { success: false, message: "❌ Không kết nối được Firebase!" };
+        }
+    }
+
+    function showValidKey(result) {
+        const data = result.data || {};
+
+        validKey = true;
+        redirectUrl = result.redirectUrl || "";
+
+        loginGate.hidden = true;
+        successCard.hidden = false;
+
+        const rawKey = String(data.key || keyInput.value.trim());
+
+        keyDisplay.textContent = rawKey.length > 16 ? rawKey.slice(0, 12) + "..." : rawKey;
+        keyTypeDisplay.textContent = String(data.type || "free").toUpperCase();
+        expiryDisplay.textContent = getDaysLeft(data.expiry);
+        platformDisplay.textContent = String(data.platform || "ios").toUpperCase();
+
+        if (data.expiry) {
+            keyExpiryDisplay.textContent = "🔑 Còn: " + getDaysLeft(data.expiry);
+            keyExpiryDisplay.style.display = "block";
+        }
+
+        if (!redirectUrl) {
+            continueBtn.textContent = "ĐÃ XÁC THỰC";
+            continueBtn.disabled = true;
+            document.getElementById("successText").textContent =
+                "Key đúng nhưng chưa cấu hình URL đích.";
+        }
+    }
+
+    async function handleLogin() {
+        if (disableForIOS27()) return;
+
+        const key = keyInput.value.trim();
+
+        if (!key) {
+            setMessage("⚠️ Vui lòng nhập key iOS!", "err");
+            keyInput.focus();
+            return;
+        }
+
+        loginBtn.disabled = true;
+        setMessage("⏳ Đang kiểm tra key...", "");
+
+        const result = await checkKey(key);
+
+        loginBtn.disabled = false;
+
+        if (!result.success) {
+            validKey = false;
+            redirectUrl = "";
+            setMessage("❌ " + (result.message || "Key không hợp lệ!"), "err");
+            showToast("❌ " + (result.message || "Key không hợp lệ!"));
+            return;
+        }
+
+        setMessage("✅ Key hợp lệ!", "ok");
+        showValidKey(result);
+        showToast("✅ Xác thực thành công!");
+
+        setTimeout(() => {
+            if (validKey && redirectUrl) {
+                window.location.replace(redirectUrl);
+            }
+        }, 900);
+    }
+
+    continueBtn.addEventListener("click", () => {
+        if (validKey && redirectUrl) {
+            window.location.replace(redirectUrl);
+        }
+    });
+
+    loginBtn.addEventListener("click", handleLogin);
+
+    keyInput.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            handleLogin();
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        disableForIOS27();
+        keyInput.focus();
+    });
+})();
+</script>
+</body>
+</html>
