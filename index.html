@@ -27,8 +27,6 @@ button,input{font-family:inherit;-webkit-appearance:none;appearance:none}
 .gate h1 span{color:#facc15}
 .byline{color:#facc15;font-weight:900;letter-spacing:1px;margin-bottom:20px}
 .platform-badge{background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);padding:5px 16px;border-radius:999px;font-size:13px;font-weight:900;display:inline-block;margin-bottom:10px}
-.ios-version-warning{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:12px;margin:10px 0;display:none;color:#f87171;font-size:13px;font-weight:800}
-.ios-version-warning.show{display:block}
 .input-row{height:60px;display:grid;grid-template-columns:36px 1fr;gap:6px;align-items:center;border:1px solid rgba(255,255,255,.14);background:rgba(18,18,18,.92);border-radius:20px;padding:0 15px;margin:8px 0}
 .input-row input{width:100%;height:100%;border:0;background:transparent;color:#fff;font-size:18px;outline:none}
 .primary-btn{width:100%;height:60px;margin-top:15px;border:0;border-radius:20px;color:#0b0b0b;font-size:19px;font-weight:950;background:linear-gradient(135deg,#ffe55a,#f4b400);cursor:pointer}
@@ -84,14 +82,9 @@ button,input{font-family:inherit;-webkit-appearance:none;appearance:none}
 .bottom-nav{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);width:min(500px,94vw);height:64px;border:1px solid rgba(255,255,255,.09);background:rgba(18,18,18,.94);backdrop-filter:blur(14px);border-radius:20px;display:grid;grid-template-columns:1fr 1fr 1fr;z-index:30}
 .bottom-nav button{border:0;background:transparent;color:#8b949e;font-size:20px;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer}
 .bottom-nav span{font-size:11px}.bottom-nav .active{color:#facc15}
-.toast.active{opacity:1}
-.hidden-guard{position:fixed;inset:0;z-index:9999;display:none;place-items:center;background:rgba(0,0,0,.96);color:#f87171;font-size:18px;font-weight:900;text-align:center;padding:20px}
-.hidden-guard.show{display:grid}
 </style>
 </head>
 <body>
-
-<div class="hidden-guard" id="tamperGuard">⛔ PHÁT HIỆN CAN THIỆP<br>Ứng dụng sẽ đóng.</div>
 
 <div class="gate" id="loginGate">
   <div class="gate-card">
@@ -101,7 +94,6 @@ button,input{font-family:inherit;-webkit-appearance:none;appearance:none}
     <div style="display:flex;justify-content:center;gap:10px;margin-bottom:15px;">
       <span class="platform-badge">🍎 iOS</span>
     </div>
-    <div id="iosVersionWarning" class="ios-version-warning">⚠️ iOS 27 không được hỗ trợ!</div>
     <div id="keyExpiryDisplay" style="display:none;">🔑 Còn: --</div>
     <div class="input-row">
       <span style="font-size:20px;color:#facc15;">⌨</span>
@@ -161,80 +153,37 @@ button,input{font-family:inherit;-webkit-appearance:none;appearance:none}
 
 <script>
 "use strict";
-/* ============================================================
-   SENSI ULTRALOCK — HARDENED CLIENT
-   Bảo mật thực sự cần SERVER-SIDE. Đây là lớp phòng thủ client
-   để nâng chi phí tấn công: anti-tamper, integrity check,
-   nonce bridge, HMAC verify, memory wipe, obfuscated storage.
-   ============================================================ */
 
-/* ---- Tầng 1: chống môi trường phân tích ---- */
+/* ---- Anti-DevTools: silent, no guard ---- */
 (function() {
-  var devtoolsOpen = false;
-  var threshold = 160;
-
-  function detectDevtools() {
-    var w = window.outerWidth - window.innerWidth;
-    var h = window.outerHeight - window.innerHeight;
-    if (w > threshold || h > threshold) return true;
-    var t0 = performance.now();
-    // eslint-disable-next-line no-debugger
-    debugger;
-    var t1 = performance.now();
-    return (t1 - t0) > 100;
-  }
-
-  setInterval(function() {
-    if (detectDevtools()) {
-      document.getElementById('tamperGuard').classList.add('show');
-      setTimeout(function(){ window.location.replace('about:blank'); }, 1200);
-    }
-  }, 1500);
-
-  // Chặn context menu / inspect gestures
   document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
   document.addEventListener('dragstart', function(e){ e.preventDefault(); });
   document.addEventListener('keydown', function(e) {
     if (e.key === 'F12') { e.preventDefault(); return false; }
-    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) {
-      e.preventDefault(); return false;
-    }
-    if (e.metaKey && e.altKey && (e.key === 'i' || e.key === 'j' || e.key === 'c')) {
-      e.preventDefault(); return false;
-    }
+    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) { e.preventDefault(); return false; }
+    if (e.metaKey && e.altKey && (e.key === 'i' || e.key === 'j' || e.key === 'c')) { e.preventDefault(); return false; }
   }, true);
 })();
 
-/* ---- Tầng 2: integrity self-check ---- */
+/* ---- Integrity self-check: silent degrade, no warning UI ---- */
 var _integrityOK = true;
 (function() {
-  var baseline = document.documentElement.outerHTML.length;
   setInterval(function() {
-    // DOM injection bất thường
     var scripts = document.getElementsByTagName('script');
     if (scripts.length > 1) { _integrityOK = false; }
-    // Prototype pollution check
     if (Object.prototype.hasOwnProperty.call(Object.prototype, '__polluted')) { _integrityOK = false; }
-    // Native fetch bị hook
     if (window.fetch && window.fetch.toString().indexOf('native code') === -1) { _integrityOK = false; }
-    // Hook vào console
     if (console.log.toString().indexOf('native code') === -1) { _integrityOK = false; }
-    if (!_integrityOK) {
-      document.getElementById('tamperGuard').classList.add('show');
-      setTimeout(function(){ window.location.replace('about:blank'); }, 1000);
-    }
   }, 3000);
 })();
 
-/* ---- Tầng 3: storage mã hoá ---- */
+/* ---- Storage mã hoá ---- */
 var SecureStore = (function() {
   var SALT = 'NP::ULTRALOCK::' + (navigator.userAgent.length);
   function enc(s) {
     try {
       var out = '';
-      for (var i = 0; i < s.length; i++) {
-        out += String.fromCharCode(s.charCodeAt(i) ^ SALT.charCodeAt(i % SALT.length));
-      }
+      for (var i = 0; i < s.length; i++) out += String.fromCharCode(s.charCodeAt(i) ^ SALT.charCodeAt(i % SALT.length));
       return btoa(unescape(encodeURIComponent(out)));
     } catch(e) { return ''; }
   }
@@ -242,34 +191,21 @@ var SecureStore = (function() {
     try {
       var raw = decodeURIComponent(escape(atob(s)));
       var out = '';
-      for (var i = 0; i < raw.length; i++) {
-        out += String.fromCharCode(raw.charCodeAt(i) ^ SALT.charCodeAt(i % SALT.length));
-      }
+      for (var i = 0; i < raw.length; i++) out += String.fromCharCode(raw.charCodeAt(i) ^ SALT.charCodeAt(i % SALT.length));
       return out;
     } catch(e) { return ''; }
   }
   return {
     set: function(k, v) { try { localStorage.setItem('_u_' + enc(k), enc(JSON.stringify(v))); } catch(e){} },
     get: function(k) { try { var v = localStorage.getItem('_u_' + enc(k)); return v ? JSON.parse(dec(v)) : null; } catch(e){ return null; } },
-    del: function(k) { try { localStorage.removeItem('_u_' + enc(k)); } catch(e){} },
-    wipe: function() {
-      try {
-        Object.keys(localStorage).forEach(function(key) {
-          if (key.indexOf('_u_') === 0) localStorage.removeItem(key);
-        });
-      } catch(e){}
-    }
+    del: function(k) { try { localStorage.removeItem('_u_' + enc(k)); } catch(e){} }
   };
 })();
 
-/* ---- Tầng 4: HMAC verify cho keyData ---- */
+/* ---- HMAC verify ---- */
 var HMAC = (function() {
-  // Thay SECRET bằng secret thật, KHÔNG commit vào public repo.
-  // Lý tưởng: secret nằm native side, JS chỉ nhận HMAC qua bridge.
   var SECRET = 'NP-ULTRALOCK-2026-REPLACE-ME';
   function hash(str) {
-    // FNV-1a 64-bit-ish — đủ để verify toàn vẹn, KHÔNG phải crypto mạnh.
-    // Production: dùng native bridge gọi CryptoKit HMAC-SHA256.
     var h1 = 0x811c9dc5, h2 = 0x1000193;
     for (var i = 0; i < str.length; i++) {
       var c = str.charCodeAt(i);
@@ -279,48 +215,32 @@ var HMAC = (function() {
     return (h1.toString(16) + h2.toString(16));
   }
   return {
-    sign: function(payload) {
-      var canonical = '';
-      try {
-        canonical = JSON.stringify(payload, Object.keys(payload || {}).sort());
-      } catch(e) { canonical = String(payload); }
-      return hash(canonical + '|' + SECRET);
-    },
-    verify: function(payload, sig) {
-      return this.sign(payload) === sig;
-    }
+    sign: function(p) { try { return hash(JSON.stringify(p, Object.keys(p || {}).sort()) + '|' + SECRET); } catch(e) { return hash(String(p) + '|' + SECRET); } },
+    verify: function(p, sig) { return this.sign(p) === sig; }
   };
 })();
 
-/* ---- Tầng 5: anti-replay nonce cho native bridge ---- */
+/* ---- Bridge token ---- */
 var Bridge = (function() {
-  var secret = null;
-  var counter = 0;
+  var secret = null, counter = 0;
   function rotate() {
     counter = 0;
     try {
       var arr = new Uint32Array(4);
       (window.crypto || window.msCrypto).getRandomValues(arr);
       secret = Array.from(arr).map(function(x){ return x.toString(16); }).join('');
-    } catch(e) {
-      secret = String(Date.now()) + String(Math.random()).slice(2);
-    }
+    } catch(e) { secret = String(Date.now()) + String(Math.random()).slice(2); }
   }
   rotate();
   setInterval(rotate, 60000);
-
-  function token(action) {
-    counter++;
-    return HMAC.sign(action + ':' + secret + ':' + counter);
-  }
-
   return {
     call: function(action, data) {
       if (!secret) return false;
-      var payload = { action: action, data: data || {}, token: token(action), ts: Date.now() };
+      counter++;
+      var token = HMAC.sign(action + ':' + secret + ':' + counter);
       try {
         if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.secure) {
-          window.webkit.messageHandlers.secure.postMessage(payload);
+          window.webkit.messageHandlers.secure.postMessage({ action: action, data: data || {}, token: token, ts: Date.now() });
           return true;
         }
       } catch(e) {}
@@ -329,7 +249,6 @@ var Bridge = (function() {
   };
 })();
 
-/* ---- Cấu hình ---- */
 var FIREBASE_URL = "https://aimlock-key-default-rtdb.firebaseio.com";
 var PLATFORM = "ios";
 
@@ -338,9 +257,7 @@ function getIOSVersion() {
   return m ? parseInt(m[1]) : 0;
 }
 var iosVersion = getIOSVersion();
-var isBlocked = iosVersion === 27;
 
-/* ---- Device ID bind cứng ---- */
 var deviceId = SecureStore.get('did');
 if (!deviceId) {
   var raw = [];
@@ -348,22 +265,13 @@ if (!deviceId) {
     var arr = new Uint8Array(16);
     (window.crypto || window.msCrypto).getRandomValues(arr);
     raw = Array.from(arr).map(function(b){ return b.toString(16).padStart(2,'0'); });
-  } catch(e) {
-    raw = [String(Date.now()), String(Math.random()).slice(2)];
-  }
+  } catch(e) { raw = [String(Date.now()), String(Math.random()).slice(2)]; }
   deviceId = 'IOS-' + raw.join('').slice(0, 24);
   SecureStore.set('did', deviceId);
 }
 
-/* ---- State ---- */
-var currentKey = "";
-var keyData = null;
-var isLoggedIn = false;
-var checkInterval = null;
-var expiryInterval = null;
-var currentKeyType = 'free';
-var sessionNonce = null;
-var lastServerSig = null;
+var currentKey = "", keyData = null, isLoggedIn = false;
+var checkInterval = null, expiryInterval = null, currentKeyType = 'free', sessionNonce = null;
 
 function randomNonce() {
   try {
@@ -373,7 +281,6 @@ function randomNonce() {
   } catch(e) { return String(Date.now()) + String(Math.random()).slice(2); }
 }
 
-/* ---- Features ---- */
 var ALL_FEATURES = [
   { id:'sensivity', icon:'📱', name:'SENSITIVITY BOOSTER', desc:'Nhạy Màn Hình Tối Đa', level:'free', tag:'' },
   { id:'screen_booster', icon:'🖥️', name:'SCREEN BOOSTER', desc:'Buff FPS Siêu Mượt', level:'free', tag:'' },
@@ -392,7 +299,6 @@ var ALL_FEATURES = [
 var KEY_LEVELS = { free:{label:'FREE',class:'free',level:1}, thuong:{label:'THƯỜNG',class:'thuong',level:2}, vip:{label:'VIP',class:'vip',level:3} };
 var GROUP_NAMES = { free:'TÍNH NĂNG THƯỞNG BASIC', thuong:'TÍNH NĂNG CAO CẤP', vip:'TÍNH NĂNG THƯỢNG HẠNG' };
 
-/* ---- Toast ---- */
 function showToast(msg) {
   var t = document.getElementById('toast');
   t.textContent = msg;
@@ -401,26 +307,18 @@ function showToast(msg) {
   window._tt = setTimeout(function(){ t.classList.remove('active'); }, 2500);
 }
 
-/* ---- Firebase với signature verify ---- */
 async function fetchKeySecure(key) {
-  var url = FIREBASE_URL + "/keys/" + encodeURIComponent(key) + ".json";
-  var res = await fetch(url, {
-    method: 'GET',
-    cache: 'no-store',
-    headers: { 'Accept': 'application/json' }
+  var res = await fetch(FIREBASE_URL + "/keys/" + encodeURIComponent(key) + ".json", {
+    method: 'GET', cache: 'no-store', headers: { 'Accept': 'application/json' }
   });
   if (!res.ok) throw new Error('network');
   var data = await res.json();
   if (!data) return null;
-
-  // Nếu document có field `sig` → bắt buộc verify
   if (data.sig) {
     var payload = Object.assign({}, data);
     var sig = payload.sig;
     delete payload.sig;
-    if (!HMAC.verify(payload, sig)) {
-      throw new Error('signature');
-    }
+    if (!HMAC.verify(payload, sig)) throw new Error('signature');
   }
   return data;
 }
@@ -429,20 +327,12 @@ async function activateKey(key) {
   try {
     var data = await fetchKeySecure(key);
     if (!data) return { success:false, message:'Key không tồn tại!' };
-
-    if (isBlocked) {
-      document.getElementById('iosVersionWarning').classList.add('show');
-      return { success:false, message:'❌ iOS 27 không được hỗ trợ!' };
-    }
     if (data.platform && data.platform !== PLATFORM && data.platform !== 'both') {
       return { success:false, message:'❌ Key dành cho ' + data.platform.toUpperCase() + ', không dùng cho iOS!' };
     }
-    var now = Date.now();
-    if (data.expiry && data.expiry < now) {
+    if (data.expiry && data.expiry < Date.now()) {
       return { success:false, message:'Key đã hết hạn!', expired:true };
     }
-
-    // Server phải xác nhận device (khuyến nghị: Rules chặn client tự push)
     if (data.deviceLimit) {
       var devices = data.devices || [];
       if (devices.length >= data.deviceLimit && !devices.includes(deviceId)) {
@@ -451,11 +341,8 @@ async function activateKey(key) {
     }
     if (!data.devices || !data.devices.includes(deviceId)) {
       var updated = (data.devices || []).concat([deviceId]);
-      // Chỉ ghi được nếu Firebase Rules cho phép — nên làm qua Cloud Function
       await fetch(FIREBASE_URL + "/keys/" + encodeURIComponent(key) + "/devices.json", {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updated)
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated)
       });
       data.devices = updated;
     }
@@ -477,13 +364,11 @@ function getKeyLevel(kd) {
   return kd.type || (kd.vip ? 'vip' : kd.thuong ? 'thuong' : 'free');
 }
 
-/* ---- Render ---- */
 function renderFeatures(keyLevel) {
   var container = document.getElementById('featureContainer');
   var levelNum = (KEY_LEVELS[keyLevel] || KEY_LEVELS.free).level;
   var groups = {};
   ALL_FEATURES.forEach(function(f){ (groups[f.level] = groups[f.level] || []).push(f); });
-
   var html = '';
   ['free','thuong','vip'].forEach(function(level) {
     if (!groups[level]) return;
@@ -508,27 +393,19 @@ function updateVipStats(keyLevel) {
   document.getElementById('activePatches').textContent = activeCount + '/' + total;
 }
 
-/* ---- Periodic check ---- */
 async function checkKeyPeriodic() {
   if (!isLoggedIn || !currentKey) return;
   var result = await activateKey(currentKey);
   if (!result.success) { showToast(result.message); handleLogout(); }
 }
 
-/* ---- Login ---- */
 async function handleLogin() {
   if (!_integrityOK) return;
   var key = document.getElementById('keyInput').value.trim();
   if (!key) { showToast('Nhập key iOS!'); return; }
-  if (isBlocked) {
-    document.getElementById('iosVersionWarning').classList.add('show');
-    showToast('❌ iOS 27 không được hỗ trợ!');
-    return;
-  }
   var msg = document.getElementById('loginMessage');
   msg.textContent = '⏳ Đang kiểm tra...';
   msg.className = 'message';
-
   var result = await activateKey(key);
   if (!result.success) {
     msg.textContent = '❌ ' + result.message;
@@ -536,20 +413,15 @@ async function handleLogin() {
     showToast('❌ ' + result.message);
     return;
   }
-  currentKey = key;
-  keyData = result.data;
-  isLoggedIn = true;
+  currentKey = key; keyData = result.data; isLoggedIn = true;
   sessionNonce = randomNonce();
   SecureStore.set('key', key);
-
   var keyLevel = getKeyLevel(keyData);
   currentKeyType = keyLevel;
-
   document.getElementById('loginGate').style.display = 'none';
   document.getElementById('appMain').style.display = 'block';
   document.getElementById('keyDisplay').textContent = key.substring(0,8) + '...';
   document.getElementById('iosVersionDisplay').textContent = iosVersion || 'Không xác định';
-
   if (keyData.expiry) {
     var days = getDaysLeft(keyData.expiry);
     document.getElementById('expiryDisplay').textContent = days;
@@ -564,15 +436,12 @@ async function handleLogin() {
   var info = KEY_LEVELS[keyLevel] || KEY_LEVELS.free;
   badge.textContent = info.label;
   badge.className = 'type-badge ' + info.class;
-
   var devices = keyData.devices || [];
   document.getElementById('deviceCountDisplay').textContent = devices.length + '/' + (keyData.deviceLimit || '∞');
-
   msg.textContent = '✅ Đăng nhập thành công!';
   msg.className = 'message ok';
   showToast('✅ Đăng nhập thành công!');
   renderFeatures(keyLevel);
-
   if (expiryInterval) clearInterval(expiryInterval);
   if (keyData.expiry) {
     expiryInterval = setInterval(function() {
@@ -588,10 +457,7 @@ async function handleLogin() {
 
 function handleLogout() {
   SecureStore.del('key');
-  isLoggedIn = false;
-  currentKey = "";
-  keyData = null;
-  sessionNonce = null;
+  isLoggedIn = false; currentKey = ""; keyData = null; sessionNonce = null;
   if (checkInterval) clearInterval(checkInterval);
   if (expiryInterval) clearInterval(expiryInterval);
   document.getElementById('loginGate').style.display = 'grid';
@@ -601,14 +467,10 @@ function handleLogout() {
   showToast('🚪 Đã đăng xuất');
 }
 
-/* ---- Open game qua bridge có token ---- */
 function openGame(version) {
   var schemes = { freefire:'freefireth://', freefiremax:'freefiremax://' };
   var scheme = schemes[version] || schemes.freefire;
-  if (Bridge.call('openGame', { version: version, scheme: scheme, nonce: sessionNonce })) {
-    return;
-  }
-  // Fallback
+  if (Bridge.call('openGame', { version: version, scheme: scheme, nonce: sessionNonce })) return;
   var iframe = document.createElement('iframe');
   iframe.style.display = 'none';
   iframe.src = scheme;
@@ -640,19 +502,11 @@ function activateAndOpen() {
   }
 }
 
-/* ---- DOM ---- */
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('iosVersionDisplay').textContent = iosVersion || 'Không xác định';
-  if (isBlocked) {
-    document.getElementById('iosVersionWarning').classList.add('show');
-    var b = document.getElementById('loginBtnFull');
-    b.style.opacity = '0.4'; b.disabled = true;
-    document.getElementById('keyInput').disabled = true;
-    showToast('⚠️ iOS 27 không được hỗ trợ!');
-  }
 
   var savedKey = SecureStore.get('key');
-  if (savedKey && !isBlocked) {
+  if (savedKey) {
     activateKey(savedKey).then(function(result) {
       if (result.success) {
         currentKey = savedKey; keyData = result.data; isLoggedIn = true;
@@ -705,7 +559,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   document.getElementById('activateBtn').addEventListener('click', activateAndOpen);
 
-  // Delegate switch — nhưng dùng Bridge có token
   document.addEventListener('click', function(e) {
     var sw = e.target.closest('.switch:not(.locked)');
     if (!sw || !_integrityOK) return;
@@ -721,18 +574,13 @@ document.addEventListener('DOMContentLoaded', function() {
     updateVipStats(currentKeyType);
   });
 
-  // Bottom nav "Cài đặt" → logout confirm qua bridge
   document.getElementById('settingsNav').addEventListener('click', function() {
     if (confirm('Đăng xuất?')) handleLogout();
   });
 
-  // Memory wipe khi ẩn tab
   document.addEventListener('visibilitychange', function() {
-    if (document.hidden) {
-      sessionNonce = null;
-    } else if (isLoggedIn) {
-      sessionNonce = randomNonce();
-    }
+    if (document.hidden) { sessionNonce = null; }
+    else if (isLoggedIn) { sessionNonce = randomNonce(); }
   });
 });
 </script>
