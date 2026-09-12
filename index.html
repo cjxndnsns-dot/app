@@ -1,31 +1,42 @@
-<!-- language: HTML/JS, file: index.html, target: browser, Firebase RTDB -->
+<!-- language: HTML/JS, file: index.html, target: browser + deep link -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>SENSI ULTRALOCK — CHECK KEY</title>
+<title>SENSI ULTRALOCK — KÍCH HOẠT KEY</title>
 <style>
-  *{box-sizing:border-box}
-  html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#040404;color:#fff;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
-  body{background:radial-gradient(circle at 50% -18%,rgba(255,210,0,.12),transparent 36%),linear-gradient(180deg,#090909 0%,#020202 100%);display:grid;place-items:center;padding:18px}
-  .card{width:min(440px,92vw);padding:28px;border:1px solid rgba(255,255,255,.10);border-radius:32px;background:rgba(10,10,10,.88);box-shadow:0 26px 70px rgba(0,0,0,.62);text-align:center}
-  .logo{width:180px;height:180px;object-fit:contain;border-radius:22px;filter:drop-shadow(0 0 22px rgba(255,211,0,.30))}
-  h1{font-size:34px;letter-spacing:.9px;margin:10px 0}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#050505;color:#fff;-webkit-tap-highlight-color:transparent}
+  body{background:radial-gradient(circle at 50% 0%,rgba(250,204,21,.10),transparent 40%),linear-gradient(180deg,#0a0a0a,#020202);display:grid;place-items:center;padding:20px}
+
+  .card{width:min(420px,94vw);padding:32px 26px;border:1px solid rgba(255,255,255,.08);border-radius:26px;background:rgba(12,12,12,.9);box-shadow:0 24px 60px rgba(0,0,0,.6);text-align:center}
+  .logo{width:96px;height:96px;object-fit:contain;border-radius:20px;margin:0 auto 16px;display:block;filter:drop-shadow(0 0 18px rgba(250,204,21,.35))}
+  h1{font-size:24px;font-weight:950;letter-spacing:1.5px;margin-bottom:6px}
   h1 span{color:#facc15}
-  .byline{color:#facc15;font-weight:900;letter-spacing:1px;margin-bottom:18px}
-  .platform-badge{background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);padding:5px 16px;border-radius:999px;font-size:13px;font-weight:900;display:inline-block;margin-bottom:12px}
-  .input-row{height:60px;display:grid;grid-template-columns:36px 1fr;gap:6px;align-items:center;border:1px solid rgba(255,255,255,.14);background:rgba(18,18,18,.92);border-radius:20px;padding:0 15px;margin:8px 0}
-  .input-row input{width:100%;height:100%;border:0;background:transparent;color:#fff;font-size:18px;outline:none;-webkit-appearance:none}
-  .btn{width:100%;height:60px;margin-top:15px;border:0;border-radius:20px;color:#0b0b0b;font-size:19px;font-weight:950;background:linear-gradient(135deg,#ffe55a,#f4b400);cursor:pointer;-webkit-tap-highlight-color:transparent}
-  .btn:disabled{opacity:.4;cursor:not-allowed}
-  .msg{min-height:24px;margin:10px 0;text-align:center;font-size:14px}
-  .msg.err{color:#fecaca}
-  .msg.ok{color:#bbf7d0}
+  .sub{color:#9ca3af;font-size:13px;font-weight:700;margin-bottom:24px}
+
+  .input-wrap{margin-bottom:14px}
+  .input-wrap input{width:100%;height:54px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:rgba(20,20,20,.9);color:#fff;font-size:16px;padding:0 16px;outline:none;font-family:inherit;-webkit-appearance:none}
+  .input-wrap input:focus{border-color:rgba(250,204,21,.5)}
+  .input-wrap input::placeholder{color:#5a5a5a}
+
+  .btn{width:100%;height:54px;border:0;border-radius:14px;color:#0b0b0b;font-size:17px;font-weight:950;letter-spacing:.5px;background:linear-gradient(135deg,#ffe55a,#f4b400);cursor:pointer;font-family:inherit;transition:.2s}
+  .btn:active{transform:scale(.98)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+
+  .msg{min-height:20px;margin:12px 0 0;font-size:13px;font-weight:800;text-align:center}
+  .msg.err{color:#fca5a5}
+  .msg.ok{color:#86efac}
   .msg.load{color:#facc15}
-  .toast{position:fixed;left:50%;bottom:40px;z-index:90;transform:translate(-50%,20px);opacity:0;padding:12px 16px;border-radius:999px;background:rgba(18,18,18,.96);color:#e5e7eb;border:1px solid rgba(250,204,21,.20);transition:.25s;white-space:nowrap;pointer-events:none}
+
+  .footer{margin-top:24px;padding-top:18px;border-top:1px solid rgba(255,255,255,.06);font-size:13px;color:#9ca3af;font-weight:700}
+  .footer a{color:#facc15;text-decoration:none;font-weight:950}
+
+  .toast{position:fixed;left:50%;bottom:34px;transform:translate(-50%,20px);opacity:0;padding:11px 18px;border-radius:999px;background:rgba(18,18,18,.96);color:#e5e7eb;border:1px solid rgba(250,204,21,.2);font-size:13px;font-weight:800;transition:.25s;pointer-events:none;white-space:nowrap}
   .toast.active{opacity:1;transform:translate(-50%,0)}
-  @media(max-width:430px){.logo{width:140px;height:140px}h1{font-size:28px}.card{padding:18px}}
+
+  @media(max-width:430px){.card{padding:26px 20px}.logo{width:80px;height:80px}h1{font-size:20px}}
 </style>
 </head>
 <body>
@@ -33,20 +44,17 @@
 <div class="card">
   <img class="logo" src="https://i.postimg.cc/pLj6h1mL/logo.png" alt="SENSI ULTRALOCK">
   <h1>SENSI <span>ULTRALOCK</span></h1>
-  <div class="byline">VIP EDITION</div>
-  <div class="platform-badge">🍎 iOS</div>
+  <div class="sub">Nhập key để sử dụng SENSI ULTRALOCK</div>
 
-  <div class="input-row">
-    <span style="font-size:20px;color:#facc15;">⌨</span>
+  <div class="input-wrap">
     <input type="text" id="keyInput" placeholder="Nhập key iOS..." autocomplete="off" spellcheck="false">
   </div>
 
+  <button class="btn" id="checkBtn">KÍCH HOẠT</button>
   <div class="msg" id="msg"></div>
-  <button class="btn" id="loginBtn">CHECK KEY</button>
 
-  <div style="margin-top:15px;font-size:13px;color:#9ca3af;">
-    Liên hệ: <span style="color:#facc15;font-weight:900;cursor:pointer;"
-    onclick="window.open('https://zalo.me/976457016','_blank')">0976457016</span>
+  <div class="footer">
+    Chưa có key? Liên hệ <a href="https://zalo.me/976457016" target="_blank">Zalo</a>
   </div>
 </div>
 
@@ -58,151 +66,167 @@
 // ============================================================
 var FIREBASE_URL = "https://aimlock-key-default-rtdb.firebaseio.com";
 var PLATFORM     = "ios";
-var REDIRECT_URL = "https://your-main-app-url.example/script.html"; // <<< đổi thành web có script
+
+// Scheme app SENSI ULTRALOCK. Đổi thành scheme thật của app chief.
+// App native của chief phải đăng ký scheme này trong Info.plist (CFBundleURLSchemes).
+var APP_SCHEME   = "sensiultralock://";
+
+// Fallback khi app chưa cài trên máy
+var FALLBACK_URL = "https://zalo.me/976457016";
 
 // ============================================================
-// DEVICE ID — cố định theo máy
+// DEVICE ID
 // ============================================================
-var deviceId = localStorage.getItem("HEADLOCK_DEVICE_ID");
+var deviceId = localStorage.getItem("SENSI_DEVICE_ID");
 if (!deviceId) {
-  deviceId = "IOS-" + Date.now() + "-" + Math.random().toString(36).substr(2, 6);
-  localStorage.setItem("HEADLOCK_DEVICE_ID", deviceId);
+  deviceId = "IOS-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+  localStorage.setItem("SENSI_DEVICE_ID", deviceId);
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function toast(m) {
+  var t = document.getElementById('toast');
+  t.textContent = m;
+  t.classList.add('active');
+  clearTimeout(window._tt);
+  window._tt = setTimeout(function(){ t.classList.remove('active'); }, 2400);
 }
 
 // ============================================================
 // iOS VERSION GUARD
 // ============================================================
-function getIOSVersion() {
-  var m = navigator.userAgent.match(/OS (\d+)_(\d+)/);
+function iosVer() {
+  var m = navigator.userAgent.match(/OS (\d+)_/);
   return m ? parseInt(m[1]) : 0;
 }
-var iosVersion = getIOSVersion();
-var isBlocked  = iosVersion === 27;
+var blocked = iosVer() === 27;
 
 // ============================================================
-// TOAST
+// VALIDATE KEY
 // ============================================================
-function showToast(m) {
-  var t = document.getElementById('toast');
-  t.textContent = m;
-  t.classList.add('active');
-  clearTimeout(window._tt);
-  window._tt = setTimeout(function(){ t.classList.remove('active'); }, 2500);
-}
-
-// ============================================================
-// KEY VALIDATION (mirror logic app chính)
-// ============================================================
-async function validateKey(key) {
+async function checkKey(key) {
   try {
     var res = await fetch(FIREBASE_URL + "/keys/" + encodeURIComponent(key) + ".json");
-    if (!res.ok) return { success: false, message: "Lỗi kết nối Firebase!" };
+    if (!res.ok) return { ok: false, msg: "Lỗi kết nối!" };
     var data = await res.json();
-    if (!data) return { success: false, message: "Key không tồn tại!" };
+    if (!data) return { ok: false, msg: "Key không tồn tại!" };
 
-    if (isBlocked) return { success: false, message: "iOS 27 không được hỗ trợ!" };
+    if (blocked) return { ok: false, msg: "iOS 27 không được hỗ trợ!" };
 
-    if (data.platform && data.platform !== PLATFORM && data.platform !== 'both') {
-      return { success: false, message: "Key dành cho " + String(data.platform).toUpperCase() + ", không dùng cho iOS!" };
+    if (data.platform && data.platform !== PLATFORM && data.platform !== "both") {
+      return { ok: false, msg: "Key dành cho " + String(data.platform).toUpperCase() + "!" };
     }
 
-    var now = Date.now();
-    if (data.expiry && data.expiry < now) {
-      return { success: false, message: "Key đã hết hạn!", expired: true };
+    if (data.expiry && data.expiry < Date.now()) {
+      return { ok: false, msg: "Key đã hết hạn!" };
     }
 
-    if (data.deviceLimit) {
-      var devices = data.devices || [];
-      if (devices.length >= data.deviceLimit && devices.indexOf(deviceId) === -1) {
-        return { success: false, message: "Giới hạn thiết bị đã đạt!" };
-      }
+    var devices = data.devices || [];
+    if (data.deviceLimit && devices.length >= data.deviceLimit && devices.indexOf(deviceId) === -1) {
+      return { ok: false, msg: "Giới hạn thiết bị!" };
     }
 
-    // bind device nếu chưa có
-    var list = data.devices || [];
-    if (list.indexOf(deviceId) === -1) {
-      list.push(deviceId);
+    if (devices.indexOf(deviceId) === -1) {
+      devices.push(deviceId);
       await fetch(FIREBASE_URL + "/keys/" + encodeURIComponent(key) + "/devices.json", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(list)
+        body: JSON.stringify(devices)
       });
-      data.devices = list;
+      data.devices = devices;
     }
 
-    return { success: true, data: data };
+    return { ok: true, data: data };
   } catch (e) {
-    return { success: false, message: "Không kết nối được Firebase!" };
+    return { ok: false, msg: "Không kết nối được server!" };
   }
 }
 
 // ============================================================
-// HANDLE LOGIN → REDIRECT
+// OPEN SENSI ULTRALOCK — deep link với fallback
 // ============================================================
-async function handleCheck() {
+function openSensiApp(key) {
+  // truyền key vào scheme để app native nhận qua openURL
+  var url = APP_SCHEME + (APP_SCHEME.indexOf('?') === -1 ? '?' : '&')
+          + "key=" + encodeURIComponent(key);
+
+  var t0 = Date.now();
+
+  // iOS Safari: iframe + location.href combo là cách bền nhất
+  var iframe = document.createElement('iframe');
+  iframe.style.display = 'none';
+  iframe.src = url;
+  document.body.appendChild(iframe);
+  window.location.href = url;
+
+  // nếu sau 1.5s vẫn còn trên trang → app chưa cài, đẩy fallback
+  setTimeout(function () {
+    if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+    if (Date.now() - t0 < 2200 && !document.hidden && FALLBACK_URL) {
+      window.location.href = FALLBACK_URL;
+    }
+  }, 1500);
+}
+
+// ============================================================
+// HANDLE
+// ============================================================
+async function handleActivate() {
   var input = document.getElementById('keyInput');
-  var key   = input.value.trim();
   var msg   = document.getElementById('msg');
-  var btn   = document.getElementById('loginBtn');
+  var btn   = document.getElementById('checkBtn');
+  var key   = input.value.trim();
 
-  if (!key) { showToast("Nhập key iOS!"); return; }
+  if (!key) { toast("Nhập key!"); return; }
 
-  if (isBlocked) {
-    msg.textContent = "❌ iOS 27 không được hỗ trợ!";
+  if (blocked) {
+    msg.textContent = "iOS 27 không được hỗ trợ!";
     msg.className = "msg err";
-    showToast("❌ iOS 27 không được hỗ trợ!");
+    toast("iOS 27 không được hỗ trợ!");
     return;
   }
 
-  msg.textContent = "⏳ Đang kiểm tra key...";
+  msg.textContent = "Đang kiểm tra...";
   msg.className = "msg load";
   btn.disabled = true;
 
-  var result = await validateKey(key);
+  var r = await checkKey(key);
 
-  if (!result.success) {
-    msg.textContent = "❌ " + result.message;
+  if (!r.ok) {
+    msg.textContent = r.msg;
     msg.className = "msg err";
-    showToast("❌ " + result.message);
+    toast(r.msg);
     btn.disabled = false;
-    // Ở LẠI — không chuyển hướng
-    return;
+    return; // Ở LẠI
   }
 
-  // HỢP LỆ → lưu key rồi redirect sang web script
-  localStorage.setItem("HEADLOCK_KEY", key);
-  localStorage.setItem("HEADLOCK_KEYDATA", JSON.stringify(result.data));
+  // HỢP LỆ → lưu key rồi mở app
+  localStorage.setItem("SENSI_KEY", key);
+  localStorage.setItem("SENSI_KEYDATA", JSON.stringify(r.data));
 
-  msg.textContent = "✅ Key hợp lệ! Đang chuyển hướng...";
+  msg.textContent = "Key hợp lệ! Đang mở SENSI ULTRALOCK...";
   msg.className = "msg ok";
-  showToast("✅ Key hợp lệ! Đang mở app...");
+  toast("Key hợp lệ!");
 
-  setTimeout(function () {
-    // giữ nguyên key qua query string để app đích khỏi fetch lại
-    var url = REDIRECT_URL + (REDIRECT_URL.indexOf('?') === -1 ? '?' : '&')
-            + "key=" + encodeURIComponent(key);
-    window.location.href = url;
-  }, 800);
+  setTimeout(function () { openSensiApp(key); }, 600);
 }
 
 // ============================================================
 // EVENTS
 // ============================================================
 document.addEventListener('DOMContentLoaded', function () {
-  var btn = document.getElementById('loginBtn');
-  var inp = document.getElementById('keyInput');
-
-  btn.addEventListener('click', handleCheck);
-  inp.addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') handleCheck();
+  document.getElementById('checkBtn').addEventListener('click', handleActivate);
+  document.getElementById('keyInput').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') handleActivate();
   });
 
-  if (isBlocked) {
-    btn.disabled = true;
-    inp.disabled = true;
-    document.getElementById('msg').textContent = "⚠️ iOS 27 không được hỗ trợ!";
+  if (blocked) {
+    document.getElementById('checkBtn').disabled = true;
+    document.getElementById('keyInput').disabled = true;
+    document.getElementById('msg').textContent = "iOS 27 không được hỗ trợ!";
     document.getElementById('msg').className = "msg err";
-    showToast("⚠️ iOS 27 không được hỗ trợ!");
   }
 });
 </script>
