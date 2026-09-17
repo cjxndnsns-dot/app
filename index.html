@@ -1,587 +1,787 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy"
-      content="default-src 'none';
-               script-src 'unsafe-inline';
-               style-src 'unsafe-inline';
-               img-src https://i.postimg.cc data:;
-               connect-src https://aimlock-key-default-rtdb.firebaseio.com;
-               frame-src 'none';
-               object-src 'none';
-               base-uri 'none';
-               form-action 'none';
-               frame-ancestors 'none';">
-<title>SENSI ULTRALOCK</title>
-<style>
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#040404;color:#fff;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
-body{background:radial-gradient(circle at 50% -18%,rgba(255,210,0,.12),transparent 36%),linear-gradient(180deg,#090909 0%,#020202 100%)}
-button,input{font-family:inherit;-webkit-appearance:none;appearance:none}
-.gate{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:18px;background:rgba(0,0,0,.52);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.gate-card{width:min(440px,92vw);padding:28px;border:1px solid rgba(255,255,255,.10);border-radius:32px;background:rgba(10,10,10,.88);box-shadow:0 26px 70px rgba(0,0,0,.62);text-align:center}
-.brand-logo img{width:180px;height:180px;object-fit:contain;border-radius:22px;filter:drop-shadow(0 0 22px rgba(255,211,0,.30))}
-.gate h1{font-size:38px;letter-spacing:.9px;margin:10px 0}
-.gate h1 span{color:#facc15}
-.byline{color:#facc15;font-weight:900;letter-spacing:1px;margin-bottom:20px}
-.platform-badge{background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3);padding:5px 16px;border-radius:999px;font-size:13px;font-weight:900;display:inline-block;margin-bottom:10px}
-.input-row{height:60px;display:grid;grid-template-columns:36px 1fr;gap:6px;align-items:center;border:1px solid rgba(255,255,255,.14);background:rgba(18,18,18,.92);border-radius:20px;padding:0 15px;margin:8px 0}
-.input-row input{width:100%;height:100%;border:0;background:transparent;color:#fff;font-size:18px;outline:none}
-.primary-btn{width:100%;height:60px;margin-top:15px;border:0;border-radius:20px;color:#0b0b0b;font-size:19px;font-weight:950;background:linear-gradient(135deg,#ffe55a,#f4b400);cursor:pointer}
-#keyExpiryDisplay{color:#facc15;font-size:16px;font-weight:900;padding:10px;border-radius:12px;background:rgba(250,204,21,.1);border:1px solid rgba(250,204,21,.2);margin:10px 0}
-.message{min-height:24px;margin:10px 0;text-align:center;font-size:14px}
-.message.err{color:#fecaca}.message.ok{color:#bbf7d0}
-.toast{position:fixed;left:50%;bottom:92px;z-index:90;transform:translate(-50%,20px);opacity:0;padding:12px 16px;border-radius:999px;background:rgba(18,18,18,.96);color:#e5e7eb;border:1px solid rgba(250,204,21,.20);transition:.25s;white-space:nowrap;pointer-events:none}
-.toast.active{opacity:1;transform:translate(-50%,0)}
-.app{max-width:520px;margin:0 auto;padding:16px 14px 90px;min-height:100vh;display:none}
-.topbar{display:flex;justify-content:space-between;align-items:center;padding:10px 0}
-.topbar h2{font-size:22px;margin:0}.topbar h2 span{color:#facc15}
-.topbar .badge{color:#7ee34b;font-weight:900;font-size:13px;display:flex;align-items:center;gap:6px}
-.topbar .badge i{width:8px;height:8px;background:#7ee34b;border-radius:50%;display:inline-block}
-.admin-banner{background:linear-gradient(135deg,rgba(250,204,21,.12),rgba(20,20,20,.95));border-radius:16px;padding:14px 16px;border:1px solid rgba(250,204,21,.2);margin:10px 0;display:flex;align-items:center;gap:12px}
-.admin-avatar{width:44px;height:44px;border-radius:50%;border:2px solid #facc15;object-fit:cover;flex-shrink:0}
-.admin-info{flex:1}.admin-name{color:#facc15;font-weight:950;font-size:14px}
-.admin-msg{color:#9ca3af;font-size:12px;line-height:1.4}
-.admin-version{color:#60a5fa;font-weight:900;font-size:13px;background:rgba(59,130,246,.15);padding:2px 10px;border-radius:999px;border:1px solid rgba(59,130,246,.2)}
-.key-info{background:linear-gradient(135deg,rgba(16,16,16,.95),rgba(30,30,30,.9));border-radius:20px;padding:18px 20px;border:1px solid rgba(250,204,21,.25);margin:10px 0}
-.key-info .row{display:flex;justify-content:space-between;align-items:center;padding:6px 0}
-.key-info .label{color:#9ca3af;font-size:14px;font-weight:800}
-.key-info .value{color:#facc15;font-weight:950;font-size:16px}
-.type-badge{padding:5px 16px;border-radius:999px;font-size:12px;font-weight:950}
-.type-badge.free{background:rgba(34,197,94,.2);color:#4ade80;border:1px solid rgba(34,197,94,.3)}
-.type-badge.thuong{background:rgba(59,130,246,.2);color:#60a5fa;border:1px solid rgba(59,130,246,.3)}
-.type-badge.vip{background:rgba(250,204,21,.25);color:#facc15;border:1px solid rgba(250,204,21,.4)}
-.vip-card{background:linear-gradient(135deg,rgba(250,204,21,.08),rgba(20,20,20,.95));border-radius:20px;padding:18px 20px;border:1px solid rgba(250,204,21,.2);margin:12px 0;text-align:center}
-.vip-card .vip-title{font-size:22px;font-weight:950;color:#facc15;letter-spacing:2px}
-.vip-card .vip-sub{color:#9ca3af;font-size:13px;font-weight:800;margin:4px 0 12px}
-.vip-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
-.stat-item{background:rgba(255,255,255,.04);border-radius:14px;padding:12px;border:1px solid rgba(255,255,255,.06)}
-.stat-item .num{font-size:24px;font-weight:950;color:#facc15}
-.stat-item .lbl{font-size:11px;color:#9ca3af;font-weight:800;margin-top:4px}
-.feature-group{background:rgba(16,16,16,.86);border-radius:18px;border:1px solid rgba(255,255,255,.08);margin:10px 0;overflow:hidden}
-.group-header{padding:12px 18px;background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.07);font-weight:950;font-size:15px;display:flex;justify-content:space-between;align-items:center}
-.feature-item{display:grid;grid-template-columns:44px 1fr 50px;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04);gap:10px}
-.feature-item:last-child{border-bottom:0}
-.feature-item .icon{font-size:22px;text-align:center}
-.feature-item .info b{display:block;font-size:15px;font-weight:950}
-.feature-item .info small{color:#9ca3af;font-size:11px;font-weight:800}
-.vip-tag{color:#facc15;font-size:10px;font-weight:950;margin-left:6px;background:rgba(250,204,21,.15);padding:1px 8px;border-radius:999px}
-.switch{width:44px;height:26px;border-radius:999px;background:#343434;position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
-.switch:before{content:"";width:20px;height:20px;border-radius:50%;background:#f5f5f5;position:absolute;top:3px;left:3px;transition:.2s}
-.switch.active{background:linear-gradient(135deg,#ffe55a,#f4b400)}
-.switch.active:before{left:21px}
-.switch.locked{opacity:.3;cursor:not-allowed;background:#2a2a2a}
-.switch.locked:before{background:#666}
-.ff-selector{display:none;gap:10px;margin:12px 0;padding:14px;background:rgba(16,16,16,.86);border-radius:16px;border:1px solid rgba(255,255,255,.08)}
-.ff-selector.show{display:flex}
-.ff-btn{flex:1;padding:14px;border-radius:14px;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;font-weight:900;cursor:pointer;transition:.2s;font-size:14px}
-.ff-btn.active{border-color:#facc15;background:rgba(250,204,21,.15)}
-.activate-btn{width:100%;padding:16px;border:0;border-radius:16px;background:linear-gradient(135deg,#facc15,#f4b400);color:#0b0b0b;font-weight:950;font-size:17px;cursor:pointer;margin:10px 0}
-.bottom-nav{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);width:min(500px,94vw);height:64px;border:1px solid rgba(255,255,255,.09);background:rgba(18,18,18,.94);backdrop-filter:blur(14px);border-radius:20px;display:grid;grid-template-columns:1fr 1fr 1fr;z-index:30}
-.bottom-nav button{border:0;background:transparent;color:#8b949e;font-size:20px;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer}
-.bottom-nav span{font-size:11px}.bottom-nav .active{color:#facc15}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SENSI ULTRALOCK - Pink Light</title>
+    <style>
+        *{box-sizing:border-box}
+        html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#fff5f7;color:#3a2a2e;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+        body{background:radial-gradient(circle at 50% -18%,rgba(255,182,193,.18),transparent 40%),linear-gradient(180deg,#fff0f3 0%,#ffe4e9 100%)}
+        button,input,select{font-family:inherit;-webkit-appearance:none;appearance:none}
+
+        .gate{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:18px;background:rgba(255,240,245,.75);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+        .gate-card{width:min(440px,92vw);padding:28px;border:1px solid rgba(255,182,193,.5);border-radius:32px;background:rgba(255,255,255,.92);box-shadow:0 26px 70px rgba(255,150,170,.18);text-align:center}
+        .brand-logo img{width:180px;height:180px;object-fit:contain;border-radius:22px;filter:drop-shadow(0 0 22px rgba(255,150,170,.35))}
+        .gate h1{font-size:38px;letter-spacing:.9px;margin:10px 0;color:#3a2a2e}.gate h1 span{color:#ff7a9e}
+        .byline{color:#ff7a9e;font-weight:900;letter-spacing:1px;margin-bottom:20px}
+        .platform-badge{background:rgba(255,122,158,.15);color:#ff7a9e;border:1px solid rgba(255,122,158,.3);padding:5px 16px;border-radius:999px;font-size:13px;font-weight:900;display:inline-block;margin-bottom:10px}
+        .ios-version-warning{background:rgba(255,90,90,.12);border:1px solid rgba(255,90,90,.3);border-radius:12px;padding:12px;margin:10px 0;display:none;color:#d94a4a;font-size:13px;font-weight:800}
+        .ios-version-warning.show{display:block}
+        .input-row{height:60px;display:grid;grid-template-columns:36px 1fr;gap:6px;align-items:center;border:1px solid rgba(255,182,193,.6);background:rgba(255,255,255,.95);border-radius:20px;padding:0 15px;margin:8px 0}
+        .input-row input{width:100%;height:100%;border:0;background:transparent;color:#3a2a2e;font-size:18px;outline:none;-webkit-appearance:none}
+        .primary-btn{width:100%;height:60px;margin-top:15px;border:0;border-radius:20px;color:#fff;font-size:19px;font-weight:950;background:linear-gradient(135deg,#ffb6c1,#ff7a9e);cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 8px 24px rgba(255,122,158,.3)}
+        #keyExpiryDisplay{color:#ff7a9e;font-size:16px;font-weight:900;padding:10px;border-radius:12px;background:rgba(255,182,193,.2);border:1px solid rgba(255,182,193,.4);margin:10px 0}
+        .message{min-height:24px;margin:10px 0;text-align:center;font-size:14px}.message.err{color:#d94a4a}.message.ok{color:#3aa76d}
+        .toast{position:fixed;left:50%;bottom:92px;z-index:90;transform:translate(-50%,20px);opacity:0;padding:12px 16px;border-radius:999px;background:rgba(255,255,255,.98);color:#3a2a2e;border:1px solid rgba(255,182,193,.6);transition:.25s;white-space:nowrap;pointer-events:none;box-shadow:0 8px 24px rgba(255,150,170,.15)}
+        .toast.active{opacity:1;transform:translate(-50%,0)}
+
+        .app{max-width:520px;margin:0 auto;padding:16px 14px 90px;min-height:100vh;display:none}
+        .topbar{display:flex;justify-content:space-between;align-items:center;padding:10px 0}
+        .topbar h2{font-size:22px;margin:0;color:#3a2a2e}.topbar h2 span{color:#ff7a9e}
+        .topbar .badge{color:#3aa76d;font-weight:900;font-size:13px;display:flex;align-items:center;gap:6px}
+        .topbar .badge i{width:8px;height:8px;background:#3aa76d;border-radius:50%;display:inline-block}
+
+        .admin-banner{background:linear-gradient(135deg,rgba(255,182,193,.2),rgba(255,255,255,.95));border-radius:16px;padding:14px 16px;border:1px solid rgba(255,182,193,.5);margin:10px 0;display:flex;align-items:center;gap:12px}
+        .admin-banner .admin-avatar{width:44px;height:44px;border-radius:50%;border:2px solid #ff7a9e;object-fit:cover;flex-shrink:0}
+        .admin-banner .admin-info{flex:1}
+        .admin-banner .admin-name{color:#ff7a9e;font-weight:950;font-size:14px}
+        .admin-banner .admin-msg{color:#8a7a7e;font-size:12px;line-height:1.4}
+        .admin-banner .admin-version{color:#ff7a9e;font-weight:900;font-size:13px;background:rgba(255,182,193,.2);padding:2px 10px;border-radius:999px;border:1px solid rgba(255,182,193,.4)}
+
+        .key-info{background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(255,240,245,.95));border-radius:20px;padding:18px 20px;border:1px solid rgba(255,182,193,.5);margin:10px 0;box-shadow:0 4px 16px rgba(255,150,170,.08)}
+        .key-info .row{display:flex;justify-content:space-between;align-items:center;padding:6px 0}
+        .key-info .label{color:#8a7a7e;font-size:14px;font-weight:800}
+        .key-info .value{color:#ff7a9e;font-weight:950;font-size:16px}
+        .key-info .type-badge{padding:5px 16px;border-radius:999px;font-size:12px;font-weight:950}
+        .type-badge.basic{background:rgba(255,182,193,.3);color:#ff7a9e;border:1px solid rgba(255,182,193,.6)}
+        .type-badge.vip{background:rgba(255,122,158,.2);color:#e0557a;border:1px solid rgba(255,122,158,.5)}
+
+        .vip-card{background:linear-gradient(135deg,rgba(255,182,193,.15),rgba(255,255,255,.95));border-radius:20px;padding:18px 20px;border:1px solid rgba(255,182,193,.5);margin:12px 0;text-align:center;box-shadow:0 4px 16px rgba(255,150,170,.08)}
+        .vip-card .vip-title{font-size:22px;font-weight:950;color:#ff7a9e;letter-spacing:2px}
+        .vip-card .vip-sub{color:#8a7a7e;font-size:13px;font-weight:800;margin:4px 0 12px}
+        .vip-card .vip-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+        .vip-card .stat-item{background:rgba(255,240,245,.8);border-radius:14px;padding:12px;border:1px solid rgba(255,182,193,.4)}
+        .vip-card .stat-item .num{font-size:24px;font-weight:950;color:#ff7a9e}
+        .vip-card .stat-item .lbl{font-size:11px;color:#8a7a7e;font-weight:800;margin-top:4px}
+
+        .feature-group{background:rgba(255,255,255,.92);border-radius:18px;border:1px solid rgba(255,182,193,.4);margin:10px 0;overflow:hidden;box-shadow:0 2px 12px rgba(255,150,170,.06)}
+        .group-header{padding:12px 18px;background:rgba(255,182,193,.12);border-bottom:1px solid rgba(255,182,193,.3);font-weight:950;font-size:15px;display:flex;justify-content:space-between;align-items:center;color:#3a2a2e}
+        .group-header .lock-icon{font-size:14px}
+        .group-header .unlocked{color:#3aa76d}.group-header .locked{color:#d94a4a}
+        .feature-item{display:grid;grid-template-columns:44px 1fr 50px;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,182,193,.15);gap:10px}
+        .feature-item:last-child{border-bottom:0}
+        .feature-item .icon{font-size:22px;text-align:center}
+        .feature-item .info b{display:block;font-size:15px;font-weight:950;color:#3a2a2e}
+        .feature-item .info small{color:#8a7a7e;font-size:11px;font-weight:800}
+        .feature-item .info .vip-tag{color:#e0557a;font-size:10px;font-weight:950;margin-left:6px;background:rgba(255,122,158,.15);padding:1px 8px;border-radius:999px}
+        .switch{width:44px;height:26px;border-radius:999px;background:#e8d5da;position:relative;cursor:pointer;transition:.2s;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+        .switch:before{content:"";width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+        .switch.active{background:linear-gradient(135deg,#ffb6c1,#ff7a9e)}
+        .switch.active:before{left:21px}
+        .switch.locked{opacity:0.35;cursor:not-allowed;background:#e8d5da}
+        .switch.locked:before{background:#ccc}
+
+        .ff-selector{display:none;gap:10px;margin:12px 0;padding:14px;background:rgba(255,255,255,.92);border-radius:16px;border:1px solid rgba(255,182,193,.4)}
+        .ff-selector.show{display:flex}
+        .ff-btn{flex:1;padding:14px;border-radius:14px;border:2px solid rgba(255,182,193,.3);background:rgba(255,240,245,.8);color:#3a2a2e;font-weight:900;cursor:pointer;transition:.2s;font-size:14px;-webkit-tap-highlight-color:transparent}
+        .ff-btn.active{border-color:#ff7a9e;background:rgba(255,182,193,.25)}
+        .ff-btn .ff-icon{font-size:24px;display:block;margin-bottom:4px}
+
+        .activate-btn{width:100%;padding:16px;border:0;border-radius:16px;background:linear-gradient(135deg,#ffb6c1,#ff7a9e);color:#fff;font-weight:950;font-size:17px;cursor:pointer;margin:10px 0;-webkit-tap-highlight-color:transparent;box-shadow:0 8px 24px rgba(255,122,158,.3)}
+
+        .modal{position:fixed;inset:0;z-index:70;display:none;place-items:center;padding:18px;background:rgba(255,240,245,.85);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+        .modal-card{width:min(430px,94vw);border-radius:24px;padding:22px;background:rgba(255,255,255,.98);border:1px solid rgba(255,182,193,.5);max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(255,150,170,.15)}
+        .modal-title{display:flex;align-items:center;gap:12px;margin-bottom:15px}
+        .modal-title h3{font-size:22px;margin:0;color:#3a2a2e}.modal-title p{color:#8a7a7e;margin:2px 0 0;font-size:13px}
+        .close{position:absolute;right:14px;top:12px;border:0;width:36px;height:36px;border-radius:99px;background:rgba(255,182,193,.3);color:#3a2a2e;font-size:22px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+        .modal-btn{width:100%;padding:14px;border:0;border-radius:14px;font-weight:900;font-size:15px;cursor:pointer;margin:6px 0;-webkit-tap-highlight-color:transparent}
+        .modal-btn.success{background:linear-gradient(135deg,#b6e6c9,#7ad19e);color:#fff}
+        .modal-btn.danger{background:linear-gradient(135deg,#ffb6c1,#ff7a9e);color:#fff}
+        .modal-btn.primary{background:linear-gradient(135deg,#ffb6c1,#ff7a9e);color:#fff}
+        .terminal{background:#fff0f3;border-radius:14px;padding:14px;color:#e0557a;font-size:12px;line-height:1.6;min-height:150px;white-space:pre-wrap;border:1px solid rgba(255,182,193,.5);margin:10px 0;font-family:monospace}
+
+        .bottom-nav{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);width:min(500px,94vw);height:64px;border:1px solid rgba(255,182,193,.5);background:rgba(255,255,255,.95);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:20px;display:grid;grid-template-columns:1fr 1fr 1fr;z-index:30;box-shadow:0 8px 24px rgba(255,150,170,.12)}
+        .bottom-nav button{border:0;background:transparent;color:#b8a0a8;font-size:20px;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+        .bottom-nav span{font-size:11px}.bottom-nav .active{color:#ff7a9e}
+
+        .info-panel{position:fixed;top:0;right:0;z-index:60;width:min(360px,88vw);height:100vh;padding:18px;background:rgba(255,255,255,.98);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-left:1px solid rgba(255,182,193,.4);transform:translateX(105%);transition:.25s}
+        .info-panel.active{transform:translateX(0)}
+        .info-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+        .info-head button{border:0;border-radius:12px;background:rgba(255,182,193,.3);color:#3a2a2e;padding:8px 14px;font-weight:800;-webkit-tap-highlight-color:transparent}
+        .info-item{display:flex;justify-content:space-between;align-items:center;padding:14px;border-radius:16px;background:rgba(255,240,245,.8);border:1px solid rgba(255,182,193,.4);margin:8px 0;cursor:pointer}
+        .info-item strong{font-size:14px}.info-item p{color:#8a7a7e;font-size:12px;margin:2px 0 0}.info-item span{color:#ff7a9e;font-size:20px}
+        #adminInfo{display:flex;flex-direction:column;align-items:center;padding:16px;border-radius:18px;background:rgba(255,182,193,.15);border:1px solid rgba(255,182,193,.4);margin:10px 0}
+        #adminInfo img{width:70px;height:70px;border-radius:50%;border:3px solid #ff7a9e}
+        #adminInfo .name{color:#ff7a9e;font-weight:950;font-size:18px;margin:6px 0 2px}
+        #adminInfo .zalo{color:#8a7a7e;font-size:13px;letter-spacing:2px}
+
+        .overlay{position:fixed;inset:0;z-index:55;background:rgba(255,240,245,.6);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:none}
+
+        @media(max-width:430px){.gate-card{padding:18px}.brand-logo img{width:140px;height:140px}.gate h1{font-size:28px}}
+
+        .ff-selector .ff-btn{font-size:13px}
+        .bottom-nav button{font-size:18px}
+    </style>
 </head>
 <body>
 
+<!-- LOGIN -->
 <div class="gate" id="loginGate">
-  <div class="gate-card">
-    <div class="brand-logo"><img src="https://i.postimg.cc/pLj6h1mL/logo.png" alt="SENSI ULTRALOCK"></div>
-    <h1>SENSI <span>ULTRALOCK</span></h1>
-    <div class="byline">VIP EDITION</div>
-    <div style="display:flex;justify-content:center;gap:10px;margin-bottom:15px;">
-      <span class="platform-badge">🍎 iOS</span>
+    <div class="gate-card">
+        <div class="brand-logo"><img src="https://i.postimg.cc/pLj6h1mL/logo.png" alt="SENSI ULTRALOCK"></div>
+        <h1>SENSI <span>ULTRALOCK</span></h1>
+        <div class="byline">PINK LIGHT EDITION</div>
+        <div style="display:flex;justify-content:center;gap:10px;margin-bottom:15px;">
+            <span class="platform-badge">🌸 MOBILE</span>
+        </div>
+        <div id="iosVersionWarning" class="ios-version-warning">
+            ⚠️ Thiết bị không được hỗ trợ! Vui lòng sử dụng thiết bị khác.
+        </div>
+        <div id="keyExpiryDisplay" style="display:none;">🔑 Còn: --</div>
+        <div class="input-row">
+            <span style="font-size:20px;color:#ff7a9e;">⌨</span>
+            <input type="text" id="keyInput" placeholder="Nhập key..." autocomplete="off">
+        </div>
+        <div class="message" id="loginMessage"></div>
+        <button class="primary-btn" id="loginBtnFull">LOGIN</button>
+        <div style="margin-top:15px;font-size:13px;color:#8a7a7e;">Liên hệ: <span style="color:#ff7a9e;font-weight:900;cursor:pointer;" onclick="window.open('https://zalo.me/976457016','_blank')">0976457016</span></div>
     </div>
-    <div id="keyExpiryDisplay" style="display:none;">🔑 Còn: --</div>
-    <div class="input-row">
-      <span style="font-size:20px;color:#facc15;">⌨</span>
-      <input type="text" id="keyInput" placeholder="Nhập key iOS..." autocomplete="off" autocapitalize="off" spellcheck="false">
-    </div>
-    <div class="message" id="loginMessage"></div>
-    <button class="primary-btn" id="loginBtnFull">LOGIN</button>
-    <div style="margin-top:15px;font-size:13px;color:#9ca3af;">Liên hệ: <span style="color:#facc15;font-weight:900;cursor:pointer;">0976457016</span></div>
-  </div>
 </div>
 
+<!-- APP -->
 <div class="app" id="appMain">
-  <div class="topbar"><h2>SENSI <span>ULTRALOCK</span></h2><div class="badge"><i></i> ONLINE</div></div>
-
-  <div class="admin-banner">
-    <img class="admin-avatar" src="https://i.postimg.cc/nzRYzSPQ/26011bd758837f2ac0773b92f9c5771a.jpg" alt="Admin">
-    <div class="admin-info">
-      <div class="admin-name">👑 Ngọc phát x NP</div>
-      <div class="admin-msg">📢 Bản iOS v3.0.0 - Tác dụng thực tế 100%</div>
+    <div class="topbar">
+        <h2>SENSI <span>ULTRALOCK</span></h2>
+        <div class="badge"><i></i> ONLINE</div>
     </div>
-    <div class="admin-version">v3.0.0</div>
-  </div>
 
-  <div class="key-info">
-    <div class="row"><span class="label">🔑 KEY</span><span class="value" id="keyDisplay">---</span></div>
-    <div class="row"><span class="label">⏳ HẠN</span><span class="value" id="expiryDisplay">---</span></div>
-    <div class="row"><span class="label">📋 LOẠI</span><span id="keyTypeBadge" class="type-badge free">FREE</span></div>
-    <div class="row"><span class="label">📱 THIẾT BỊ</span><span class="value" id="deviceCountDisplay">0/--</span></div>
-    <div class="row"><span class="label">📱 iOS VERSION</span><span class="value" id="iosVersionDisplay" style="color:#60a5fa;">--</span></div>
-  </div>
-
-  <div class="vip-card">
-    <div class="vip-title">✦ VIP PREMIUM ✦</div>
-    <div class="vip-sub">100% 10/10</div>
-    <div class="vip-stats">
-      <div class="stat-item"><div class="num" id="sensiDisplay">x10.0</div><div class="lbl">SENSITIVITY</div></div>
-      <div class="stat-item"><div class="num" id="activePatches">0/0</div><div class="lbl">ACTIVE PATCHES</div></div>
+    <div class="admin-banner">
+        <img class="admin-avatar" src="https://i.postimg.cc/nzRYzSPQ/26011bd758837f2ac0773b92f9c5771a.jpg" alt="Admin">
+        <div class="admin-info">
+            <div class="admin-name">👑 Ngọc phát x NP</div>
+            <div class="admin-msg">📢 Bản Mobile v4.0.0 - Tác dụng thực tế 100%</div>
+        </div>
+        <div class="admin-version">v4.0.0</div>
     </div>
-  </div>
 
-  <div id="featureContainer"></div>
+    <div class="key-info">
+        <div class="row"><span class="label">🔑 KEY</span><span class="value" id="keyDisplay">---</span></div>
+        <div class="row"><span class="label">⏳ HẠN</span><span class="value" id="expiryDisplay">---</span></div>
+        <div class="row"><span class="label">📋 LOẠI</span><span id="keyTypeBadge" class="type-badge basic">BASIC</span></div>
+        <div class="row"><span class="label">📱 THIẾT BỊ</span><span class="value" id="deviceCountDisplay">0/--</span></div>
+        <div class="row"><span class="label">📱 NỀN TẢNG</span><span class="value" id="platformDisplay" style="color:#ff7a9e;">Mobile</span></div>
+    </div>
 
-  <div class="ff-selector" id="ffSelector">
-    <button class="ff-btn active" data-ff="freefire"><span>🔥</span> Free Fire</button>
-    <button class="ff-btn" data-ff="freefiremax"><span>⚡</span> Free Fire Max</button>
-  </div>
-  <button class="activate-btn" id="activateBtn">🚀 KÍCH HOẠT & MỞ GAME</button>
+    <div class="vip-card">
+        <div class="vip-title">✦ VIP PREMIUM ✦</div>
+        <div class="vip-sub">100% 10/10</div>
+        <div class="vip-stats">
+            <div class="stat-item"><div class="num" id="sensiDisplay">x10.0</div><div class="lbl">SENSITIVITY</div></div>
+            <div class="stat-item"><div class="num" id="activePatches">0/0</div><div class="lbl">ACTIVE PATCHES</div></div>
+        </div>
+    </div>
 
-  <div class="bottom-nav">
-    <button class="active"><span>🏠</span><span>Trang chủ</span></button>
-    <button><span>📋</span><span>Lịch sử</span></button>
-    <button id="settingsNav"><span>⚙️</span><span>Cài đặt</span></button>
-  </div>
+    <div id="featureContainer"></div>
+
+    <div class="ff-selector" id="ffSelector">
+        <button class="ff-btn active" data-ff="freefire">
+            <span class="ff-icon">🔥</span>
+            Free Fire
+        </button>
+        <button class="ff-btn" data-ff="freefiremax">
+            <span class="ff-icon">⚡</span>
+            Free Fire Max
+        </button>
+    </div>
+    <button class="activate-btn" id="activateBtn">🚀 KÍCH HOẠT & MỞ GAME</button>
+
+    <div class="bottom-nav">
+        <button class="active"><span>🏠</span><span>Trang chủ</span></button>
+        <button><span>📋</span><span>Lịch sử</span></button>
+        <button id="settingsNav"><span>⚙️</span><span>Cài đặt</span></button>
+    </div>
 </div>
 
+<!-- OPTIMIZE MODAL -->
+<div class="modal" id="optimizeModal">
+    <div class="modal-card">
+        <button class="close" id="closeOptimizeModal">✕</button>
+        <div class="modal-title"><span>⚡</span><div><h3>Tối ưu thiết bị</h3><p>Tác dụng thực tế 100%</p></div></div>
+        <div class="terminal" id="optimizeTerminal">🚀 Đang tối ưu thiết bị...\n🔍 Đang quét hệ thống...</div>
+        <button class="modal-btn primary" id="runOptimize">▶ Chạy tối ưu</button>
+    </div>
+</div>
+
+<!-- INFO PANEL -->
+<div class="info-panel" id="infoPanel">
+    <div class="info-head"><h2>ℹ️ Thông tin</h2><button id="closeInfo">Đóng</button></div>
+    <div id="adminInfo">
+        <img src="https://i.postimg.cc/nzRYzSPQ/26011bd758837f2ac0773b92f9c5771a.jpg" alt="Admin">
+        <div class="name">Ngọc phát x NP</div>
+        <div class="zalo">📱 ZALO: 0976457016</div>
+    </div>
+    <div class="info-item" onclick="window.open('https://zalo.me/976457016','_blank')">
+        <div><strong>Zalo</strong><p>0976457016</p></div><span>💬</span>
+    </div>
+    <button class="modal-btn success" id="logoutBtn" style="margin-top:10px;">🚪 Đăng xuất</button>
+    <div style="text-align:center;color:#8a7a7e;font-size:12px;margin-top:15px;">© 2026 NP</div>
+</div>
+
+<div class="overlay" id="overlay"></div>
 <div class="toast" id="toast"></div>
 
 <script>
-"use strict";
-
-/* ---- Anti-DevTools: silent, no guard ---- */
-(function() {
-  document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
-  document.addEventListener('dragstart', function(e){ e.preventDefault(); });
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'F12') { e.preventDefault(); return false; }
-    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) { e.preventDefault(); return false; }
-    if (e.metaKey && e.altKey && (e.key === 'i' || e.key === 'j' || e.key === 'c')) { e.preventDefault(); return false; }
-  }, true);
-})();
-
-/* ---- Integrity self-check: silent degrade, no warning UI ---- */
-var _integrityOK = true;
-(function() {
-  setInterval(function() {
-    var scripts = document.getElementsByTagName('script');
-    if (scripts.length > 1) { _integrityOK = false; }
-    if (Object.prototype.hasOwnProperty.call(Object.prototype, '__polluted')) { _integrityOK = false; }
-    if (window.fetch && window.fetch.toString().indexOf('native code') === -1) { _integrityOK = false; }
-    if (console.log.toString().indexOf('native code') === -1) { _integrityOK = false; }
-  }, 3000);
-})();
-
-/* ---- Storage mã hoá ---- */
-var SecureStore = (function() {
-  var SALT = 'NP::ULTRALOCK::' + (navigator.userAgent.length);
-  function enc(s) {
-    try {
-      var out = '';
-      for (var i = 0; i < s.length; i++) out += String.fromCharCode(s.charCodeAt(i) ^ SALT.charCodeAt(i % SALT.length));
-      return btoa(unescape(encodeURIComponent(out)));
-    } catch(e) { return ''; }
-  }
-  function dec(s) {
-    try {
-      var raw = decodeURIComponent(escape(atob(s)));
-      var out = '';
-      for (var i = 0; i < raw.length; i++) out += String.fromCharCode(raw.charCodeAt(i) ^ SALT.charCodeAt(i % SALT.length));
-      return out;
-    } catch(e) { return ''; }
-  }
-  return {
-    set: function(k, v) { try { localStorage.setItem('_u_' + enc(k), enc(JSON.stringify(v))); } catch(e){} },
-    get: function(k) { try { var v = localStorage.getItem('_u_' + enc(k)); return v ? JSON.parse(dec(v)) : null; } catch(e){ return null; } },
-    del: function(k) { try { localStorage.removeItem('_u_' + enc(k)); } catch(e){} }
-  };
-})();
-
-/* ---- HMAC verify ---- */
-var HMAC = (function() {
-  var SECRET = 'NP-ULTRALOCK-2026-REPLACE-ME';
-  function hash(str) {
-    var h1 = 0x811c9dc5, h2 = 0x1000193;
-    for (var i = 0; i < str.length; i++) {
-      var c = str.charCodeAt(i);
-      h1 ^= c; h1 = (h1 * 16777619) >>> 0;
-      h2 = ((h2 << 5) - h2 + c) >>> 0;
-    }
-    return (h1.toString(16) + h2.toString(16));
-  }
-  return {
-    sign: function(p) { try { return hash(JSON.stringify(p, Object.keys(p || {}).sort()) + '|' + SECRET); } catch(e) { return hash(String(p) + '|' + SECRET); } },
-    verify: function(p, sig) { return this.sign(p) === sig; }
-  };
-})();
-
-/* ---- Bridge token ---- */
-var Bridge = (function() {
-  var secret = null, counter = 0;
-  function rotate() {
-    counter = 0;
-    try {
-      var arr = new Uint32Array(4);
-      (window.crypto || window.msCrypto).getRandomValues(arr);
-      secret = Array.from(arr).map(function(x){ return x.toString(16); }).join('');
-    } catch(e) { secret = String(Date.now()) + String(Math.random()).slice(2); }
-  }
-  rotate();
-  setInterval(rotate, 60000);
-  return {
-    call: function(action, data) {
-      if (!secret) return false;
-      counter++;
-      var token = HMAC.sign(action + ':' + secret + ':' + counter);
-      try {
-        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.secure) {
-          window.webkit.messageHandlers.secure.postMessage({ action: action, data: data || {}, token: token, ts: Date.now() });
-          return true;
-        }
-      } catch(e) {}
-      return false;
-    }
-  };
-})();
-
+// ============================================================
+// CẤU HÌNH FIREBASE
+// ============================================================
 var FIREBASE_URL = "https://aimlock-key-default-rtdb.firebaseio.com";
-var PLATFORM = "ios";
 
-function getIOSVersion() {
-  var m = navigator.userAgent.match(/OS (\d+)_(\d+)/);
-  return m ? parseInt(m[1]) : 0;
-}
-var iosVersion = getIOSVersion();
-
-var deviceId = SecureStore.get('did');
+// ============================================================
+// DEVICE ID - LƯU CỐ ĐỊNH
+// ============================================================
+var deviceId = localStorage.getItem("HEADLOCK_DEVICE_ID");
 if (!deviceId) {
-  var raw = [];
-  try {
-    var arr = new Uint8Array(16);
-    (window.crypto || window.msCrypto).getRandomValues(arr);
-    raw = Array.from(arr).map(function(b){ return b.toString(16).padStart(2,'0'); });
-  } catch(e) { raw = [String(Date.now()), String(Math.random()).slice(2)]; }
-  deviceId = 'IOS-' + raw.join('').slice(0, 24);
-  SecureStore.set('did', deviceId);
+    deviceId = "MOBILE-" + Date.now() + "-" + Math.random().toString(36).substr(2, 6);
+    localStorage.setItem("HEADLOCK_DEVICE_ID", deviceId);
 }
 
-var currentKey = "", keyData = null, isLoggedIn = false;
-var checkInterval = null, expiryInterval = null, currentKeyType = 'free', sessionNonce = null;
+// ============================================================
+// BIẾN TOÀN CỤC
+// ============================================================
+var currentKey = "";
+var keyData = null;
+var isLoggedIn = false;
+var checkInterval = null;
+var expiryInterval = null;
+var currentKeyType = 'basic';
 
-function randomNonce() {
-  try {
-    var a = new Uint8Array(16);
-    (window.crypto || window.msCrypto).getRandomValues(a);
-    return Array.from(a).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
-  } catch(e) { return String(Date.now()) + String(Math.random()).slice(2); }
-}
-
+// ============================================================
+// CẤU HÌNH FEATURES - 3 MỤC: RANK, PHÒNG, HIGHLIGHT
+// Tổng ~30 chức năng, có nâng cấp v1, v2, v3
+// ============================================================
 var ALL_FEATURES = [
-  { id:'sensivity', icon:'📱', name:'SENSITIVITY BOOSTER', desc:'Nhạy Màn Hình Tối Đa', level:'free', tag:'' },
-  { id:'screen_booster', icon:'🖥️', name:'SCREEN BOOSTER', desc:'Buff FPS Siêu Mượt', level:'free', tag:'' },
-  { id:'buff_120hz', icon:'⚡', name:'BUFF 120HZ SCREEN', desc:'Tần Số Quét 120Hz', level:'free', tag:'' },
-  { id:'aimbody', icon:'🎯', name:'AIM BODY', desc:'Bám Thân Tự Động', level:'free', tag:'' },
-  { id:'headshot_fix', icon:'🎯', name:'HEADSHOT FIX', desc:'Fix Lỗi Nhắm Headshot', level:'thuong', tag:'' },
-  { id:'aimbody_pro', icon:'🎯', name:'AIM BODY PRO', desc:'Bám Thân Chuyên Nghiệp', level:'thuong', tag:'PRO' },
-  { id:'aimlock_assist', icon:'🔒', name:'AIMLOCK ASSIST', desc:'Hỗ Trợ Khóa Tâm', level:'thuong', tag:'PRO' },
-  { id:'auto_trigger', icon:'⚡', name:'AUTO TRIGGER PRO', desc:'Tự Động Bắn Siêu Tốc', level:'thuong', tag:'PRO' },
-  { id:'recoil_control', icon:'🎯', name:'RECOIL CONTROL PRO', desc:'Ghim Tâm Giảm Giật', level:'thuong', tag:'PRO' },
-  { id:'aimlock_ultra', icon:'👁️', name:'AIMLOCK ULTRA', desc:'Khóa Tâm Bám Đầu Siêu Tốc', level:'vip', tag:'VIP' },
-  { id:'anchor_aim', icon:'📌', name:'ANCHOR AIM', desc:'Ghim Tâm Tự Động', level:'vip', tag:'VIP' },
-  { id:'touch_sensitivity', icon:'🖱️', name:'TOUCH SENSITIVITY', desc:'10.0x DPI Boost', level:'vip', tag:'VIP' },
-  { id:'recoil_stabilization', icon:'⚙️', name:'RECOIL STABILIZATION', desc:'100% Ổn Định', level:'vip', tag:'VIP' }
+    // ==================== MỤC RANK ====================
+    { id: 'rank_sensivity', icon: '📱', name: 'SENSITIVITY BOOSTER', desc: 'Nhạy Màn Hình Tối Đa', level: 'basic', group: 'rank', tag: '' },
+    { id: 'rank_screen_booster', icon: '🖥️', name: 'SCREEN BOOSTER', desc: 'Buff FPS Siêu Mượt', level: 'basic', group: 'rank', tag: '' },
+    { id: 'rank_buff_120hz', icon: '⚡', name: 'BUFF 120HZ SCREEN', desc: 'Tần Số Quét 120Hz', level: 'basic', group: 'rank', tag: '' },
+    { id: 'rank_aimbody', icon: '🎯', name: 'AIM BODY', desc: 'Bám Thân Tự Động', level: 'basic', group: 'rank', tag: '' },
+    { id: 'rank_headshot_fix', icon: '🎯', name: 'HEADSHOT FIX', desc: 'Fix Lỗi Nhắm Headshot', level: 'basic', group: 'rank', tag: '' },
+    { id: 'rank_aimbody_pro', icon: '🎯', name: 'AIM BODY PRO', desc: 'Bám Thân Chuyên Nghiệp', level: 'basic', group: 'rank', tag: 'PRO' },
+    { id: 'rank_aimlock_assist', icon: '🔒', name: 'AIMLOCK ASSIST', desc: 'Hỗ Trợ Khóa Tâm', level: 'basic', group: 'rank', tag: 'PRO' },
+    { id: 'rank_auto_trigger', icon: '⚡', name: 'AUTO TRIGGER PRO', desc: 'Tự Động Bắn Siêu Tốc', level: 'basic', group: 'rank', tag: 'PRO' },
+    { id: 'rank_recoil_control', icon: '🎯', name: 'RECOIL CONTROL PRO', desc: 'Ghim Tâm Giảm Giật', level: 'basic', group: 'rank', tag: 'PRO' },
+    { id: 'rank_nhe_tam_70', icon: '💆', name: 'NHẸ TÂM 70%', desc: 'Giảm Căng Thẳng Khi Aim', level: 'basic', group: 'rank', tag: '' },
+
+    // ==================== MỤC PHÒNG ====================
+    { id: 'room_aimlock_ultra', icon: '👁️', name: 'AIMLOCK ULTRA', desc: 'Khóa Tâm Bám Đầu Siêu Tốc', level: 'vip', group: 'room', tag: 'VIP' },
+    { id: 'room_anchor_aim', icon: '📌', name: 'ANCHOR AIM', desc: 'Ghim Tâm Tự Động', level: 'vip', group: 'room', tag: 'VIP' },
+    { id: 'room_touch_sensitivity', icon: '🖱️', name: 'TOUCH SENSITIVITY', desc: '10.0x DPI Boost', level: 'vip', group: 'room', tag: 'VIP' },
+    { id: 'room_recoil_stabilization', icon: '⚙️', name: 'RECOIL STABILIZATION', desc: '100% Ổn Định', level: 'vip', group: 'room', tag: 'VIP' },
+    { id: 'room_auto_headshot_v1', icon: '🎯', name: 'AUTO HEADSHOT v1', desc: 'Tự Động Headshot Cơ Bản', level: 'vip', group: 'room', tag: 'v1' },
+    { id: 'room_auto_headshot_v2', icon: '🎯', name: 'AUTO HEADSHOT v2', desc: 'Tự Động Headshot Nâng Cao', level: 'vip', group: 'room', tag: 'v2' },
+    { id: 'room_auto_headshot_v3', icon: '🎯', name: 'AUTO HEADSHOT v3', desc: 'Tự Động Headshot Siêu Cấp', level: 'vip', group: 'room', tag: 'v3' },
+    { id: 'room_silent_aim_v1', icon: '🤫', name: 'SILENT AIM v1', desc: 'Ngắm Im Lặng Cơ Bản', level: 'vip', group: 'room', tag: 'v1' },
+    { id: 'room_silent_aim_v2', icon: '🤫', name: 'SILENT AIM v2', desc: 'Ngắm Im Lặng Nâng Cao', level: 'vip', group: 'room', tag: 'v2' },
+    { id: 'room_magic_bullet_v1', icon: '✨', name: 'MAGIC BULLET v1', desc: 'Đạn Xuyên Tường Cơ Bản', level: 'vip', group: 'room', tag: 'v1' },
+    { id: 'room_magic_bullet_v2', icon: '✨', name: 'MAGIC BULLET v2', desc: 'Đạn Xuyên Tường Nâng Cao', level: 'vip', group: 'room', tag: 'v2' },
+    { id: 'room_magic_bullet_v3', icon: '✨', name: 'MAGIC BULLET v3', desc: 'Đạn Xuyên Tường Siêu Cấp', level: 'vip', group: 'room', tag: 'v3' },
+
+    // ==================== MỤC HIGHLIGHT ====================
+    { id: 'hl_aimlock_pro', icon: '🔒', name: 'AIMLOCK PRO', desc: 'Khóa Tâm Chuyên Nghiệp', level: 'vip', group: 'highlight', tag: 'VIP' },
+    { id: 'hl_aimlock_pro_max', icon: '🔒', name: 'AIMLOCK PRO MAX', desc: 'Khóa Tâm Siêu Cấp', level: 'vip', group: 'highlight', tag: 'VIP' },
+    { id: 'hl_auto_parachute', icon: '🪂', name: 'AUTO PARACHUTE', desc: 'Tự Động Nhảy Dù', level: 'vip', group: 'highlight', tag: 'VIP' },
+    { id: 'hl_speed_hack_v1', icon: '🏃', name: 'SPEED HACK v1', desc: 'Tăng Tốc Độ Cơ Bản', level: 'vip', group: 'highlight', tag: 'v1' },
+    { id: 'hl_speed_hack_v2', icon: '🏃', name: 'SPEED HACK v2', desc: 'Tăng Tốc Độ Nâng Cao', level: 'vip', group: 'highlight', tag: 'v2' },
+    { id: 'hl_speed_hack_v3', icon: '🏃', name: 'SPEED HACK v3', desc: 'Tăng Tốc Độ Siêu Cấp', level: 'vip', group: 'highlight', tag: 'v3' },
+    { id: 'hl_jump_hack_v1', icon: '🦘', name: 'JUMP HACK v1', desc: 'Nhảy Cao Cơ Bản', level: 'vip', group: 'highlight', tag: 'v1' },
+    { id: 'hl_jump_hack_v2', icon: '🦘', name: 'JUMP HACK v2', desc: 'Nhảy Cao Nâng Cao', level: 'vip', group: 'highlight', tag: 'v2' },
+    { id: 'hl_anti_ban', icon: '🛡️', name: 'ANTI BAN', desc: 'Chống Ban Tài Khoản', level: 'vip', group: 'highlight', tag: 'VIP' },
+    { id: 'hl_anti_report', icon: '🚫', name: 'ANTI REPORT', desc: 'Chống Bị Báo Cáo', level: 'vip', group: 'highlight', tag: 'VIP' },
+    { id: 'hl_esp_player', icon: '👁️', name: 'ESP PLAYER', desc: 'Hiển Thị Người Chơi', level: 'vip', group: 'highlight', tag: 'VIP' },
+    { id: 'hl_esp_item', icon: '📦', name: 'ESP ITEM', desc: 'Hiển Thị Vật Phẩm', level: 'vip', group: 'highlight', tag: 'VIP' },
+    { id: 'hl_auto_heal', icon: '💊', name: 'AUTO HEAL', desc: 'Tự Động Hồi Máu', level: 'vip', group: 'highlight', tag: 'VIP' },
+    { id: 'hl_auto_loot', icon: '🎒', name: 'AUTO LOOT', desc: 'Tự Động Nhặt Đồ', level: 'vip', group: 'highlight', tag: 'VIP' },
+    { id: 'hl_radar_hack', icon: '📡', name: 'RADAR HACK', desc: 'Radar Toàn Bản Đồ', level: 'vip', group: 'highlight', tag: 'VIP' },
+    { id: 'hl_drone_view', icon: '🚁', name: 'DRONE VIEW', desc: 'Xem Toàn Cảnh Từ Trên Cao', level: 'vip', group: 'highlight', tag: 'VIP' },
+    { id: 'hl_fast_fire', icon: '🔥', name: 'FAST FIRE', desc: 'Bắn Siêu Tốc', level: 'vip', group: 'highlight', tag: 'VIP' },
+    { id: 'hl_no_recoil', icon: '🎯', name: 'NO RECOIL', desc: 'Không Giật Súng', level: 'vip', group: 'highlight', tag: 'VIP' },
+    { id: 'hl_no_spread', icon: '🎯', name: 'NO SPREAD', desc: 'Không Tản Đạn', level: 'vip', group: 'highlight', tag: 'VIP' }
 ];
-var KEY_LEVELS = { free:{label:'FREE',class:'free',level:1}, thuong:{label:'THƯỜNG',class:'thuong',level:2}, vip:{label:'VIP',class:'vip',level:3} };
-var GROUP_NAMES = { free:'TÍNH NĂNG THƯỞNG BASIC', thuong:'TÍNH NĂNG CAO CẤP', vip:'TÍNH NĂNG THƯỢNG HẠNG' };
 
+// Gán group vào từng feature dựa trên tiền tố id
+ALL_FEATURES.forEach(function(f) {
+    if (f.id.startsWith('rank_')) f.group = 'rank';
+    else if (f.id.startsWith('room_')) f.group = 'room';
+    else if (f.id.startsWith('hl_')) f.group = 'highlight';
+    else f.group = 'rank';
+});
+
+var KEY_LEVELS = {
+    basic: { label: 'BASIC', class: 'basic', level: 1 },
+    vip: { label: 'VIP', class: 'vip', level: 2 }
+};
+
+var GROUP_NAMES = {
+    rank: '🏆 RANK',
+    room: '🏠 PHÒNG',
+    highlight: '✨ HIGHLIGHT'
+};
+
+// ============================================================
+// TOAST
+// ============================================================
 function showToast(msg) {
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('active');
-  clearTimeout(window._tt);
-  window._tt = setTimeout(function(){ t.classList.remove('active'); }, 2500);
+    var t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('active');
+    clearTimeout(window.toastTimeout);
+    window.toastTimeout = setTimeout(function(){ t.classList.remove('active'); }, 2500);
 }
 
-async function fetchKeySecure(key) {
-  var res = await fetch(FIREBASE_URL + "/keys/" + encodeURIComponent(key) + ".json", {
-    method: 'GET', cache: 'no-store', headers: { 'Accept': 'application/json' }
-  });
-  if (!res.ok) throw new Error('network');
-  var data = await res.json();
-  if (!data) return null;
-  if (data.sig) {
-    var payload = Object.assign({}, data);
-    var sig = payload.sig;
-    delete payload.sig;
-    if (!HMAC.verify(payload, sig)) throw new Error('signature');
-  }
-  return data;
-}
-
+// ============================================================
+// FIREBASE
+// ============================================================
 async function activateKey(key) {
-  try {
-    var data = await fetchKeySecure(key);
-    if (!data) return { success:false, message:'Key không tồn tại!' };
-    if (data.platform && data.platform !== PLATFORM && data.platform !== 'both') {
-      return { success:false, message:'❌ Key dành cho ' + data.platform.toUpperCase() + ', không dùng cho iOS!' };
+    try {
+        var url = FIREBASE_URL + "/keys/" + key + ".json";
+        var res = await fetch(url);
+        if (!res.ok) {
+            return { success: false, message: "Lỗi kết nối Firebase!" };
+        }
+        var data = await res.json();
+        if (!data) {
+            return { success: false, message: "Key không tồn tại!" };
+        }
+
+        var now = Date.now();
+        if (data.expiry && data.expiry < now) {
+            return { success: false, message: "Key đã hết hạn!", expired: true };
+        }
+
+        if (data.deviceLimit) {
+            var devices = data.devices || [];
+            if (devices.length >= data.deviceLimit && !devices.includes(deviceId)) {
+                return { success: false, message: "Giới hạn thiết bị đã đạt!" };
+            }
+        }
+
+        if (!data.devices || !data.devices.includes(deviceId)) {
+            var devices = data.devices || [];
+            devices.push(deviceId);
+            await fetch(FIREBASE_URL + "/keys/" + key + "/devices.json", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(devices)
+            });
+            data.devices = devices;
+        }
+
+        return { success: true, data: data };
+    } catch (err) {
+        return { success: false, message: "Không kết nối được Firebase!" };
     }
-    if (data.expiry && data.expiry < Date.now()) {
-      return { success:false, message:'Key đã hết hạn!', expired:true };
-    }
-    if (data.deviceLimit) {
-      var devices = data.devices || [];
-      if (devices.length >= data.deviceLimit && !devices.includes(deviceId)) {
-        return { success:false, message:'Giới hạn thiết bị đã đạt!' };
-      }
-    }
-    if (!data.devices || !data.devices.includes(deviceId)) {
-      var updated = (data.devices || []).concat([deviceId]);
-      await fetch(FIREBASE_URL + "/keys/" + encodeURIComponent(key) + "/devices.json", {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updated)
-      });
-      data.devices = updated;
-    }
-    return { success:true, data:data };
-  } catch(err) {
-    if (err.message === 'signature') return { success:false, message:'⛔ Chữ ký key không hợp lệ!' };
-    return { success:false, message:'Không kết nối được Firebase!' };
-  }
 }
 
 function getDaysLeft(expiry) {
-  if (!expiry) return 'vĩnh viễn';
-  var diff = expiry - Date.now();
-  if (diff <= 0) return 'ĐÃ HẾT HẠN';
-  return Math.ceil(diff / 86400000) + ' ngày';
-}
-function getKeyLevel(kd) {
-  if (!kd) return 'free';
-  return kd.type || (kd.vip ? 'vip' : kd.thuong ? 'thuong' : 'free');
+    if (!expiry) return "vĩnh viễn";
+    var diff = expiry - Date.now();
+    if (diff <= 0) return "ĐÃ HẾT HẠN";
+    return Math.ceil(diff / (1000 * 60 * 60 * 24)) + " ngày";
 }
 
+function getKeyLevel(keyData) {
+    if (!keyData) return 'basic';
+    if (keyData.type) {
+        if (keyData.type === 'vip' || keyData.vip) return 'vip';
+        return 'basic';
+    }
+    if (keyData.vip) return 'vip';
+    return 'basic';
+}
+
+// ============================================================
+// GỌI NATIVE
+// ============================================================
+function callNative(action, data) {
+    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers[action]) {
+        try {
+            window.webkit.messageHandlers[action].postMessage(data || {});
+            return true;
+        } catch(e) {}
+    }
+    if (window.Android && window.Android[action]) {
+        try {
+            window.Android[action](JSON.stringify(data || {}));
+            return true;
+        } catch(e) {}
+    }
+    return false;
+}
+
+// ============================================================
+// RENDER FEATURES - CHIA 3 MỤC
+// ============================================================
 function renderFeatures(keyLevel) {
-  var container = document.getElementById('featureContainer');
-  var levelNum = (KEY_LEVELS[keyLevel] || KEY_LEVELS.free).level;
-  var groups = {};
-  ALL_FEATURES.forEach(function(f){ (groups[f.level] = groups[f.level] || []).push(f); });
-  var html = '';
-  ['free','thuong','vip'].forEach(function(level) {
-    if (!groups[level]) return;
-    var isAllowed = KEY_LEVELS[level].level <= levelNum;
-    html += '<div class="feature-group"><div class="group-header"><span>' + GROUP_NAMES[level] + '</span><span>' + (isAllowed ? '🔓' : '🔒') + '</span></div>';
-    groups[level].forEach(function(f) {
-      var lockClass = isAllowed ? '' : 'locked';
-      var tagHtml = f.tag ? '<span class="vip-tag">' + f.tag + '</span>' : '';
-      html += '<div class="feature-item" data-feature="' + f.id + '"><div class="icon">' + f.icon + '</div><div class="info"><b>' + f.name + ' ' + tagHtml + '</b><small>' + f.desc + '</small></div><div class="switch ' + lockClass + '" data-feature="' + f.id + '"></div></div>';
-    });
-    html += '</div>';
-  });
-  container.innerHTML = html;
-  updateVipStats(keyLevel);
+    var container = document.getElementById('featureContainer');
+    var levelNum = KEY_LEVELS[keyLevel]?.level || 1;
+
+    var groups = { rank: [], room: [], highlight: [] };
+    for (var i = 0; i < ALL_FEATURES.length; i++) {
+        var f = ALL_FEATURES[i];
+        if (groups[f.group]) groups[f.group].push(f);
+        else groups.rank.push(f);
+    }
+
+    var html = '';
+    var groupKeys = ['rank', 'room', 'highlight'];
+    for (var gi = 0; gi < groupKeys.length; gi++) {
+        var g = groupKeys[gi];
+        var features = groups[g];
+        if (!features || features.length === 0) continue;
+
+        var isAllowed = (g === 'rank') ? true : (levelNum >= 2);
+
+        html += '<div class="feature-group">';
+        html += '<div class="group-header"><span>' + (GROUP_NAMES[g] || g.toUpperCase()) + '</span><span class="lock-icon ' + (isAllowed ? 'unlocked' : 'locked') + '">' + (isAllowed ? '🔓' : '🔒') + '</span></div>';
+
+        for (var fi = 0; fi < features.length; fi++) {
+            var f = features[fi];
+            var locked = !isAllowed;
+            var lockClass = locked ? 'locked' : '';
+            var tagHtml = f.tag ? '<span class="vip-tag">' + f.tag + '</span>' : '';
+
+            html += '<div class="feature-item" data-feature="' + f.id + '"><div class="icon">' + f.icon + '</div><div class="info"><b>' + f.name + ' ' + tagHtml + '</b><small>' + f.desc + '</small></div><div class="switch ' + lockClass + '" data-feature="' + f.id + '"></div></div>';
+        }
+        html += '</div>';
+    }
+
+    container.innerHTML = html;
+    updateVipStats(keyLevel);
 }
 
 function updateVipStats(keyLevel) {
-  var levelNum = (KEY_LEVELS[keyLevel] || KEY_LEVELS.free).level;
-  document.getElementById('sensiDisplay').textContent = levelNum >= 3 ? 'x10.0' : 'x5.0';
-  var activeCount = document.querySelectorAll('.feature-item .switch.active:not(.locked)').length;
-  var total = document.querySelectorAll('.feature-item .switch:not(.locked)').length;
-  document.getElementById('activePatches').textContent = activeCount + '/' + total;
+    var levelNum = KEY_LEVELS[keyLevel]?.level || 1;
+    var isVip = levelNum >= 2;
+    document.getElementById('sensiDisplay').textContent = isVip ? 'x10.0' : 'x5.0';
+    var activeCount = document.querySelectorAll('.feature-item .switch.active:not(.locked)').length;
+    var total = document.querySelectorAll('.feature-item .switch:not(.locked)').length;
+    document.getElementById('activePatches').textContent = activeCount + '/' + total;
 }
 
+// ============================================================
+// CHECK KEY PERIODIC
+// ============================================================
 async function checkKeyPeriodic() {
-  if (!isLoggedIn || !currentKey) return;
-  var result = await activateKey(currentKey);
-  if (!result.success) { showToast(result.message); handleLogout(); }
+    if (!isLoggedIn || !currentKey) return;
+    var result = await activateKey(currentKey);
+    if (!result.success) {
+        showToast(result.message || "Key không hợp lệ!");
+        handleLogout();
+    }
 }
 
+// ============================================================
+// LOGIN
+// ============================================================
 async function handleLogin() {
-  if (!_integrityOK) return;
-  var key = document.getElementById('keyInput').value.trim();
-  if (!key) { showToast('Nhập key iOS!'); return; }
-  var msg = document.getElementById('loginMessage');
-  msg.textContent = '⏳ Đang kiểm tra...';
-  msg.className = 'message';
-  var result = await activateKey(key);
-  if (!result.success) {
-    msg.textContent = '❌ ' + result.message;
-    msg.className = 'message err';
-    showToast('❌ ' + result.message);
-    return;
-  }
-  currentKey = key; keyData = result.data; isLoggedIn = true;
-  sessionNonce = randomNonce();
-  SecureStore.set('key', key);
-  var keyLevel = getKeyLevel(keyData);
-  currentKeyType = keyLevel;
-  document.getElementById('loginGate').style.display = 'none';
-  document.getElementById('appMain').style.display = 'block';
-  document.getElementById('keyDisplay').textContent = key.substring(0,8) + '...';
-  document.getElementById('iosVersionDisplay').textContent = iosVersion || 'Không xác định';
-  if (keyData.expiry) {
-    var days = getDaysLeft(keyData.expiry);
-    document.getElementById('expiryDisplay').textContent = days;
-    document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: ' + days;
-    document.getElementById('keyExpiryDisplay').style.display = 'block';
-  } else {
-    document.getElementById('expiryDisplay').textContent = 'vĩnh viễn';
-    document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: vĩnh viễn';
-    document.getElementById('keyExpiryDisplay').style.display = 'block';
-  }
-  var badge = document.getElementById('keyTypeBadge');
-  var info = KEY_LEVELS[keyLevel] || KEY_LEVELS.free;
-  badge.textContent = info.label;
-  badge.className = 'type-badge ' + info.class;
-  var devices = keyData.devices || [];
-  document.getElementById('deviceCountDisplay').textContent = devices.length + '/' + (keyData.deviceLimit || '∞');
-  msg.textContent = '✅ Đăng nhập thành công!';
-  msg.className = 'message ok';
-  showToast('✅ Đăng nhập thành công!');
-  renderFeatures(keyLevel);
-  if (expiryInterval) clearInterval(expiryInterval);
-  if (keyData.expiry) {
-    expiryInterval = setInterval(function() {
-      var d = getDaysLeft(keyData.expiry);
-      document.getElementById('expiryDisplay').textContent = d;
-      document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: ' + d;
-      if (d === 'ĐÃ HẾT HẠN') { clearInterval(expiryInterval); handleLogout(); }
-    }, 1000);
-  }
-  if (checkInterval) clearInterval(checkInterval);
-  checkInterval = setInterval(checkKeyPeriodic, 5000);
+    var input = document.getElementById('keyInput');
+    var key = input.value.trim();
+    if (!key) { showToast("Nhập key!"); return; }
+
+    var msg = document.getElementById('loginMessage');
+    msg.textContent = "⏳ Đang kiểm tra...";
+    msg.className = "message";
+
+    var result = await activateKey(key);
+    if (!result.success) {
+        msg.textContent = "❌ " + result.message;
+        msg.className = "message err";
+        showToast("❌ " + result.message);
+        return;
+    }
+
+    currentKey = key;
+    keyData = result.data;
+    isLoggedIn = true;
+    localStorage.setItem("HEADLOCK_KEY", key);
+
+    var keyLevel = getKeyLevel(keyData);
+    currentKeyType = keyLevel;
+
+    document.getElementById('loginGate').style.display = 'none';
+    document.getElementById('appMain').style.display = 'block';
+
+    document.getElementById('keyDisplay').textContent = key.substring(0, 8) + '...';
+
+    if (keyData.expiry) {
+        var days = getDaysLeft(keyData.expiry);
+        document.getElementById('expiryDisplay').textContent = days;
+        document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: ' + days;
+        document.getElementById('keyExpiryDisplay').style.display = 'block';
+    } else {
+        document.getElementById('expiryDisplay').textContent = 'vĩnh viễn';
+        document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: vĩnh viễn';
+        document.getElementById('keyExpiryDisplay').style.display = 'block';
+    }
+
+    var badge = document.getElementById('keyTypeBadge');
+    var levelInfo = KEY_LEVELS[keyLevel] || KEY_LEVELS.basic;
+    badge.textContent = levelInfo.label;
+    badge.className = 'type-badge ' + levelInfo.class;
+
+    var devices = keyData.devices || [];
+    var limit = keyData.deviceLimit || '∞';
+    document.getElementById('deviceCountDisplay').textContent = devices.length + '/' + limit;
+    document.getElementById('platformDisplay').textContent = 'Mobile';
+
+    msg.textContent = "✅ Đăng nhập thành công!";
+    msg.className = "message ok";
+    showToast('✅ Đăng nhập thành công!');
+
+    renderFeatures(keyLevel);
+
+    if (expiryInterval) clearInterval(expiryInterval);
+    if (keyData.expiry) {
+        expiryInterval = setInterval(function() {
+            var days = getDaysLeft(keyData.expiry);
+            document.getElementById('expiryDisplay').textContent = days;
+            document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: ' + days;
+            if (days === "ĐÃ HẾT HẠN") {
+                clearInterval(expiryInterval);
+                handleLogout();
+            }
+        }, 1000);
+    }
+
+    if (checkInterval) clearInterval(checkInterval);
+    checkInterval = setInterval(checkKeyPeriodic, 2000);
 }
 
 function handleLogout() {
-  SecureStore.del('key');
-  isLoggedIn = false; currentKey = ""; keyData = null; sessionNonce = null;
-  if (checkInterval) clearInterval(checkInterval);
-  if (expiryInterval) clearInterval(expiryInterval);
-  document.getElementById('loginGate').style.display = 'grid';
-  document.getElementById('appMain').style.display = 'none';
-  document.getElementById('keyExpiryDisplay').style.display = 'none';
-  document.getElementById('keyInput').value = '';
-  showToast('🚪 Đã đăng xuất');
+    localStorage.removeItem("HEADLOCK_KEY");
+    isLoggedIn = false;
+    currentKey = "";
+    keyData = null;
+    if (checkInterval) clearInterval(checkInterval);
+    if (expiryInterval) clearInterval(expiryInterval);
+    document.getElementById('loginGate').style.display = 'grid';
+    document.getElementById('appMain').style.display = 'none';
+    document.getElementById('keyExpiryDisplay').style.display = 'none';
+    showToast('🚪 Đã đăng xuất');
 }
 
+// ============================================================
+// MỞ GAME - TỰ ĐỘNG CHUYỂN STORE NẾU CHƯA CÀI
+// ============================================================
 function openGame(version) {
-  var schemes = { freefire:'freefireth://', freefiremax:'freefiremax://' };
-  var scheme = schemes[version] || schemes.freefire;
-  if (Bridge.call('openGame', { version: version, scheme: scheme, nonce: sessionNonce })) return;
-  var iframe = document.createElement('iframe');
-  iframe.style.display = 'none';
-  iframe.src = scheme;
-  document.body.appendChild(iframe);
-  window.location.href = scheme;
-  setTimeout(function(){ iframe.remove(); }, 2000);
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var isAndroid = /Android/.test(navigator.userAgent);
+
+    var scheme = '';
+    var storeUrl = '';
+
+    if (version === 'freefire') {
+        scheme = 'freefireth://';
+        storeUrl = isIOS 
+            ? 'https://apps.apple.com/app/free-fire/id1300146617' 
+            : 'https://play.google.com/store/apps/details?id=com.dts.freefireth';
+    } else if (version === 'freefiremax') {
+        scheme = 'freefiremax://';
+        storeUrl = isIOS 
+            ? 'https://apps.apple.com/app/free-fire-max/id1594581875' 
+            : 'https://play.google.com/store/apps/details?id=com.dts.freefiremax';
+    } else {
+        scheme = 'freefireth://';
+        storeUrl = isIOS 
+            ? 'https://apps.apple.com/app/free-fire/id1300146617' 
+            : 'https://play.google.com/store/apps/details?id=com.dts.freefireth';
+    }
+
+    var start = Date.now();
+    var iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    iframe.src = scheme;
+    document.body.appendChild(iframe);
+
+    window.location.href = scheme;
+
+    setTimeout(function() {
+        if (Date.now() - start < 1800) {
+            window.location.href = storeUrl;
+        }
+        if (iframe.parentNode) iframe.remove();
+    }, 1500);
 }
 
 function activateAndOpen() {
-  if (!isLoggedIn || !_integrityOK) { showToast('Chưa đăng nhập!'); return; }
-  var selector = document.getElementById('ffSelector');
-  selector.classList.toggle('show');
-  if (selector.classList.contains('show')) {
-    var active = selector.querySelector('.ff-btn.active');
-    if (!active) return;
-    var version = active.dataset.ff;
-    SecureStore.set('ff', version);
-    document.querySelectorAll('.feature-item .switch.active:not(.locked)').forEach(function(sw) {
-      var id = sw.dataset.feature;
-      if (id) {
-        SecureStore.set('t_' + id, true);
-        Bridge.call(id, { enabled: true, nonce: sessionNonce });
-      }
-    });
-    updateVipStats(currentKeyType);
-    showToast('✅ Đang mở ' + (version === 'freefire' ? 'Free Fire' : 'Free Fire Max'));
-    selector.classList.remove('show');
-    setTimeout(function(){ openGame(version); }, 500);
-  }
+    if (!isLoggedIn) { showToast("Chưa đăng nhập!"); return; }
+
+    var selector = document.getElementById('ffSelector');
+    selector.classList.toggle('show');
+
+    if (selector.classList.contains('show')) {
+        var active = document.querySelector('.ff-btn.active');
+        if (active) {
+            var version = active.dataset.ff;
+            localStorage.setItem("HEADLOCK_FF", version);
+            document.querySelectorAll('.feature-item .switch.active:not(.locked)').forEach(function(sw) {
+                var id = sw.dataset.feature;
+                if (id) {
+                    localStorage.setItem('toggle_' + id, 'true');
+                    callNative(id, { enabled: true });
+                }
+            });
+            updateVipStats(currentKeyType);
+            var name = version === 'freefire' ? 'Free Fire' : 'Free Fire Max';
+            showToast('✅ Đang mở ' + name);
+            selector.classList.remove('show');
+            setTimeout(function(){ openGame(version); }, 500);
+        }
+    }
 }
 
+// ============================================================
+// DOM EVENTS
+// ============================================================
 document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('iosVersionDisplay').textContent = iosVersion || 'Không xác định';
+    document.getElementById('keyDisplay').textContent = '---';
 
-  var savedKey = SecureStore.get('key');
-  if (savedKey) {
-    activateKey(savedKey).then(function(result) {
-      if (result.success) {
-        currentKey = savedKey; keyData = result.data; isLoggedIn = true;
-        sessionNonce = randomNonce();
-        var keyLevel = getKeyLevel(keyData); currentKeyType = keyLevel;
-        document.getElementById('loginGate').style.display = 'none';
-        document.getElementById('appMain').style.display = 'block';
-        document.getElementById('keyDisplay').textContent = savedKey.substring(0,8) + '...';
-        document.getElementById('iosVersionDisplay').textContent = iosVersion || 'Không xác định';
-        if (keyData.expiry) {
-          var d = getDaysLeft(keyData.expiry);
-          document.getElementById('expiryDisplay').textContent = d;
-          document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: ' + d;
-          document.getElementById('keyExpiryDisplay').style.display = 'block';
-        } else {
-          document.getElementById('expiryDisplay').textContent = 'vĩnh viễn';
-          document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: vĩnh viễn';
-          document.getElementById('keyExpiryDisplay').style.display = 'block';
-        }
-        var badge = document.getElementById('keyTypeBadge');
-        var info = KEY_LEVELS[keyLevel] || KEY_LEVELS.free;
-        badge.textContent = info.label; badge.className = 'type-badge ' + info.class;
-        var devices = keyData.devices || [];
-        document.getElementById('deviceCountDisplay').textContent = devices.length + '/' + (keyData.deviceLimit || '∞');
-        renderFeatures(keyLevel);
-        if (keyData.expiry) {
-          expiryInterval = setInterval(function() {
-            var d2 = getDaysLeft(keyData.expiry);
-            document.getElementById('expiryDisplay').textContent = d2;
-            document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: ' + d2;
-            if (d2 === 'ĐÃ HẾT HẠN') { clearInterval(expiryInterval); handleLogout(); }
-          }, 1000);
-        }
-        checkInterval = setInterval(checkKeyPeriodic, 5000);
-        showToast('✅ Chào mừng trở lại!');
-      } else {
-        SecureStore.del('key');
-      }
+    var savedKey = localStorage.getItem("HEADLOCK_KEY");
+    if (savedKey) {
+        activateKey(savedKey).then(function(result) {
+            if (result.success) {
+                currentKey = savedKey;
+                keyData = result.data;
+                isLoggedIn = true;
+                var keyLevel = getKeyLevel(keyData);
+                currentKeyType = keyLevel;
+
+                document.getElementById('loginGate').style.display = 'none';
+                document.getElementById('appMain').style.display = 'block';
+                document.getElementById('keyDisplay').textContent = savedKey.substring(0, 8) + '...';
+
+                if (keyData.expiry) {
+                    var days = getDaysLeft(keyData.expiry);
+                    document.getElementById('expiryDisplay').textContent = days;
+                    document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: ' + days;
+                    document.getElementById('keyExpiryDisplay').style.display = 'block';
+                } else {
+                    document.getElementById('expiryDisplay').textContent = 'vĩnh viễn';
+                    document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: vĩnh viễn';
+                    document.getElementById('keyExpiryDisplay').style.display = 'block';
+                }
+
+                var badge = document.getElementById('keyTypeBadge');
+                var levelInfo = KEY_LEVELS[keyLevel] || KEY_LEVELS.basic;
+                badge.textContent = levelInfo.label;
+                badge.className = 'type-badge ' + levelInfo.class;
+
+                var devices = keyData.devices || [];
+                var limit = keyData.deviceLimit || '∞';
+                document.getElementById('deviceCountDisplay').textContent = devices.length + '/' + limit;
+                document.getElementById('platformDisplay').textContent = 'Mobile';
+
+                renderFeatures(keyLevel);
+
+                if (keyData.expiry) {
+                    expiryInterval = setInterval(function() {
+                        var days = getDaysLeft(keyData.expiry);
+                        document.getElementById('expiryDisplay').textContent = days;
+                        document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: ' + days;
+                        if (days === "ĐÃ HẾT HẠN") {
+                            clearInterval(expiryInterval);
+                            handleLogout();
+                        }
+                    }, 1000);
+                }
+                checkInterval = setInterval(checkKeyPeriodic, 2000);
+                showToast('✅ Chào mừng trở lại!');
+            } else {
+                localStorage.removeItem("HEADLOCK_KEY");
+            }
+        });
+    }
+
+    document.getElementById('loginBtnFull').addEventListener('click', handleLogin);
+    document.getElementById('keyInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') handleLogin(); });
+
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+        if (confirm('Đăng xuất?')) handleLogout();
     });
-  }
 
-  document.getElementById('loginBtnFull').addEventListener('click', handleLogin);
-  document.getElementById('keyInput').addEventListener('keypress', function(e){ if (e.key === 'Enter') handleLogin(); });
-
-  document.querySelectorAll('.ff-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.ff-btn').forEach(function(b){ b.classList.remove('active'); });
-      this.classList.add('active');
+    document.querySelectorAll('.ff-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.ff-btn').forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+        });
     });
-  });
-  document.getElementById('activateBtn').addEventListener('click', activateAndOpen);
 
-  document.addEventListener('click', function(e) {
-    var sw = e.target.closest('.switch:not(.locked)');
-    if (!sw || !_integrityOK) return;
-    if (!isLoggedIn) { showToast('Chưa đăng nhập!'); return; }
-    var feature = sw.dataset.feature;
-    if (!feature) return;
-    sw.classList.toggle('active');
-    var state = sw.classList.contains('active');
-    SecureStore.set('t_' + feature, state);
-    Bridge.call(feature, { enabled: state, nonce: sessionNonce });
-    var name = sw.closest('.feature-item').querySelector('.info b').textContent || feature;
-    showToast(state ? '✅ Đã bật ' + name : '⛔ Đã tắt ' + name);
-    updateVipStats(currentKeyType);
-  });
+    document.getElementById('activateBtn').addEventListener('click', activateAndOpen);
 
-  document.getElementById('settingsNav').addEventListener('click', function() {
-    if (confirm('Đăng xuất?')) handleLogout();
-  });
+    document.addEventListener('click', function(e) {
+        var sw = e.target.closest('.switch:not(.locked)');
+        if (!sw) return;
+        if (!isLoggedIn) { showToast("Chưa đăng nhập!"); return; }
 
-  document.addEventListener('visibilitychange', function() {
-    if (document.hidden) { sessionNonce = null; }
-    else if (isLoggedIn) { sessionNonce = randomNonce(); }
-  });
+        var feature = sw.dataset.feature;
+        if (!feature) return;
+
+        sw.classList.toggle('active');
+        var state = sw.classList.contains('active');
+        localStorage.setItem('toggle_' + feature, state);
+        callNative(feature, { enabled: state });
+        var name = sw.closest('.feature-item')?.querySelector('.info b')?.textContent || feature;
+        showToast(state ? '✅ Đã bật ' + name : '⛔ Đã tắt ' + name);
+        updateVipStats(currentKeyType);
+    });
+
+    document.getElementById('settingsNav').addEventListener('click', function() {
+        document.getElementById('infoPanel').classList.add('active');
+        document.getElementById('overlay').style.display = 'block';
+    });
+    document.getElementById('closeInfo').addEventListener('click', function() {
+        document.getElementById('infoPanel').classList.remove('active');
+        document.getElementById('overlay').style.display = 'none';
+    });
+    document.getElementById('overlay').addEventListener('click', function() {
+        document.getElementById('infoPanel').classList.remove('active');
+        document.getElementById('optimizeModal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    });
+
+    document.getElementById('closeOptimizeModal').addEventListener('click', function() {
+        document.getElementById('optimizeModal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    });
+
+    document.getElementById('runOptimize').addEventListener('click', function() {
+        var terminal = document.getElementById('optimizeTerminal');
+        var steps = [
+            '🧹 Đang dọn cache hệ thống...',
+            '💾 Giải phóng RAM...',
+            '⚡ Tăng hiệu năng CPU...',
+            '🎮 Tối ưu đồ họa game...',
+            '📱 Giảm độ trễ cảm ứng...',
+            '✅ Tối ưu hoàn tất 100%!'
+        ];
+        var i = 0;
+        terminal.textContent = '🚀 Đang tối ưu thiết bị...\n';
+        var interval = setInterval(function() {
+            if (i < steps.length) {
+                terminal.textContent += steps[i] + '\n';
+                i++;
+            } else {
+                clearInterval(interval);
+                callNative('fullOptimize', {});
+                document.getElementById('runOptimize').disabled = true;
+                document.getElementById('runOptimize').textContent = '✅ Hoàn tất';
+                showToast('✅ Tối ưu thiết bị thành công 100%!');
+                setTimeout(function() {
+                    document.getElementById('runOptimize').disabled = false;
+                    document.getElementById('runOptimize').textContent = '▶ Chạy tối ưu';
+                }, 3000);
+            }
+        }, 500);
+    });
+
+    document.querySelectorAll('.bottom-nav button').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.bottom-nav button').forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+        });
+    });
 });
 </script>
 </body>
