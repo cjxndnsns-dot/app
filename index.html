@@ -3,169 +3,1029 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SENSI ULTRALOCK - Pink Light</title>
+    <title>EVOZLOCK v6.5.0</title>
     <style>
-        *{box-sizing:border-box}
-        html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#fff5f7;color:#3a2a2e;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
-        body{background:radial-gradient(circle at 50% -18%,rgba(255,182,193,.18),transparent 40%),linear-gradient(180deg,#fff0f3 0%,#ffe4e9 100%)}
-        button,input,select{font-family:inherit;-webkit-appearance:none;appearance:none}
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        *{box-sizing:border-box;margin:0;padding:0}
+        html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#03060c;color:#e8eef5;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+        body{
+            background:
+                radial-gradient(circle at 20% 10%,rgba(56,189,248,.10),transparent 45%),
+                radial-gradient(circle at 80% 90%,rgba(168,85,247,.08),transparent 45%),
+                radial-gradient(circle at 50% -20%,rgba(34,211,238,.12),transparent 50%),
+                linear-gradient(180deg,#03060c 0%,#05080f 50%,#02040a 100%);
+            background-attachment:fixed;
+        }
+        button,input,select{font-family:inherit;-webkit-appearance:none;appearance:none;outline:none}
 
-        .gate{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:18px;background:rgba(255,240,245,.75);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-        .gate-card{width:min(440px,92vw);padding:28px;border:1px solid rgba(255,182,193,.5);border-radius:32px;background:rgba(255,255,255,.92);box-shadow:0 26px 70px rgba(255,150,170,.18);text-align:center}
-        .brand-logo img{width:180px;height:180px;object-fit:contain;border-radius:22px;filter:drop-shadow(0 0 22px rgba(255,150,170,.35))}
-        .gate h1{font-size:38px;letter-spacing:.9px;margin:10px 0;color:#3a2a2e}.gate h1 span{color:#ff7a9e}
-        .byline{color:#ff7a9e;font-weight:900;letter-spacing:1px;margin-bottom:20px}
-        .platform-badge{background:rgba(255,122,158,.15);color:#ff7a9e;border:1px solid rgba(255,122,158,.3);padding:5px 16px;border-radius:999px;font-size:13px;font-weight:900;display:inline-block;margin-bottom:10px}
-        .ios-version-warning{background:rgba(255,90,90,.12);border:1px solid rgba(255,90,90,.3);border-radius:12px;padding:12px;margin:10px 0;display:none;color:#d94a4a;font-size:13px;font-weight:800}
+        /* ============================================================
+           ANIMATED BACKGROUND
+           ============================================================ */
+        .bg-grid{
+            position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.35;
+            background-image:
+                linear-gradient(rgba(56,189,248,.06) 1px,transparent 1px),
+                linear-gradient(90deg,rgba(56,189,248,.06) 1px,transparent 1px);
+            background-size:44px 44px;
+            mask-image:radial-gradient(circle at 50% 30%,black 30%,transparent 75%);
+            -webkit-mask-image:radial-gradient(circle at 50% 30%,black 30%,transparent 75%);
+            animation:gridMove 22s linear infinite;
+        }
+        @keyframes gridMove{
+            0%{background-position:0 0,0 0}
+            100%{background-position:44px 44px,44px 44px}
+        }
+
+        .particles{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+        .particle{
+            position:absolute;width:2px;height:2px;border-radius:50%;
+            background:#38bdf8;box-shadow:0 0 8px #38bdf8,0 0 16px rgba(56,189,248,.5);
+            animation:floatUp linear infinite;opacity:0;
+        }
+        @keyframes floatUp{
+            0%{transform:translateY(100vh) scale(0);opacity:0}
+            10%{opacity:.9}
+            90%{opacity:.6}
+            100%{transform:translateY(-10vh) scale(1);opacity:0}
+        }
+
+        .orb{
+            position:fixed;border-radius:50%;filter:blur(80px);z-index:0;pointer-events:none;opacity:.4;
+        }
+        .orb.o1{width:340px;height:340px;background:radial-gradient(circle,#38bdf8,transparent 70%);top:-120px;left:-100px;animation:orbFloat 14s ease-in-out infinite}
+        .orb.o2{width:300px;height:300px;background:radial-gradient(circle,#a855f7,transparent 70%);bottom:-100px;right:-100px;animation:orbFloat 18s ease-in-out infinite reverse}
+        .orb.o3{width:240px;height:240px;background:radial-gradient(circle,#22d3ee,transparent 70%);top:40%;left:60%;animation:orbFloat 20s ease-in-out infinite}
+        @keyframes orbFloat{
+            0%,100%{transform:translate(0,0) scale(1)}
+            33%{transform:translate(30px,-30px) scale(1.1)}
+            66%{transform:translate(-20px,20px) scale(.9)}
+        }
+
+        /* ============================================================
+           LOGIN GATE
+           ============================================================ */
+        .gate{
+            position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:18px;
+            background:rgba(3,6,12,.85);
+            backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+            overflow-y:auto;
+        }
+        .gate-card{
+            width:min(440px,94vw);padding:30px 26px;
+            border:1px solid rgba(56,189,248,.25);
+            border-radius:32px;
+            background:linear-gradient(145deg,rgba(10,16,26,.95),rgba(6,10,18,.98));
+            box-shadow:
+                0 26px 70px rgba(0,0,0,.8),
+                inset 0 1px 0 rgba(56,189,248,.15),
+                0 0 60px rgba(56,189,248,.08);
+            text-align:center;position:relative;overflow:hidden;
+        }
+        .gate-card::before{
+            content:"";position:absolute;top:-2px;left:-2px;right:-2px;height:2px;
+            background:linear-gradient(90deg,transparent,#38bdf8,#a855f7,transparent);
+            background-size:200% 100%;
+            animation:borderScan 3s linear infinite;
+        }
+        @keyframes borderScan{
+            0%{background-position:200% 0}
+            100%{background-position:-200% 0}
+        }
+
+        .brand-logo{
+            position:relative;width:170px;height:170px;margin:0 auto 8px;
+            display:grid;place-items:center;
+        }
+        .brand-logo .ring-outer{
+            position:absolute;inset:0;border-radius:50%;
+            border:2px dashed rgba(56,189,248,.4);
+            animation:ringRotate 12s linear infinite;
+        }
+        .brand-logo .ring-mid{
+            position:absolute;inset:12px;border-radius:50%;
+            border:1px solid rgba(168,85,247,.35);
+            animation:ringRotate 8s linear infinite reverse;
+        }
+        .brand-logo .ring-inner{
+            position:absolute;inset:26px;border-radius:50%;
+            border:1px solid rgba(34,211,238,.3);
+            animation:ringRotate 16s linear infinite;
+        }
+        .brand-logo .ring-glow{
+            position:absolute;inset:-8px;border-radius:50%;
+            background:conic-gradient(from 0deg,transparent,rgba(56,189,248,.5),transparent 40%);
+            animation:ringRotate 4s linear infinite;
+            filter:blur(6px);opacity:.7;
+        }
+        .brand-logo img{
+            position:relative;width:110px;height:110px;object-fit:contain;border-radius:50%;
+            filter:drop-shadow(0 0 24px rgba(56,189,248,.6));
+            z-index:2;
+            border:2px solid rgba(56,189,248,.5);
+            padding:4px;background:rgba(3,6,12,.8);
+        }
+        @keyframes ringRotate{
+            0%{transform:rotate(0deg)}
+            100%{transform:rotate(360deg)}
+        }
+
+        .gate h1{
+            font-size:38px;letter-spacing:1.5px;margin:8px 0 2px;
+            color:#e8eef5;font-weight:950;
+            text-shadow:0 0 20px rgba(56,189,248,.5);
+        }
+        .gate h1 span{
+            color:#38bdf8;
+            text-shadow:0 0 24px rgba(56,189,248,.8),0 0 48px rgba(56,189,248,.4);
+        }
+        .byline{
+            color:#38bdf8;font-weight:900;letter-spacing:3px;margin-bottom:16px;font-size:12px;
+            text-transform:uppercase;opacity:.85;
+        }
+        .platform-badge{
+            background:linear-gradient(135deg,rgba(56,189,248,.15),rgba(168,85,247,.15));
+            color:#38bdf8;border:1px solid rgba(56,189,248,.4);
+            padding:6px 18px;border-radius:999px;font-size:11px;font-weight:900;
+            display:inline-block;margin-bottom:14px;letter-spacing:2px;
+            box-shadow:0 0 20px rgba(56,189,248,.2);
+        }
+        .ios-version-warning{
+            background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);
+            border-radius:12px;padding:12px;margin:10px 0;display:none;
+            color:#f87171;font-size:13px;font-weight:800;
+        }
         .ios-version-warning.show{display:block}
-        .input-row{height:60px;display:grid;grid-template-columns:36px 1fr;gap:6px;align-items:center;border:1px solid rgba(255,182,193,.6);background:rgba(255,255,255,.95);border-radius:20px;padding:0 15px;margin:8px 0}
-        .input-row input{width:100%;height:100%;border:0;background:transparent;color:#3a2a2e;font-size:18px;outline:none;-webkit-appearance:none}
-        .primary-btn{width:100%;height:60px;margin-top:15px;border:0;border-radius:20px;color:#fff;font-size:19px;font-weight:950;background:linear-gradient(135deg,#ffb6c1,#ff7a9e);cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 8px 24px rgba(255,122,158,.3)}
-        #keyExpiryDisplay{color:#ff7a9e;font-size:16px;font-weight:900;padding:10px;border-radius:12px;background:rgba(255,182,193,.2);border:1px solid rgba(255,182,193,.4);margin:10px 0}
-        .message{min-height:24px;margin:10px 0;text-align:center;font-size:14px}.message.err{color:#d94a4a}.message.ok{color:#3aa76d}
-        .toast{position:fixed;left:50%;bottom:92px;z-index:90;transform:translate(-50%,20px);opacity:0;padding:12px 16px;border-radius:999px;background:rgba(255,255,255,.98);color:#3a2a2e;border:1px solid rgba(255,182,193,.6);transition:.25s;white-space:nowrap;pointer-events:none;box-shadow:0 8px 24px rgba(255,150,170,.15)}
+
+        .activation-box{
+            border:1px solid rgba(56,189,248,.2);border-radius:20px;
+            padding:18px;margin:14px 0;
+            background:linear-gradient(145deg,rgba(15,22,34,.9),rgba(8,12,20,.95));
+            text-align:left;position:relative;overflow:hidden;
+        }
+        .activation-box::after{
+            content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;
+            background:linear-gradient(90deg,transparent,rgba(56,189,248,.06),transparent);
+            animation:shine 4s ease-in-out infinite;
+        }
+        @keyframes shine{
+            0%{left:-100%}
+            50%{left:100%}
+            100%{left:100%}
+        }
+        .activation-box .act-title{
+            display:flex;align-items:center;gap:8px;font-size:14px;font-weight:950;
+            color:#e8eef5;margin-bottom:4px;position:relative;z-index:1;
+        }
+        .activation-box .act-title .dot{
+            width:8px;height:8px;background:#38bdf8;border-radius:50%;
+            box-shadow:0 0 12px #38bdf8;animation:pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse{
+            0%,100%{transform:scale(1);opacity:1}
+            50%{transform:scale(1.4);opacity:.6}
+        }
+        .activation-box .act-sub{color:#64748b;font-size:12px;margin-bottom:12px;position:relative;z-index:1}
+        .activation-box .act-label{
+            color:#94a3b8;font-size:10px;font-weight:800;letter-spacing:2px;
+            margin-bottom:6px;text-transform:uppercase;position:relative;z-index:1;
+        }
+        .activation-box .act-input-wrap{
+            display:flex;align-items:center;border:1px solid rgba(56,189,248,.25);
+            background:rgba(3,6,12,.7);border-radius:12px;padding:0 14px;height:52px;
+            margin-bottom:12px;position:relative;z-index:1;transition:.2s;
+        }
+        .activation-box .act-input-wrap:focus-within{
+            border-color:#38bdf8;box-shadow:0 0 20px rgba(56,189,248,.25);
+        }
+        .activation-box .act-input-wrap input{
+            flex:1;background:transparent;border:0;color:#e8eef5;font-size:15px;
+            outline:none;height:100%;letter-spacing:.5px;
+        }
+        .activation-box .act-input-wrap .eye{
+            color:#64748b;font-size:18px;cursor:pointer;padding:4px;transition:.2s;
+        }
+        .activation-box .act-input-wrap .eye:hover{color:#38bdf8}
+        .activation-box .hwid-row{
+            display:flex;align-items:center;justify-content:space-between;
+            background:rgba(3,6,12,.6);border:1px solid rgba(255,255,255,.05);
+            border-radius:10px;padding:10px 12px;margin-bottom:14px;
+            position:relative;z-index:1;
+        }
+        .activation-box .hwid-label{
+            color:#64748b;font-size:9px;font-weight:800;letter-spacing:2px;
+        }
+        .activation-box .hwid-value{
+            color:#38bdf8;font-size:12px;font-family:'SF Mono',monospace;
+            margin-top:2px;word-break:break-all;letter-spacing:.5px;
+        }
+        .activation-box .copy-btn{
+            background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.35);
+            color:#38bdf8;border-radius:8px;padding:6px 10px;font-size:14px;
+            cursor:pointer;flex-shrink:0;transition:.2s;
+        }
+        .activation-box .copy-btn:hover{background:rgba(56,189,248,.25)}
+
+        .primary-btn{
+            width:100%;height:54px;border:0;border-radius:14px;color:#03060c;
+            font-size:16px;font-weight:950;
+            background:linear-gradient(135deg,#38bdf8,#2563eb,#7c3aed);
+            background-size:200% 100%;
+            cursor:pointer;letter-spacing:1.5px;
+            box-shadow:0 8px 28px rgba(56,189,248,.35),inset 0 1px 0 rgba(255,255,255,.2);
+            transition:.3s;position:relative;overflow:hidden;
+        }
+        .primary-btn:hover{
+            background-position:100% 0;
+            box-shadow:0 12px 36px rgba(56,189,248,.5);
+            transform:translateY(-1px);
+        }
+        .primary-btn:active{transform:translateY(0)}
+
+        #keyExpiryDisplay{
+            color:#38bdf8;font-size:13px;font-weight:900;padding:10px;
+            border-radius:12px;background:rgba(56,189,248,.08);
+            border:1px solid rgba(56,189,248,.25);margin:10px 0;text-align:center;
+        }
+        .message{min-height:22px;margin:8px 0;text-align:center;font-size:13px;font-weight:700}
+        .message.err{color:#f87171}
+        .message.ok{color:#4ade80}
+
+        /* ============================================================
+           TOAST
+           ============================================================ */
+        .toast{
+            position:fixed;left:50%;bottom:96px;z-index:90;
+            transform:translate(-50%,20px);opacity:0;
+            padding:13px 20px;border-radius:999px;
+            background:linear-gradient(145deg,rgba(15,22,34,.98),rgba(8,12,20,.98));
+            color:#e8eef5;border:1px solid rgba(56,189,248,.4);
+            transition:.3s cubic-bezier(.4,0,.2,1);white-space:nowrap;
+            pointer-events:none;font-size:13px;font-weight:800;
+            box-shadow:0 12px 32px rgba(0,0,0,.6),0 0 24px rgba(56,189,248,.2);
+            letter-spacing:.3px;
+        }
         .toast.active{opacity:1;transform:translate(-50%,0)}
 
-        .app{max-width:520px;margin:0 auto;padding:16px 14px 90px;min-height:100vh;display:none}
-        .topbar{display:flex;justify-content:space-between;align-items:center;padding:10px 0}
-        .topbar h2{font-size:22px;margin:0;color:#3a2a2e}.topbar h2 span{color:#ff7a9e}
-        .topbar .badge{color:#3aa76d;font-weight:900;font-size:13px;display:flex;align-items:center;gap:6px}
-        .topbar .badge i{width:8px;height:8px;background:#3aa76d;border-radius:50%;display:inline-block}
+        /* ============================================================
+           APP MAIN
+           ============================================================ */
+        .app{
+            max-width:540px;margin:0 auto;padding:16px 14px 100px;
+            min-height:100vh;display:none;position:relative;z-index:1;
+        }
 
-        .admin-banner{background:linear-gradient(135deg,rgba(255,182,193,.2),rgba(255,255,255,.95));border-radius:16px;padding:14px 16px;border:1px solid rgba(255,182,193,.5);margin:10px 0;display:flex;align-items:center;gap:12px}
-        .admin-banner .admin-avatar{width:44px;height:44px;border-radius:50%;border:2px solid #ff7a9e;object-fit:cover;flex-shrink:0}
-        .admin-banner .admin-info{flex:1}
-        .admin-banner .admin-name{color:#ff7a9e;font-weight:950;font-size:14px}
-        .admin-banner .admin-msg{color:#8a7a7e;font-size:12px;line-height:1.4}
-        .admin-banner .admin-version{color:#ff7a9e;font-weight:900;font-size:13px;background:rgba(255,182,193,.2);padding:2px 10px;border-radius:999px;border:1px solid rgba(255,182,193,.4)}
+        /* ============================================================
+           TOP BAR
+           ============================================================ */
+        .topbar{
+            display:flex;justify-content:space-between;align-items:center;
+            padding:12px 0;position:relative;
+        }
+        .topbar h2{
+            font-size:22px;font-weight:950;letter-spacing:1px;color:#e8eef5;
+            text-shadow:0 0 20px rgba(56,189,248,.4);
+        }
+        .topbar h2 span{
+            color:#38bdf8;
+            text-shadow:0 0 24px rgba(56,189,248,.8);
+        }
+        .topbar .badge{
+            color:#4ade80;font-weight:900;font-size:11px;
+            display:flex;align-items:center;gap:6px;
+            padding:6px 12px;border-radius:999px;
+            background:rgba(74,222,128,.08);
+            border:1px solid rgba(74,222,128,.25);
+            letter-spacing:1px;
+        }
+        .topbar .badge i{
+            width:7px;height:7px;background:#4ade80;border-radius:50%;
+            display:inline-block;box-shadow:0 0 10px #4ade80;
+            animation:pulse 1.5s ease-in-out infinite;
+        }
 
-        .key-info{background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(255,240,245,.95));border-radius:20px;padding:18px 20px;border:1px solid rgba(255,182,193,.5);margin:10px 0;box-shadow:0 4px 16px rgba(255,150,170,.08)}
-        .key-info .row{display:flex;justify-content:space-between;align-items:center;padding:6px 0}
-        .key-info .label{color:#8a7a7e;font-size:14px;font-weight:800}
-        .key-info .value{color:#ff7a9e;font-weight:950;font-size:16px}
-        .key-info .type-badge{padding:5px 16px;border-radius:999px;font-size:12px;font-weight:950}
-        .type-badge.basic{background:rgba(255,182,193,.3);color:#ff7a9e;border:1px solid rgba(255,182,193,.6)}
-        .type-badge.vip{background:rgba(255,122,158,.2);color:#e0557a;border:1px solid rgba(255,122,158,.5)}
+        /* ============================================================
+           ADMIN BANNER
+           ============================================================ */
+        .admin-banner{
+            background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(168,85,247,.05),rgba(15,22,34,.95));
+            border-radius:18px;padding:14px 16px;
+            border:1px solid rgba(56,189,248,.25);
+            margin:10px 0;display:flex;align-items:center;gap:12px;
+            position:relative;overflow:hidden;
+            box-shadow:0 4px 20px rgba(0,0,0,.3),inset 0 1px 0 rgba(56,189,248,.1);
+        }
+        .admin-banner::before{
+            content:"";position:absolute;top:0;left:0;width:3px;height:100%;
+            background:linear-gradient(180deg,#38bdf8,#a855f7);
+            box-shadow:0 0 12px #38bdf8;
+        }
+        .admin-banner .admin-avatar{
+            width:46px;height:46px;border-radius:50%;
+            border:2px solid #38bdf8;object-fit:cover;flex-shrink:0;
+            box-shadow:0 0 16px rgba(56,189,248,.5);
+        }
+        .admin-banner .admin-info{flex:1;min-width:0}
+        .admin-banner .admin-name{
+            color:#38bdf8;font-weight:950;font-size:14px;letter-spacing:.3px;
+        }
+        .admin-banner .admin-msg{
+            color:#94a3b8;font-size:11px;line-height:1.4;margin-top:2px;
+            overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+        }
+        .admin-banner .admin-version{
+            color:#38bdf8;font-weight:900;font-size:11px;
+            background:rgba(56,189,248,.12);padding:4px 10px;
+            border-radius:999px;border:1px solid rgba(56,189,248,.3);
+            flex-shrink:0;letter-spacing:.5px;
+            box-shadow:0 0 12px rgba(56,189,248,.15);
+        }
 
-        .vip-card{background:linear-gradient(135deg,rgba(255,182,193,.15),rgba(255,255,255,.95));border-radius:20px;padding:18px 20px;border:1px solid rgba(255,182,193,.5);margin:12px 0;text-align:center;box-shadow:0 4px 16px rgba(255,150,170,.08)}
-        .vip-card .vip-title{font-size:22px;font-weight:950;color:#ff7a9e;letter-spacing:2px}
-        .vip-card .vip-sub{color:#8a7a7e;font-size:13px;font-weight:800;margin:4px 0 12px}
-        .vip-card .vip-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
-        .vip-card .stat-item{background:rgba(255,240,245,.8);border-radius:14px;padding:12px;border:1px solid rgba(255,182,193,.4)}
-        .vip-card .stat-item .num{font-size:24px;font-weight:950;color:#ff7a9e}
-        .vip-card .stat-item .lbl{font-size:11px;color:#8a7a7e;font-weight:800;margin-top:4px}
+        /* ============================================================
+           KEY INFO
+           ============================================================ */
+        .key-info{
+            background:linear-gradient(145deg,rgba(15,22,34,.95),rgba(8,12,20,.98));
+            border-radius:20px;padding:18px 20px;
+            border:1px solid rgba(56,189,248,.2);
+            margin:10px 0;position:relative;overflow:hidden;
+            box-shadow:0 4px 24px rgba(0,0,0,.35),inset 0 1px 0 rgba(56,189,248,.08);
+        }
+        .key-info::before{
+            content:"";position:absolute;top:0;right:0;width:120px;height:120px;
+            background:radial-gradient(circle,rgba(56,189,248,.1),transparent 70%);
+            pointer-events:none;
+        }
+        .key-info .row{
+            display:flex;justify-content:space-between;align-items:center;
+            padding:7px 0;position:relative;z-index:1;
+        }
+        .key-info .label{color:#64748b;font-size:12px;font-weight:800;letter-spacing:.5px}
+        .key-info .value{color:#38bdf8;font-weight:950;font-size:14px;letter-spacing:.3px}
 
-        .feature-group{background:rgba(255,255,255,.92);border-radius:18px;border:1px solid rgba(255,182,193,.4);margin:10px 0;overflow:hidden;box-shadow:0 2px 12px rgba(255,150,170,.06)}
-        .group-header{padding:12px 18px;background:rgba(255,182,193,.12);border-bottom:1px solid rgba(255,182,193,.3);font-weight:950;font-size:15px;display:flex;justify-content:space-between;align-items:center;color:#3a2a2e}
-        .group-header .lock-icon{font-size:14px}
-        .group-header .unlocked{color:#3aa76d}.group-header .locked{color:#d94a4a}
-        .feature-item{display:grid;grid-template-columns:44px 1fr 50px;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,182,193,.15);gap:10px}
+        /* ============================================================
+           VIP CARD
+           ============================================================ */
+        .vip-card{
+            background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(168,85,247,.06),rgba(15,22,34,.98));
+            border-radius:22px;padding:22px 20px;
+            border:1px solid rgba(56,189,248,.25);
+            margin:14px 0;text-align:center;position:relative;overflow:hidden;
+            box-shadow:0 8px 32px rgba(0,0,0,.4),inset 0 1px 0 rgba(56,189,248,.1);
+        }
+        .vip-card::before{
+            content:"";position:absolute;inset:-1px;border-radius:22px;
+            background:linear-gradient(135deg,rgba(56,189,248,.3),transparent 40%,transparent 60%,rgba(168,85,247,.3));
+            z-index:-1;opacity:.5;
+        }
+        .vip-card::after{
+            content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+            background:conic-gradient(from 0deg,transparent,rgba(56,189,248,.15),transparent 25%);
+            animation:ringRotate 8s linear infinite;
+            pointer-events:none;
+        }
+        .vip-card .vip-title{
+            font-size:22px;font-weight:950;letter-spacing:4px;position:relative;z-index:1;
+            background:linear-gradient(135deg,#38bdf8,#a855f7,#38bdf8);
+            background-size:200% 100%;
+            -webkit-background-clip:text;background-clip:text;
+            -webkit-text-fill-color:transparent;
+            animation:gradientShift 3s linear infinite;
+            filter:drop-shadow(0 0 12px rgba(56,189,248,.4));
+        }
+        @keyframes gradientShift{
+            0%{background-position:0% 50%}
+            100%{background-position:200% 50%}
+        }
+        .vip-card .vip-sub{
+            color:#64748b;font-size:12px;font-weight:800;margin:6px 0 14px;
+            letter-spacing:2px;position:relative;z-index:1;
+        }
+        .vip-card .vip-stats{
+            display:grid;grid-template-columns:1fr 1fr;gap:12px;
+            margin:12px 0;position:relative;z-index:1;
+        }
+        .vip-card .stat-item{
+            background:linear-gradient(145deg,rgba(3,6,12,.7),rgba(10,16,26,.9));
+            border-radius:16px;padding:16px 12px;
+            border:1px solid rgba(56,189,248,.2);
+            box-shadow:inset 0 1px 0 rgba(56,189,248,.08);
+            transition:.3s;
+        }
+        .vip-card .stat-item:hover{
+            border-color:rgba(56,189,248,.5);
+            box-shadow:0 0 20px rgba(56,189,248,.2),inset 0 1px 0 rgba(56,189,248,.15);
+        }
+        .vip-card .stat-item .num{
+            font-size:26px;font-weight:950;
+            background:linear-gradient(135deg,#38bdf8,#7c3aed);
+            -webkit-background-clip:text;background-clip:text;
+            -webkit-text-fill-color:transparent;
+            filter:drop-shadow(0 0 8px rgba(56,189,248,.3));
+        }
+        .vip-card .stat-item .lbl{
+            font-size:10px;color:#64748b;font-weight:800;margin-top:4px;
+            letter-spacing:1.5px;
+        }
+
+        /* ============================================================
+           FEATURE GROUP
+           ============================================================ */
+        .feature-group{
+            background:linear-gradient(145deg,rgba(15,22,34,.92),rgba(8,12,20,.96));
+            border-radius:20px;border:1px solid rgba(56,189,248,.15);
+            margin:12px 0;overflow:hidden;
+            box-shadow:0 4px 24px rgba(0,0,0,.35);
+            position:relative;
+        }
+        .feature-group::before{
+            content:"";position:absolute;top:0;left:0;right:0;height:1px;
+            background:linear-gradient(90deg,transparent,rgba(56,189,248,.5),transparent);
+        }
+        .group-header{
+            padding:14px 18px;
+            background:linear-gradient(90deg,rgba(56,189,248,.10),rgba(168,85,247,.05),transparent);
+            border-bottom:1px solid rgba(56,189,248,.12);
+            font-weight:950;font-size:14px;
+            display:flex;justify-content:space-between;align-items:center;
+            color:#e8eef5;letter-spacing:1px;position:relative;
+        }
+        .group-header .group-count{
+            font-size:10px;color:#64748b;font-weight:800;
+            background:rgba(56,189,248,.08);
+            padding:3px 10px;border-radius:999px;
+            border:1px solid rgba(56,189,248,.2);
+            letter-spacing:1px;
+        }
+
+        .feature-item{
+            display:grid;grid-template-columns:46px 1fr 52px;
+            align-items:center;padding:13px 16px;
+            border-bottom:1px solid rgba(255,255,255,.04);
+            gap:12px;transition:.2s;position:relative;
+        }
         .feature-item:last-child{border-bottom:0}
-        .feature-item .icon{font-size:22px;text-align:center}
-        .feature-item .info b{display:block;font-size:15px;font-weight:950;color:#3a2a2e}
-        .feature-item .info small{color:#8a7a7e;font-size:11px;font-weight:800}
-        .feature-item .info .vip-tag{color:#e0557a;font-size:10px;font-weight:950;margin-left:6px;background:rgba(255,122,158,.15);padding:1px 8px;border-radius:999px}
-        .switch{width:44px;height:26px;border-radius:999px;background:#e8d5da;position:relative;cursor:pointer;transition:.2s;flex-shrink:0;-webkit-tap-highlight-color:transparent}
-        .switch:before{content:"";width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.1)}
-        .switch.active{background:linear-gradient(135deg,#ffb6c1,#ff7a9e)}
-        .switch.active:before{left:21px}
-        .switch.locked{opacity:0.35;cursor:not-allowed;background:#e8d5da}
-        .switch.locked:before{background:#ccc}
+        .feature-item:hover{
+            background:rgba(56,189,248,.04);
+        }
+        .feature-item .icon{
+            font-size:22px;text-align:center;
+            width:42px;height:42px;border-radius:12px;
+            display:grid;place-items:center;
+            background:linear-gradient(145deg,rgba(56,189,248,.12),rgba(168,85,247,.08));
+            border:1px solid rgba(56,189,248,.15);
+            box-shadow:inset 0 1px 0 rgba(56,189,248,.1);
+        }
+        .feature-item .info b{
+            display:block;font-size:14px;font-weight:950;color:#e8eef5;
+            letter-spacing:.3px;
+        }
+        .feature-item .info small{
+            color:#64748b;font-size:11px;font-weight:700;
+            display:block;margin-top:2px;letter-spacing:.3px;
+        }
 
-        .ff-selector{display:none;gap:10px;margin:12px 0;padding:14px;background:rgba(255,255,255,.92);border-radius:16px;border:1px solid rgba(255,182,193,.4)}
-        .ff-selector.show{display:flex}
-        .ff-btn{flex:1;padding:14px;border-radius:14px;border:2px solid rgba(255,182,193,.3);background:rgba(255,240,245,.8);color:#3a2a2e;font-weight:900;cursor:pointer;transition:.2s;font-size:14px;-webkit-tap-highlight-color:transparent}
-        .ff-btn.active{border-color:#ff7a9e;background:rgba(255,182,193,.25)}
-        .ff-btn .ff-icon{font-size:24px;display:block;margin-bottom:4px}
+        /* ============================================================
+           SWITCH
+           ============================================================ */
+        .switch{
+            width:48px;height:28px;border-radius:999px;
+            background:linear-gradient(145deg,#1a2332,#0f1620);
+            position:relative;cursor:pointer;transition:.3s;
+            flex-shrink:0;-webkit-tap-highlight-color:transparent;
+            border:1px solid rgba(56,189,248,.15);
+            box-shadow:inset 0 2px 4px rgba(0,0,0,.4);
+        }
+        .switch:before{
+            content:"";width:22px;height:22px;border-radius:50%;
+            background:linear-gradient(145deg,#64748b,#475569);
+            position:absolute;top:2px;left:2px;
+            transition:.3s cubic-bezier(.4,0,.2,1);
+            box-shadow:0 2px 6px rgba(0,0,0,.5);
+        }
+        .switch.active{
+            background:linear-gradient(135deg,#38bdf8,#2563eb);
+            border-color:rgba(56,189,248,.6);
+            box-shadow:
+                0 0 16px rgba(56,189,248,.5),
+                inset 0 2px 4px rgba(0,0,0,.2);
+        }
+        .switch.active:before{
+            left:24px;
+            background:linear-gradient(145deg,#ffffff,#e0f2fe);
+            box-shadow:0 0 12px rgba(255,255,255,.8);
+        }
 
-        .activate-btn{width:100%;padding:16px;border:0;border-radius:16px;background:linear-gradient(135deg,#ffb6c1,#ff7a9e);color:#fff;font-weight:950;font-size:17px;cursor:pointer;margin:10px 0;-webkit-tap-highlight-color:transparent;box-shadow:0 8px 24px rgba(255,122,158,.3)}
+        /* ============================================================
+           ACTIVATE BTN
+           ============================================================ */
+        .activate-btn{
+            width:100%;padding:18px;border:0;border-radius:18px;
+            background:linear-gradient(135deg,#38bdf8,#2563eb,#7c3aed);
+            background-size:200% 100%;
+            color:#fff;font-weight:950;font-size:16px;cursor:pointer;
+            margin:14px 0;-webkit-tap-highlight-color:transparent;
+            letter-spacing:2px;position:relative;overflow:hidden;
+            box-shadow:0 12px 36px rgba(56,189,248,.35),inset 0 1px 0 rgba(255,255,255,.2);
+            transition:.3s;
+            animation:gradientShift 4s linear infinite;
+            text-shadow:0 0 12px rgba(255,255,255,.5);
+        }
+        .activate-btn:hover{
+            box-shadow:0 16px 44px rgba(56,189,248,.55);
+            transform:translateY(-2px);
+        }
+        .activate-btn:active{transform:translateY(0)}
 
-        .modal{position:fixed;inset:0;z-index:70;display:none;place-items:center;padding:18px;background:rgba(255,240,245,.85);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
-        .modal-card{width:min(430px,94vw);border-radius:24px;padding:22px;background:rgba(255,255,255,.98);border:1px solid rgba(255,182,193,.5);max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(255,150,170,.15)}
-        .modal-title{display:flex;align-items:center;gap:12px;margin-bottom:15px}
-        .modal-title h3{font-size:22px;margin:0;color:#3a2a2e}.modal-title p{color:#8a7a7e;margin:2px 0 0;font-size:13px}
-        .close{position:absolute;right:14px;top:12px;border:0;width:36px;height:36px;border-radius:99px;background:rgba(255,182,193,.3);color:#3a2a2e;font-size:22px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-        .modal-btn{width:100%;padding:14px;border:0;border-radius:14px;font-weight:900;font-size:15px;cursor:pointer;margin:6px 0;-webkit-tap-highlight-color:transparent}
-        .modal-btn.success{background:linear-gradient(135deg,#b6e6c9,#7ad19e);color:#fff}
-        .modal-btn.danger{background:linear-gradient(135deg,#ffb6c1,#ff7a9e);color:#fff}
-        .modal-btn.primary{background:linear-gradient(135deg,#ffb6c1,#ff7a9e);color:#fff}
-        .terminal{background:#fff0f3;border-radius:14px;padding:14px;color:#e0557a;font-size:12px;line-height:1.6;min-height:150px;white-space:pre-wrap;border:1px solid rgba(255,182,193,.5);margin:10px 0;font-family:monospace}
+        /* ============================================================
+           BOTTOM NAV
+           ============================================================ */
+        .bottom-nav{
+            position:fixed;left:50%;bottom:10px;transform:translateX(-50%);
+            width:min(500px,94vw);height:68px;
+            border:1px solid rgba(56,189,248,.25);
+            background:linear-gradient(145deg,rgba(10,16,26,.96),rgba(6,10,18,.98));
+            backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+            border-radius:22px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;
+            z-index:30;box-shadow:
+                0 12px 40px rgba(0,0,0,.6),
+                0 0 40px rgba(56,189,248,.08),
+                inset 0 1px 0 rgba(56,189,248,.15);
+            overflow:hidden;
+        }
+        .bottom-nav::before{
+            content:"";position:absolute;top:0;left:0;right:0;height:1px;
+            background:linear-gradient(90deg,transparent,rgba(56,189,248,.6),transparent);
+        }
+        .bottom-nav button{
+            border:0;background:transparent;color:#64748b;
+            font-size:20px;font-weight:900;
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            gap:3px;cursor:pointer;-webkit-tap-highlight-color:transparent;
+            padding:4px;transition:.3s;position:relative;
+        }
+        .bottom-nav button span{font-size:10px;font-weight:800;letter-spacing:.5px}
+        .bottom-nav button span:first-child{font-size:22px;transition:.3s}
+        .bottom-nav .active{color:#38bdf8}
+        .bottom-nav .active span:first-child{
+            filter:drop-shadow(0 0 10px rgba(56,189,248,.8));
+            transform:scale(1.1);
+        }
+        .bottom-nav .active::after{
+            content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+            width:24px;height:2px;border-radius:0 0 4px 4px;
+            background:linear-gradient(90deg,#38bdf8,#a855f7);
+            box-shadow:0 0 12px #38bdf8;
+        }
 
-        .bottom-nav{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);width:min(500px,94vw);height:64px;border:1px solid rgba(255,182,193,.5);background:rgba(255,255,255,.95);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:20px;display:grid;grid-template-columns:1fr 1fr 1fr;z-index:30;box-shadow:0 8px 24px rgba(255,150,170,.12)}
-        .bottom-nav button{border:0;background:transparent;color:#b8a0a8;font-size:20px;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-        .bottom-nav span{font-size:11px}.bottom-nav .active{color:#ff7a9e}
+        /* ============================================================
+           FULLSCREEN VIEWS
+           ============================================================ */
+        .view{
+            position:fixed;inset:0;z-index:60;
+            background:linear-gradient(145deg,rgba(3,6,12,.98),rgba(5,8,14,.99));
+            overflow-y:auto;
+            transform:translateX(100%);
+            transition:.4s cubic-bezier(.4,0,.2,1);
+            display:none;
+        }
+        .view.active{
+            transform:translateX(0);
+            display:block;
+        }
+        .view::before{
+            content:"";position:fixed;top:0;left:0;width:1px;height:100%;
+            background:linear-gradient(180deg,transparent,#38bdf8,#a855f7,transparent);
+        }
 
-        .info-panel{position:fixed;top:0;right:0;z-index:60;width:min(360px,88vw);height:100vh;padding:18px;background:rgba(255,255,255,.98);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-left:1px solid rgba(255,182,193,.4);transform:translateX(105%);transition:.25s}
-        .info-panel.active{transform:translateX(0)}
-        .info-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
-        .info-head button{border:0;border-radius:12px;background:rgba(255,182,193,.3);color:#3a2a2e;padding:8px 14px;font-weight:800;-webkit-tap-highlight-color:transparent}
-        .info-item{display:flex;justify-content:space-between;align-items:center;padding:14px;border-radius:16px;background:rgba(255,240,245,.8);border:1px solid rgba(255,182,193,.4);margin:8px 0;cursor:pointer}
-        .info-item strong{font-size:14px}.info-item p{color:#8a7a7e;font-size:12px;margin:2px 0 0}.info-item span{color:#ff7a9e;font-size:20px}
-        #adminInfo{display:flex;flex-direction:column;align-items:center;padding:16px;border-radius:18px;background:rgba(255,182,193,.15);border:1px solid rgba(255,182,193,.4);margin:10px 0}
-        #adminInfo img{width:70px;height:70px;border-radius:50%;border:3px solid #ff7a9e}
-        #adminInfo .name{color:#ff7a9e;font-weight:950;font-size:18px;margin:6px 0 2px}
-        #adminInfo .zalo{color:#8a7a7e;font-size:13px;letter-spacing:2px}
+        .view-header{
+            display:flex;justify-content:space-between;align-items:center;
+            padding:18px 20px;
+            background:linear-gradient(90deg,rgba(56,189,248,.08),rgba(168,85,247,.05),transparent);
+            border-bottom:1px solid rgba(56,189,248,.15);
+            position:sticky;top:0;z-index:2;
+            backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+        }
+        .view-header .back-btn{
+            width:40px;height:40px;border-radius:12px;
+            background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);
+            color:#38bdf8;font-size:18px;font-weight:900;cursor:pointer;
+            display:grid;place-items:center;transition:.2s;
+            -webkit-tap-highlight-color:transparent;
+        }
+        .view-header .back-btn:hover{background:rgba(56,189,248,.25);transform:translateX(-2px)}
+        .view-header h2{
+            font-size:17px;margin:0;color:#e8eef5;font-weight:950;
+            letter-spacing:1px;display:flex;align-items:center;gap:10px;
+            flex:1;justify-content:center;
+        }
+        .view-header h2 .p-icon{
+            font-size:20px;
+            filter:drop-shadow(0 0 8px rgba(56,189,248,.6));
+        }
+        .view-header .spacer{width:40px}
 
-        .overlay{position:fixed;inset:0;z-index:55;background:rgba(255,240,245,.6);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:none}
+        .view-content{
+            padding:20px;
+            max-width:600px;margin:0 auto;
+            padding-bottom:40px;
+        }
 
-        @media(max-width:430px){.gate-card{padding:18px}.brand-logo img{width:140px;height:140px}.gate h1{font-size:28px}}
+        /* ============================================================
+           ADMIN INFO (PROFILE)
+           ============================================================ */
+        #adminInfo{
+            display:flex;flex-direction:column;align-items:center;
+            padding:26px 16px;border-radius:22px;
+            background:linear-gradient(145deg,rgba(56,189,248,.08),rgba(168,85,247,.05));
+            border:1px solid rgba(56,189,248,.25);
+            margin:10px 0;position:relative;overflow:hidden;
+        }
+        #adminInfo::before{
+            content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+            background:conic-gradient(from 0deg,transparent,rgba(56,189,248,.1),transparent 30%);
+            animation:ringRotate 10s linear infinite;
+            pointer-events:none;
+        }
+        #adminInfo img{
+            width:90px;height:90px;border-radius:50%;
+            border:3px solid #38bdf8;position:relative;z-index:1;
+            box-shadow:0 0 30px rgba(56,189,248,.6);
+            animation:pulse 3s ease-in-out infinite;
+        }
+        #adminInfo .name{
+            color:#38bdf8;font-weight:950;font-size:20px;
+            margin:12px 0 4px;position:relative;z-index:1;
+            text-shadow:0 0 20px rgba(56,189,248,.6);
+            letter-spacing:.5px;
+        }
+        #adminInfo .zalo{
+            color:#94a3b8;font-size:13px;letter-spacing:2px;
+            position:relative;z-index:1;
+        }
 
-        .ff-selector .ff-btn{font-size:13px}
-        .bottom-nav button{font-size:18px}
+        .info-item{
+            display:flex;justify-content:space-between;align-items:center;
+            padding:16px;border-radius:16px;
+            background:linear-gradient(145deg,rgba(15,22,34,.8),rgba(8,12,20,.9));
+            border:1px solid rgba(56,189,248,.15);
+            margin:10px 0;cursor:pointer;transition:.2s;
+        }
+        .info-item:hover{
+            border-color:rgba(56,189,248,.4);
+            box-shadow:0 0 16px rgba(56,189,248,.15);
+            transform:translateX(4px);
+        }
+        .info-item strong{font-size:14px;color:#e8eef5;display:block}
+        .info-item p{color:#64748b;font-size:11px;margin:2px 0 0}
+        .info-item span{color:#38bdf8;font-size:20px}
+
+        /* ============================================================
+           MODALS
+           ============================================================ */
+        .modal{
+            position:fixed;inset:0;z-index:70;display:none;place-items:center;
+            padding:18px;background:rgba(3,6,12,.85);
+            backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+        }
+        .modal-card{
+            width:min(440px,94vw);border-radius:26px;padding:24px;
+            background:linear-gradient(145deg,rgba(10,16,26,.98),rgba(5,8,14,.99));
+            border:1px solid rgba(56,189,248,.3);
+            max-height:90vh;overflow-y:auto;position:relative;
+            box-shadow:
+                0 26px 80px rgba(0,0,0,.8),
+                0 0 60px rgba(56,189,248,.15),
+                inset 0 1px 0 rgba(56,189,248,.15);
+            animation:modalIn .3s cubic-bezier(.4,0,.2,1);
+        }
+        @keyframes modalIn{
+            from{opacity:0;transform:translateY(20px) scale(.95)}
+            to{opacity:1;transform:translateY(0) scale(1)}
+        }
+        .modal-card::before{
+            content:"";position:absolute;top:-1px;left:10%;right:10%;height:1px;
+            background:linear-gradient(90deg,transparent,#38bdf8,#a855f7,transparent);
+        }
+        .modal-title{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+        .modal-title h3{font-size:20px;margin:0;color:#e8eef5;font-weight:950}
+        .modal-title p{color:#64748b;margin:3px 0 0;font-size:12px}
+        .close{
+            position:absolute;right:14px;top:12px;border:0;
+            width:38px;height:38px;border-radius:50%;
+            background:rgba(56,189,248,.12);color:#38bdf8;
+            font-size:20px;cursor:pointer;
+            -webkit-tap-highlight-color:transparent;
+            border:1px solid rgba(56,189,248,.25);
+            transition:.2s;
+        }
+        .close:hover{background:rgba(56,189,248,.25);transform:rotate(90deg)}
+        .modal-btn{
+            width:100%;padding:14px;border:0;border-radius:14px;
+            font-weight:900;font-size:14px;cursor:pointer;margin:6px 0;
+            -webkit-tap-highlight-color:transparent;letter-spacing:1px;
+            transition:.2s;
+        }
+        .modal-btn.success{
+            background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;
+            box-shadow:0 8px 24px rgba(34,197,94,.3);
+        }
+        .modal-btn.danger{
+            background:linear-gradient(135deg,#ef4444,#991b1b);color:#fff;
+            box-shadow:0 8px 24px rgba(239,68,68,.3);
+        }
+        .modal-btn.primary{
+            background:linear-gradient(135deg,#38bdf8,#2563eb);color:#03060c;
+            box-shadow:0 8px 24px rgba(56,189,248,.35);
+        }
+        .terminal{
+            background:#03060c;border-radius:14px;padding:16px;
+            color:#4ade80;font-size:12px;line-height:1.8;
+            min-height:160px;white-space:pre-wrap;
+            border:1px solid rgba(74,222,128,.2);
+            margin:12px 0;font-family:'SF Mono',monospace;
+            box-shadow:inset 0 0 30px rgba(74,222,128,.05);
+        }
+
+        /* ============================================================
+           CATEGORY MODAL
+           ============================================================ */
+        .cat-overlay{
+            position:fixed;inset:0;z-index:80;display:none;
+            place-items:center;padding:18px;background:rgba(3,6,12,.88);
+            backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+        }
+        .cat-modal{
+            width:min(420px,94vw);border-radius:26px;
+            background:linear-gradient(145deg,rgba(10,16,26,.98),rgba(5,8,14,.99));
+            border:1px solid rgba(56,189,248,.3);
+            padding:0;overflow:hidden;
+            box-shadow:
+                0 26px 80px rgba(0,0,0,.8),
+                0 0 80px rgba(56,189,248,.15);
+            animation:modalIn .3s cubic-bezier(.4,0,.2,1);
+        }
+        .cat-header{
+            padding:20px;text-align:center;
+            border-bottom:1px solid rgba(56,189,248,.15);
+            background:linear-gradient(90deg,rgba(56,189,248,.08),rgba(168,85,247,.06),rgba(56,189,248,.08));
+            position:relative;
+        }
+        .cat-header::before{
+            content:"";position:absolute;top:0;left:0;right:0;height:2px;
+            background:linear-gradient(90deg,transparent,#38bdf8,#a855f7,transparent);
+            background-size:200% 100%;
+            animation:borderScan 3s linear infinite;
+        }
+        .cat-header h3{
+            margin:0;font-size:18px;color:#e8eef5;font-weight:950;
+            letter-spacing:1px;
+            text-shadow:0 0 16px rgba(56,189,248,.4);
+        }
+        .cat-list{padding:12px}
+        .cat-item{
+            display:flex;align-items:center;gap:14px;
+            padding:14px;border-radius:16px;
+            border:1px solid rgba(255,255,255,.06);
+            background:linear-gradient(145deg,rgba(15,22,34,.6),rgba(8,12,20,.7));
+            margin-bottom:8px;cursor:pointer;transition:.25s;
+            position:relative;overflow:hidden;
+        }
+        .cat-item:hover{
+            border-color:rgba(56,189,248,.3);
+            transform:translateX(4px);
+        }
+        .cat-item.active{
+            border-color:#38bdf8;
+            background:linear-gradient(135deg,rgba(56,189,248,.15),rgba(37,99,235,.10));
+            box-shadow:
+                0 0 24px rgba(56,189,248,.25),
+                inset 0 1px 0 rgba(56,189,248,.2);
+        }
+        .cat-item.active::before{
+            content:"";position:absolute;left:0;top:0;width:3px;height:100%;
+            background:linear-gradient(180deg,#38bdf8,#a855f7);
+            box-shadow:0 0 12px #38bdf8;
+        }
+        .cat-item .cat-icon{
+            width:48px;height:48px;border-radius:14px;
+            background:linear-gradient(145deg,rgba(56,189,248,.15),rgba(168,85,247,.1));
+            display:grid;place-items:center;font-size:24px;
+            flex-shrink:0;overflow:hidden;
+            border:1px solid rgba(56,189,248,.2);
+        }
+        .cat-item .cat-name{
+            flex:1;font-size:15px;font-weight:950;color:#e8eef5;
+            letter-spacing:.3px;
+        }
+        .cat-item .cat-radio{
+            width:22px;height:22px;border-radius:50%;
+            border:2px solid #475569;flex-shrink:0;
+            display:grid;place-items:center;transition:.25s;
+        }
+        .cat-item.active .cat-radio{
+            border-color:#38bdf8;
+            box-shadow:0 0 12px rgba(56,189,248,.5);
+        }
+        .cat-item.active .cat-radio:after{
+            content:"";width:12px;height:12px;border-radius:50%;
+            background:linear-gradient(135deg,#38bdf8,#2563eb);
+            box-shadow:0 0 10px #38bdf8;
+            animation:pulse 1.5s ease-in-out infinite;
+        }
+        .cat-footer{
+            padding:14px;border-top:1px solid rgba(56,189,248,.12);
+            text-align:center;
+            background:rgba(3,6,12,.4);
+        }
+        .cat-footer button{
+            width:100%;padding:14px;border:0;border-radius:14px;
+            background:linear-gradient(145deg,rgba(56,189,248,.1),rgba(168,85,247,.08));
+            color:#e8eef5;font-weight:950;font-size:15px;cursor:pointer;
+            -webkit-tap-highlight-color:transparent;letter-spacing:1px;
+            border:1px solid rgba(56,189,248,.25);
+            transition:.2s;
+        }
+        .cat-footer button:hover{
+            background:linear-gradient(145deg,rgba(56,189,248,.2),rgba(168,85,247,.15));
+        }
+
+        /* ============================================================
+           GUIDE / DNS
+           ============================================================ */
+        .guide-step{
+            display:flex;gap:14px;padding:14px 0;
+            border-bottom:1px solid rgba(255,255,255,.04);
+        }
+        .guide-step:last-child{border-bottom:0}
+        .guide-step .num{
+            width:34px;height:34px;border-radius:50%;
+            background:linear-gradient(135deg,rgba(56,189,248,.2),rgba(168,85,247,.15));
+            color:#38bdf8;font-weight:950;font-size:14px;
+            display:grid;place-items:center;flex-shrink:0;
+            border:1px solid rgba(56,189,248,.3);
+            box-shadow:0 0 12px rgba(56,189,248,.2);
+        }
+        .guide-step .text{
+            color:#cbd5e1;font-size:14px;line-height:1.6;
+            padding-top:6px;font-weight:600;
+        }
+        .note-box{
+            background:linear-gradient(145deg,rgba(250,204,21,.08),rgba(250,204,21,.04));
+            border:1px solid rgba(250,204,21,.3);
+            border-radius:14px;padding:16px;margin:16px 0;
+            color:#fbbf24;font-size:13px;line-height:1.8;font-weight:700;
+            box-shadow:0 0 20px rgba(250,204,21,.08);
+        }
+        .dns-btn{
+            width:100%;padding:16px;border:0;border-radius:14px;
+            background:linear-gradient(135deg,#22c55e,#15803d);
+            color:#fff;font-weight:950;font-size:15px;cursor:pointer;
+            margin:12px 0;-webkit-tap-highlight-color:transparent;
+            letter-spacing:1.5px;
+            box-shadow:0 8px 28px rgba(34,197,94,.35);
+            transition:.2s;
+        }
+        .dns-btn:hover{
+            box-shadow:0 12px 36px rgba(34,197,94,.5);
+            transform:translateY(-2px);
+        }
+        .dns-warn{
+            background:linear-gradient(145deg,rgba(239,68,68,.1),rgba(239,68,68,.05));
+            border:1px solid rgba(239,68,68,.3);
+            border-radius:14px;padding:16px;margin:14px 0;
+            color:#f87171;font-size:13px;line-height:1.8;
+            font-weight:800;text-align:center;
+            box-shadow:0 0 20px rgba(239,68,68,.08);
+        }
+        .dns-hero{
+            text-align:center;margin:16px 0 20px;
+            padding:24px 16px;border-radius:20px;
+            background:linear-gradient(145deg,rgba(56,189,248,.06),rgba(168,85,247,.04));
+            border:1px solid rgba(56,189,248,.2);
+        }
+        .dns-hero .dns-icon{
+            font-size:64px;filter:drop-shadow(0 0 24px rgba(56,189,248,.6));
+            animation:pulse 3s ease-in-out infinite;
+        }
+        .dns-hero .dns-name{
+            color:#38bdf8;font-weight:950;font-size:19px;margin-top:12px;
+            text-shadow:0 0 20px rgba(56,189,248,.6);letter-spacing:1px;
+        }
+        .dns-hero .dns-copyright{
+            color:#64748b;font-size:12px;margin-top:6px;letter-spacing:2px;
+        }
+        .dns-info{
+            color:#64748b;font-size:12px;line-height:1.9;margin-top:14px;
+        }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media(max-width:430px){
+            .gate-card{padding:20px 18px}
+            .brand-logo{width:140px;height:140px}
+            .brand-logo img{width:90px;height:90px}
+            .gate h1{font-size:30px}
+            .bottom-nav span{font-size:9px}
+            .bottom-nav button span:first-child{font-size:20px}
+            .vip-card .vip-title{font-size:18px;letter-spacing:2px}
+            .feature-item{grid-template-columns:42px 1fr 48px;padding:12px 14px}
+            .feature-item .icon{width:38px;height:38px;font-size:20px}
+        }
+
+        ::-webkit-scrollbar{width:6px;height:6px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{
+            background:linear-gradient(180deg,#38bdf8,#7c3aed);
+            border-radius:3px;
+        }
+        ::-webkit-scrollbar-thumb:hover{background:#38bdf8}
     </style>
 </head>
 <body>
 
-<!-- LOGIN -->
+<!-- ===== BACKGROUND EFFECTS ===== -->
+<div class="bg-grid"></div>
+<div class="orb o1"></div>
+<div class="orb o2"></div>
+<div class="orb o3"></div>
+<div class="particles" id="particles"></div>
+
+<!-- ===== LOGIN / ACTIVATION ===== -->
 <div class="gate" id="loginGate">
     <div class="gate-card">
-        <div class="brand-logo"><img src="https://i.postimg.cc/pLj6h1mL/logo.png" alt="SENSI ULTRALOCK"></div>
-        <h1>SENSI <span>ULTRALOCK</span></h1>
-        <div class="byline">PINK LIGHT EDITION</div>
-        <div style="display:flex;justify-content:center;gap:10px;margin-bottom:15px;">
-            <span class="platform-badge">🌸 MOBILE</span>
+        <div class="brand-logo">
+            <div class="ring-glow"></div>
+            <div class="ring-outer"></div>
+            <div class="ring-mid"></div>
+            <div class="ring-inner"></div>
+            <img src="https://i.postimg.cc/hvZhTsJg/34A8D783-BBFA-4F7C-BDF4-D83194E0DB48.png" alt="EVOZLOCK">
+        </div>
+        <h1>EVOZ<span>LOCK</span></h1>
+        <div class="byline">KHAI PHÁ HỆ THỐNG</div>
+        <div style="display:flex;justify-content:center;gap:10px;margin-bottom:8px;">
+            <span class="platform-badge">⚡ MOBILE v6.5.0</span>
         </div>
         <div id="iosVersionWarning" class="ios-version-warning">
             ⚠️ Thiết bị không được hỗ trợ! Vui lòng sử dụng thiết bị khác.
         </div>
-        <div id="keyExpiryDisplay" style="display:none;">🔑 Còn: --</div>
-        <div class="input-row">
-            <span style="font-size:20px;color:#ff7a9e;">⌨</span>
-            <input type="text" id="keyInput" placeholder="Nhập key..." autocomplete="off">
+
+        <div class="activation-box">
+            <div class="act-title"><span class="dot"></span> KÍCH HOẠT HỆ THỐNG</div>
+            <div class="act-sub">Nhập license key để bắt đầu</div>
+
+            <div class="act-label">MÃ KÍCH HOẠT</div>
+            <div class="act-input-wrap">
+                <input type="text" id="keyInput" placeholder="Nhập license key" autocomplete="off">
+                <span class="eye" id="toggleEye">👁</span>
+            </div>
+
+            <div class="hwid-row">
+                <div>
+                    <div class="hwid-label">HWID</div>
+                    <div class="hwid-value" id="hwidDisplay">--</div>
+                </div>
+                <button class="copy-btn" id="copyHwid">📋</button>
+            </div>
+
+            <div id="keyExpiryDisplay" style="display:none;">🔑 Còn: --</div>
+            <div class="message" id="loginMessage"></div>
+            <button class="primary-btn" id="loginBtnFull">⚡ XÁC THỰC NGAY</button>
         </div>
-        <div class="message" id="loginMessage"></div>
-        <button class="primary-btn" id="loginBtnFull">LOGIN</button>
-        <div style="margin-top:15px;font-size:13px;color:#8a7a7e;">Liên hệ: <span style="color:#ff7a9e;font-weight:900;cursor:pointer;" onclick="window.open('https://zalo.me/976457016','_blank')">0976457016</span></div>
+
+        <div style="margin-top:14px;font-size:12px;color:#64748b;">
+            Liên hệ: <span style="color:#38bdf8;font-weight:900;cursor:pointer;" onclick="window.open('https://zalo.me/976457016','_blank')">0976457016</span>
+        </div>
     </div>
 </div>
 
-<!-- APP -->
+<!-- ===== APP ===== -->
 <div class="app" id="appMain">
     <div class="topbar">
-        <h2>SENSI <span>ULTRALOCK</span></h2>
+        <h2>EVOZ<span>LOCK</span></h2>
         <div class="badge"><i></i> ONLINE</div>
     </div>
 
     <div class="admin-banner">
-        <img class="admin-avatar" src="https://i.postimg.cc/nzRYzSPQ/26011bd758837f2ac0773b92f9c5771a.jpg" alt="Admin">
+        <img class="admin-avatar" src="https://i.postimg.cc/hvZhTsJg/34A8D783-BBFA-4F7C-BDF4-D83194E0DB48.png" alt="Admin">
         <div class="admin-info">
             <div class="admin-name">👑 Ngọc phát x NP</div>
-            <div class="admin-msg">📢 Bản Mobile v4.0.0 - Tác dụng thực tế 100%</div>
+            <div class="admin-msg">📢 Bản Mobile v6.5.0</div>
         </div>
-        <div class="admin-version">v4.0.0</div>
+        <div class="admin-version">v6.5.0</div>
     </div>
 
     <div class="key-info">
         <div class="row"><span class="label">🔑 KEY</span><span class="value" id="keyDisplay">---</span></div>
         <div class="row"><span class="label">⏳ HẠN</span><span class="value" id="expiryDisplay">---</span></div>
-        <div class="row"><span class="label">📋 LOẠI</span><span id="keyTypeBadge" class="type-badge basic">BASIC</span></div>
         <div class="row"><span class="label">📱 THIẾT BỊ</span><span class="value" id="deviceCountDisplay">0/--</span></div>
-        <div class="row"><span class="label">📱 NỀN TẢNG</span><span class="value" id="platformDisplay" style="color:#ff7a9e;">Mobile</span></div>
     </div>
 
     <div class="vip-card">
         <div class="vip-title">✦ VIP PREMIUM ✦</div>
-        <div class="vip-sub">100% 10/10</div>
+        <div class="vip-sub">10/10</div>
         <div class="vip-stats">
             <div class="stat-item"><div class="num" id="sensiDisplay">x10.0</div><div class="lbl">SENSITIVITY</div></div>
             <div class="stat-item"><div class="num" id="activePatches">0/0</div><div class="lbl">ACTIVE PATCHES</div></div>
@@ -174,149 +1034,214 @@
 
     <div id="featureContainer"></div>
 
-    <div class="ff-selector" id="ffSelector">
-        <button class="ff-btn active" data-ff="freefire">
-            <span class="ff-icon">🔥</span>
-            Free Fire
-        </button>
-        <button class="ff-btn" data-ff="freefiremax">
-            <span class="ff-icon">⚡</span>
-            Free Fire Max
-        </button>
-    </div>
     <button class="activate-btn" id="activateBtn">🚀 KÍCH HOẠT & MỞ GAME</button>
 
     <div class="bottom-nav">
-        <button class="active"><span>🏠</span><span>Trang chủ</span></button>
-        <button><span>📋</span><span>Lịch sử</span></button>
-        <button id="settingsNav"><span>⚙️</span><span>Cài đặt</span></button>
+        <button class="active" data-tab="home"><span>🎮</span><span>Chức năng</span></button>
+        <button data-tab="guide"><span>📖</span><span>Hướng dẫn</span></button>
+        <button data-tab="profile"><span>👤</span><span>Hồ sơ</span></button>
+        <button data-tab="dns"><span>🛡️</span><span>DNS</span></button>
     </div>
 </div>
 
-<!-- OPTIMIZE MODAL -->
+<!-- ===== FULLSCREEN VIEW: HƯỚNG DẪN ===== -->
+<div class="view" id="guideView">
+    <div class="view-header">
+        <button class="back-btn" data-back="guide">←</button>
+        <h2><span class="p-icon">📖</span> Hướng dẫn</h2>
+        <div class="spacer"></div>
+    </div>
+    <div class="view-content">
+        <div style="color:#94a3b8;font-size:13px;margin-bottom:14px;">Cách log chức năng:</div>
+        <div class="guide-step"><div class="num">1</div><div class="text">Vào game</div></div>
+        <div class="guide-step"><div class="num">2</div><div class="text">Ở sảnh bật chức năng</div></div>
+        <div class="guide-step"><div class="num">3</div><div class="text">Vào huấn luyện đứng đó 10 giây</div></div>
+        <div class="guide-step"><div class="num">4</div><div class="text">Thoát game bật chức năng</div></div>
+        <div class="guide-step"><div class="num">5</div><div class="text">Chiến đến khi nghỉ</div></div>
+        <div class="note-box">
+            ⚠️ Lưu ý: Tuỳ theo trường hợp máy sẽ nhận code<br><br>
+            🚀 <b>Máy nhanh:</b> tác dụng có ngay lập tức và tác dụng mạnh<br>
+            🐢 <b>Máy chập:</b> sẽ vào từ từ tác dụng tăng dần
+        </div>
+    </div>
+</div>
+
+<!-- ===== FULLSCREEN VIEW: HỒ SƠ ===== -->
+<div class="view" id="profileView">
+    <div class="view-header">
+        <button class="back-btn" data-back="profile">←</button>
+        <h2><span class="p-icon">👤</span> Hồ sơ</h2>
+        <div class="spacer"></div>
+    </div>
+    <div class="view-content">
+        <div id="adminInfo">
+            <img src="https://i.postimg.cc/hvZhTsJg/34A8D783-BBFA-4F7C-BDF4-D83194E0DB48.png" alt="Admin">
+            <div class="name">Ngọc phát x NP</div>
+            <div class="zalo">📱 ZALO: 0976457016</div>
+        </div>
+        <div class="info-item" onclick="window.open('https://zalo.me/976457016','_blank')">
+            <div><strong>Zalo</strong><p>0976457016</p></div><span>💬</span>
+        </div>
+        <div class="info-item">
+            <div><strong>Phiên bản</strong><p>v6.5.0 - Mobile</p></div><span>📱</span>
+        </div>
+        <div class="info-item">
+            <div><strong>Thiết bị</strong><p id="profileDevice">--</p></div><span>🔑</span>
+        </div>
+        <button class="modal-btn success" id="logoutBtn" style="margin-top:14px;">🚪 Đăng xuất</button>
+        <div style="text-align:center;color:#64748b;font-size:12px;margin-top:20px;">© 2026 NP</div>
+    </div>
+</div>
+
+<!-- ===== FULLSCREEN VIEW: DNS ===== -->
+<div class="view" id="dnsView">
+    <div class="view-header">
+        <button class="back-btn" data-back="dns">←</button>
+        <h2><span class="p-icon">🛡️</span> DNS</h2>
+        <div class="spacer"></div>
+    </div>
+    <div class="view-content">
+        <div class="dns-hero">
+            <div class="dns-icon">🛡️</div>
+            <div class="dns-name">DNS ANTIBAN OB55</div>
+            <div class="dns-copyright">Bản quyền: NP🪽</div>
+        </div>
+        <button class="dns-btn" id="downloadDns">⬇️ TẢI DNS</button>
+        <div class="dns-warn">
+            ⚠️ LUÔN BẬT DNS TRONG QUÁ TRÌNH CHƠI ĐỂ CHÁNH BAN ID<br><br>
+            KHI NGHỈ XOÁ TAB GAME ĐỢI 3 PHÚT SAU ĐÓ MỚI TẮT DNS
+        </div>
+        <div class="dns-info">
+            📌 Mô tả: DNS ANTIBAN OB55<br>
+            📌 Có nhu cầu múc key liên hệ Zalo: 0976457016<br>
+            📌 DNS tên: DNS ANTIBAN OB55
+        </div>
+    </div>
+</div>
+
+<!-- ===== CATEGORY SELECTOR ===== -->
+<div class="cat-overlay" id="catOverlay">
+    <div class="cat-modal">
+        <div class="cat-header"><h3>Chọn danh mục</h3></div>
+        <div class="cat-list" id="catList">
+            <div class="cat-item" data-cat="aim_sanh_ffth">
+                <div class="cat-icon">🔥</div>
+                <div class="cat-name">Aim bật sảnh FFTH</div>
+                <div class="cat-radio"></div>
+            </div>
+            <div class="cat-item" data-cat="aim_sanh_ffmax">
+                <div class="cat-icon">⚡</div>
+                <div class="cat-name">Aim bật sảnh FFMAX</div>
+                <div class="cat-radio"></div>
+            </div>
+            <div class="cat-item" data-cat="aim_40_ffth">
+                <div class="cat-icon">🎯</div>
+                <div class="cat-name">Aim bật 40% FFTH</div>
+                <div class="cat-radio"></div>
+            </div>
+            <div class="cat-item" data-cat="aim_40_ffmax">
+                <div class="cat-icon">💧</div>
+                <div class="cat-name">Aim bật 40% FFMAX</div>
+                <div class="cat-radio"></div>
+            </div>
+        </div>
+        <div class="cat-footer">
+            <button id="catCancel">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL OPTIMIZE ===== -->
 <div class="modal" id="optimizeModal">
     <div class="modal-card">
         <button class="close" id="closeOptimizeModal">✕</button>
-        <div class="modal-title"><span>⚡</span><div><h3>Tối ưu thiết bị</h3><p>Tác dụng thực tế 100%</p></div></div>
+        <div class="modal-title"><span>⚡</span><div><h3>Tối ưu thiết bị</h3><p>Chạy để tối ưu</p></div></div>
         <div class="terminal" id="optimizeTerminal">🚀 Đang tối ưu thiết bị...\n🔍 Đang quét hệ thống...</div>
         <button class="modal-btn primary" id="runOptimize">▶ Chạy tối ưu</button>
     </div>
 </div>
 
-<!-- INFO PANEL -->
-<div class="info-panel" id="infoPanel">
-    <div class="info-head"><h2>ℹ️ Thông tin</h2><button id="closeInfo">Đóng</button></div>
-    <div id="adminInfo">
-        <img src="https://i.postimg.cc/nzRYzSPQ/26011bd758837f2ac0773b92f9c5771a.jpg" alt="Admin">
-        <div class="name">Ngọc phát x NP</div>
-        <div class="zalo">📱 ZALO: 0976457016</div>
-    </div>
-    <div class="info-item" onclick="window.open('https://zalo.me/976457016','_blank')">
-        <div><strong>Zalo</strong><p>0976457016</p></div><span>💬</span>
-    </div>
-    <button class="modal-btn success" id="logoutBtn" style="margin-top:10px;">🚪 Đăng xuất</button>
-    <div style="text-align:center;color:#8a7a7e;font-size:12px;margin-top:15px;">© 2026 NP</div>
-</div>
-
-<div class="overlay" id="overlay"></div>
 <div class="toast" id="toast"></div>
 
 <script>
 // ============================================================
-// CẤU HÌNH FIREBASE
+// FIREBASE CONFIG
 // ============================================================
 var FIREBASE_URL = "https://aimlock-key-default-rtdb.firebaseio.com";
 
 // ============================================================
-// DEVICE ID - LƯU CỐ ĐỊNH
+// DEVICE ID
 // ============================================================
-var deviceId = localStorage.getItem("HEADLOCK_DEVICE_ID");
+var deviceId = localStorage.getItem("EVOZ_DEVICE_ID");
 if (!deviceId) {
-    deviceId = "MOBILE-" + Date.now() + "-" + Math.random().toString(36).substr(2, 6);
-    localStorage.setItem("HEADLOCK_DEVICE_ID", deviceId);
+    deviceId = "EVOZ-" + Date.now().toString(16) + "-" + Math.random().toString(36).substr(2, 8);
+    localStorage.setItem("EVOZ_DEVICE_ID", deviceId);
 }
+document.getElementById('hwidDisplay').textContent = deviceId.substring(0, 16);
+var profileDevEl = document.getElementById('profileDevice');
+if (profileDevEl) profileDevEl.textContent = deviceId.substring(0, 16);
 
 // ============================================================
-// BIẾN TOÀN CỤC
+// GLOBAL STATE
 // ============================================================
 var currentKey = "";
 var keyData = null;
 var isLoggedIn = false;
 var checkInterval = null;
 var expiryInterval = null;
-var currentKeyType = 'basic';
+var selectedCategory = 'aim_sanh_ffth';
+var currentTab = 'home';
 
 // ============================================================
-// CẤU HÌNH FEATURES - 3 MỤC: RANK, PHÒNG, HIGHLIGHT
-// Tổng ~30 chức năng, có nâng cấp v1, v2, v3
+// FEATURES - 10 CHỨC NĂNG THEO YÊU CẦU MỚI
 // ============================================================
 var ALL_FEATURES = [
-    // ==================== MỤC RANK ====================
-    { id: 'rank_sensivity', icon: '📱', name: 'SENSITIVITY BOOSTER', desc: 'Nhạy Màn Hình Tối Đa', level: 'basic', group: 'rank', tag: '' },
-    { id: 'rank_screen_booster', icon: '🖥️', name: 'SCREEN BOOSTER', desc: 'Buff FPS Siêu Mượt', level: 'basic', group: 'rank', tag: '' },
-    { id: 'rank_buff_120hz', icon: '⚡', name: 'BUFF 120HZ SCREEN', desc: 'Tần Số Quét 120Hz', level: 'basic', group: 'rank', tag: '' },
-    { id: 'rank_aimbody', icon: '🎯', name: 'AIM BODY', desc: 'Bám Thân Tự Động', level: 'basic', group: 'rank', tag: '' },
-    { id: 'rank_headshot_fix', icon: '🎯', name: 'HEADSHOT FIX', desc: 'Fix Lỗi Nhắm Headshot', level: 'basic', group: 'rank', tag: '' },
-    { id: 'rank_aimbody_pro', icon: '🎯', name: 'AIM BODY PRO', desc: 'Bám Thân Chuyên Nghiệp', level: 'basic', group: 'rank', tag: 'PRO' },
-    { id: 'rank_aimlock_assist', icon: '🔒', name: 'AIMLOCK ASSIST', desc: 'Hỗ Trợ Khóa Tâm', level: 'basic', group: 'rank', tag: 'PRO' },
-    { id: 'rank_auto_trigger', icon: '⚡', name: 'AUTO TRIGGER PRO', desc: 'Tự Động Bắn Siêu Tốc', level: 'basic', group: 'rank', tag: 'PRO' },
-    { id: 'rank_recoil_control', icon: '🎯', name: 'RECOIL CONTROL PRO', desc: 'Ghim Tâm Giảm Giật', level: 'basic', group: 'rank', tag: 'PRO' },
-    { id: 'rank_nhe_tam_70', icon: '💆', name: 'NHẸ TÂM 70%', desc: 'Giảm Căng Thẳng Khi Aim', level: 'basic', group: 'rank', tag: '' },
-
     // ==================== MỤC PHÒNG ====================
-    { id: 'room_aimlock_ultra', icon: '👁️', name: 'AIMLOCK ULTRA', desc: 'Khóa Tâm Bám Đầu Siêu Tốc', level: 'vip', group: 'room', tag: 'VIP' },
-    { id: 'room_anchor_aim', icon: '📌', name: 'ANCHOR AIM', desc: 'Ghim Tâm Tự Động', level: 'vip', group: 'room', tag: 'VIP' },
-    { id: 'room_touch_sensitivity', icon: '🖱️', name: 'TOUCH SENSITIVITY', desc: '10.0x DPI Boost', level: 'vip', group: 'room', tag: 'VIP' },
-    { id: 'room_recoil_stabilization', icon: '⚙️', name: 'RECOIL STABILIZATION', desc: '100% Ổn Định', level: 'vip', group: 'room', tag: 'VIP' },
-    { id: 'room_auto_headshot_v1', icon: '🎯', name: 'AUTO HEADSHOT v1', desc: 'Tự Động Headshot Cơ Bản', level: 'vip', group: 'room', tag: 'v1' },
-    { id: 'room_auto_headshot_v2', icon: '🎯', name: 'AUTO HEADSHOT v2', desc: 'Tự Động Headshot Nâng Cao', level: 'vip', group: 'room', tag: 'v2' },
-    { id: 'room_auto_headshot_v3', icon: '🎯', name: 'AUTO HEADSHOT v3', desc: 'Tự Động Headshot Siêu Cấp', level: 'vip', group: 'room', tag: 'v3' },
-    { id: 'room_silent_aim_v1', icon: '🤫', name: 'SILENT AIM v1', desc: 'Ngắm Im Lặng Cơ Bản', level: 'vip', group: 'room', tag: 'v1' },
-    { id: 'room_silent_aim_v2', icon: '🤫', name: 'SILENT AIM v2', desc: 'Ngắm Im Lặng Nâng Cao', level: 'vip', group: 'room', tag: 'v2' },
-    { id: 'room_magic_bullet_v1', icon: '✨', name: 'MAGIC BULLET v1', desc: 'Đạn Xuyên Tường Cơ Bản', level: 'vip', group: 'room', tag: 'v1' },
-    { id: 'room_magic_bullet_v2', icon: '✨', name: 'MAGIC BULLET v2', desc: 'Đạn Xuyên Tường Nâng Cao', level: 'vip', group: 'room', tag: 'v2' },
-    { id: 'room_magic_bullet_v3', icon: '✨', name: 'MAGIC BULLET v3', desc: 'Đạn Xuyên Tường Siêu Cấp', level: 'vip', group: 'room', tag: 'v3' },
+    { id: 'room_bam_dau', icon: '🎯', name: 'BÁM ĐẦU', desc: 'Bám Đầu Tự Động', group: 'room' },
+    { id: 'room_nhay_man', icon: '📱', name: 'NHẠY MÀN', desc: 'Tăng Độ Nhạy Màn Hình', group: 'room' },
+    { id: 'room_nhe_tam_ban', icon: '💆', name: 'NHẸ TÂM BẮN', desc: 'Giảm Căng Thẳng Khi Bắn', group: 'room' },
+
+    // ==================== MỤC RANK ====================
+    { id: 'rank_fix_rung_tam', icon: '🎯', name: 'FIX RUNG TÂM', desc: 'Khử Rung Tâm', group: 'rank' },
+    { id: 'rank_fix_lo_tam', icon: '🎯', name: 'FIX LỒ TÂM', desc: 'Khử Lồ Tâm', group: 'rank' },
+    { id: 'rank_em_tam', icon: '💆', name: 'ÊM TÂM', desc: 'Tâm Êm Không Giật', group: 'rank' },
+    { id: 'rank_toi_uu', icon: '⚡', name: 'TỐI ƯU', desc: 'Tối Ưu Hiệu Năng', group: 'rank' },
 
     // ==================== MỤC HIGHLIGHT ====================
-    { id: 'hl_aimlock_pro', icon: '🔒', name: 'AIMLOCK PRO', desc: 'Khóa Tâm Chuyên Nghiệp', level: 'vip', group: 'highlight', tag: 'VIP' },
-    { id: 'hl_aimlock_pro_max', icon: '🔒', name: 'AIMLOCK PRO MAX', desc: 'Khóa Tâm Siêu Cấp', level: 'vip', group: 'highlight', tag: 'VIP' },
-    { id: 'hl_auto_parachute', icon: '🪂', name: 'AUTO PARACHUTE', desc: 'Tự Động Nhảy Dù', level: 'vip', group: 'highlight', tag: 'VIP' },
-    { id: 'hl_speed_hack_v1', icon: '🏃', name: 'SPEED HACK v1', desc: 'Tăng Tốc Độ Cơ Bản', level: 'vip', group: 'highlight', tag: 'v1' },
-    { id: 'hl_speed_hack_v2', icon: '🏃', name: 'SPEED HACK v2', desc: 'Tăng Tốc Độ Nâng Cao', level: 'vip', group: 'highlight', tag: 'v2' },
-    { id: 'hl_speed_hack_v3', icon: '🏃', name: 'SPEED HACK v3', desc: 'Tăng Tốc Độ Siêu Cấp', level: 'vip', group: 'highlight', tag: 'v3' },
-    { id: 'hl_jump_hack_v1', icon: '🦘', name: 'JUMP HACK v1', desc: 'Nhảy Cao Cơ Bản', level: 'vip', group: 'highlight', tag: 'v1' },
-    { id: 'hl_jump_hack_v2', icon: '🦘', name: 'JUMP HACK v2', desc: 'Nhảy Cao Nâng Cao', level: 'vip', group: 'highlight', tag: 'v2' },
-    { id: 'hl_anti_ban', icon: '🛡️', name: 'ANTI BAN', desc: 'Chống Ban Tài Khoản', level: 'vip', group: 'highlight', tag: 'VIP' },
-    { id: 'hl_anti_report', icon: '🚫', name: 'ANTI REPORT', desc: 'Chống Bị Báo Cáo', level: 'vip', group: 'highlight', tag: 'VIP' },
-    { id: 'hl_esp_player', icon: '👁️', name: 'ESP PLAYER', desc: 'Hiển Thị Người Chơi', level: 'vip', group: 'highlight', tag: 'VIP' },
-    { id: 'hl_esp_item', icon: '📦', name: 'ESP ITEM', desc: 'Hiển Thị Vật Phẩm', level: 'vip', group: 'highlight', tag: 'VIP' },
-    { id: 'hl_auto_heal', icon: '💊', name: 'AUTO HEAL', desc: 'Tự Động Hồi Máu', level: 'vip', group: 'highlight', tag: 'VIP' },
-    { id: 'hl_auto_loot', icon: '🎒', name: 'AUTO LOOT', desc: 'Tự Động Nhặt Đồ', level: 'vip', group: 'highlight', tag: 'VIP' },
-    { id: 'hl_radar_hack', icon: '📡', name: 'RADAR HACK', desc: 'Radar Toàn Bản Đồ', level: 'vip', group: 'highlight', tag: 'VIP' },
-    { id: 'hl_drone_view', icon: '🚁', name: 'DRONE VIEW', desc: 'Xem Toàn Cảnh Từ Trên Cao', level: 'vip', group: 'highlight', tag: 'VIP' },
-    { id: 'hl_fast_fire', icon: '🔥', name: 'FAST FIRE', desc: 'Bắn Siêu Tốc', level: 'vip', group: 'highlight', tag: 'VIP' },
-    { id: 'hl_no_recoil', icon: '🎯', name: 'NO RECOIL', desc: 'Không Giật Súng', level: 'vip', group: 'highlight', tag: 'VIP' },
-    { id: 'hl_no_spread', icon: '🎯', name: 'NO SPREAD', desc: 'Không Tản Đạn', level: 'vip', group: 'highlight', tag: 'VIP' }
+    { id: 'hl_aimlock', icon: '🔒', name: 'AIMLOCK', desc: 'Khóa Tâm Tự Động', group: 'highlight' },
+    { id: 'hl_fix_nang_tam', icon: '⚙️', name: 'FIX NẶNG TÂM', desc: 'Khử Nặng Tâm', group: 'highlight' },
+    { id: 'hl_tang_nhay_cam_ung', icon: '🖱️', name: 'TĂNG NHẠY CẢM ỨNG', desc: 'Tăng Độ Nhạy Cảm Ứng', group: 'highlight' },
+    { id: 'hl_toi_uu', icon: '⚡', name: 'TỐI ƯU', desc: 'Tối Ưu Hiệu Năng', group: 'highlight' }
 ];
 
-// Gán group vào từng feature dựa trên tiền tố id
-ALL_FEATURES.forEach(function(f) {
-    if (f.id.startsWith('rank_')) f.group = 'rank';
-    else if (f.id.startsWith('room_')) f.group = 'room';
-    else if (f.id.startsWith('hl_')) f.group = 'highlight';
-    else f.group = 'rank';
-});
-
-var KEY_LEVELS = {
-    basic: { label: 'BASIC', class: 'basic', level: 1 },
-    vip: { label: 'VIP', class: 'vip', level: 2 }
-};
-
 var GROUP_NAMES = {
-    rank: '🏆 RANK',
     room: '🏠 PHÒNG',
+    rank: '🏆 RANK',
     highlight: '✨ HIGHLIGHT'
 };
+
+// ============================================================
+// PARTICLE BACKGROUND
+// ============================================================
+(function createParticles() {
+    var container = document.getElementById('particles');
+    var count = 24;
+    for (var i = 0; i < count; i++) {
+        var p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.animationDuration = (8 + Math.random() * 12) + 's';
+        p.style.animationDelay = (Math.random() * 10) + 's';
+        var size = 1 + Math.random() * 2;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        var colors = ['#38bdf8','#a855f7','#22d3ee'];
+        var c = colors[Math.floor(Math.random()*colors.length)];
+        p.style.background = c;
+        p.style.boxShadow = '0 0 8px ' + c + ', 0 0 16px ' + c;
+        container.appendChild(p);
+    }
+})();
 
 // ============================================================
 // TOAST
@@ -337,13 +1262,9 @@ async function activateKey(key) {
     try {
         var url = FIREBASE_URL + "/keys/" + key + ".json";
         var res = await fetch(url);
-        if (!res.ok) {
-            return { success: false, message: "Lỗi kết nối Firebase!" };
-        }
+        if (!res.ok) return { success: false, message: "Lỗi kết nối Firebase!" };
         var data = await res.json();
-        if (!data) {
-            return { success: false, message: "Key không tồn tại!" };
-        }
+        if (!data) return { success: false, message: "Key không tồn tại!" };
 
         var now = Date.now();
         if (data.expiry && data.expiry < now) {
@@ -381,18 +1302,8 @@ function getDaysLeft(expiry) {
     return Math.ceil(diff / (1000 * 60 * 60 * 24)) + " ngày";
 }
 
-function getKeyLevel(keyData) {
-    if (!keyData) return 'basic';
-    if (keyData.type) {
-        if (keyData.type === 'vip' || keyData.vip) return 'vip';
-        return 'basic';
-    }
-    if (keyData.vip) return 'vip';
-    return 'basic';
-}
-
 // ============================================================
-// GỌI NATIVE
+// CALL NATIVE
 // ============================================================
 function callNative(action, data) {
     if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers[action]) {
@@ -411,52 +1322,46 @@ function callNative(action, data) {
 }
 
 // ============================================================
-// RENDER FEATURES - CHIA 3 MỤC
+// RENDER FEATURES
 // ============================================================
-function renderFeatures(keyLevel) {
+function renderFeatures() {
     var container = document.getElementById('featureContainer');
-    var levelNum = KEY_LEVELS[keyLevel]?.level || 1;
-
-    var groups = { rank: [], room: [], highlight: [] };
+    var groups = { room: [], rank: [], highlight: [] };
     for (var i = 0; i < ALL_FEATURES.length; i++) {
         var f = ALL_FEATURES[i];
         if (groups[f.group]) groups[f.group].push(f);
-        else groups.rank.push(f);
+        else groups.room.push(f);
     }
 
     var html = '';
-    var groupKeys = ['rank', 'room', 'highlight'];
+    var groupKeys = ['room', 'rank', 'highlight'];
     for (var gi = 0; gi < groupKeys.length; gi++) {
         var g = groupKeys[gi];
         var features = groups[g];
         if (!features || features.length === 0) continue;
 
-        var isAllowed = (g === 'rank') ? true : (levelNum >= 2);
-
         html += '<div class="feature-group">';
-        html += '<div class="group-header"><span>' + (GROUP_NAMES[g] || g.toUpperCase()) + '</span><span class="lock-icon ' + (isAllowed ? 'unlocked' : 'locked') + '">' + (isAllowed ? '🔓' : '🔒') + '</span></div>';
+        html += '<div class="group-header"><span>' + (GROUP_NAMES[g] || g.toUpperCase()) + '</span><span class="group-count">' + features.length + ' chức năng</span></div>';
 
         for (var fi = 0; fi < features.length; fi++) {
             var f = features[fi];
-            var locked = !isAllowed;
-            var lockClass = locked ? 'locked' : '';
-            var tagHtml = f.tag ? '<span class="vip-tag">' + f.tag + '</span>' : '';
-
-            html += '<div class="feature-item" data-feature="' + f.id + '"><div class="icon">' + f.icon + '</div><div class="info"><b>' + f.name + ' ' + tagHtml + '</b><small>' + f.desc + '</small></div><div class="switch ' + lockClass + '" data-feature="' + f.id + '"></div></div>';
+            html += '<div class="feature-item" data-feature="' + f.id + '">' +
+                '<div class="icon">' + f.icon + '</div>' +
+                '<div class="info"><b>' + f.name + '</b><small>' + f.desc + '</small></div>' +
+                '<div class="switch" data-feature="' + f.id + '"></div>' +
+            '</div>';
         }
         html += '</div>';
     }
 
     container.innerHTML = html;
-    updateVipStats(keyLevel);
+    updateVipStats();
 }
 
-function updateVipStats(keyLevel) {
-    var levelNum = KEY_LEVELS[keyLevel]?.level || 1;
-    var isVip = levelNum >= 2;
-    document.getElementById('sensiDisplay').textContent = isVip ? 'x10.0' : 'x5.0';
-    var activeCount = document.querySelectorAll('.feature-item .switch.active:not(.locked)').length;
-    var total = document.querySelectorAll('.feature-item .switch:not(.locked)').length;
+function updateVipStats() {
+    document.getElementById('sensiDisplay').textContent = 'x10.0';
+    var activeCount = document.querySelectorAll('.feature-item .switch.active').length;
+    var total = document.querySelectorAll('.feature-item .switch').length;
     document.getElementById('activePatches').textContent = activeCount + '/' + total;
 }
 
@@ -495,10 +1400,7 @@ async function handleLogin() {
     currentKey = key;
     keyData = result.data;
     isLoggedIn = true;
-    localStorage.setItem("HEADLOCK_KEY", key);
-
-    var keyLevel = getKeyLevel(keyData);
-    currentKeyType = keyLevel;
+    localStorage.setItem("EVOZ_KEY", key);
 
     document.getElementById('loginGate').style.display = 'none';
     document.getElementById('appMain').style.display = 'block';
@@ -516,21 +1418,15 @@ async function handleLogin() {
         document.getElementById('keyExpiryDisplay').style.display = 'block';
     }
 
-    var badge = document.getElementById('keyTypeBadge');
-    var levelInfo = KEY_LEVELS[keyLevel] || KEY_LEVELS.basic;
-    badge.textContent = levelInfo.label;
-    badge.className = 'type-badge ' + levelInfo.class;
-
     var devices = keyData.devices || [];
     var limit = keyData.deviceLimit || '∞';
     document.getElementById('deviceCountDisplay').textContent = devices.length + '/' + limit;
-    document.getElementById('platformDisplay').textContent = 'Mobile';
 
     msg.textContent = "✅ Đăng nhập thành công!";
     msg.className = "message ok";
     showToast('✅ Đăng nhập thành công!');
 
-    renderFeatures(keyLevel);
+    renderFeatures();
 
     if (expiryInterval) clearInterval(expiryInterval);
     if (keyData.expiry) {
@@ -550,7 +1446,7 @@ async function handleLogin() {
 }
 
 function handleLogout() {
-    localStorage.removeItem("HEADLOCK_KEY");
+    localStorage.removeItem("EVOZ_KEY");
     isLoggedIn = false;
     currentKey = "";
     keyData = null;
@@ -563,21 +1459,21 @@ function handleLogout() {
 }
 
 // ============================================================
-// MỞ GAME - TỰ ĐỘNG CHUYỂN STORE NẾU CHƯA CÀI
+// OPEN GAME
 // ============================================================
-function openGame(version) {
+function openGameByCategory(cat) {
     var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     var isAndroid = /Android/.test(navigator.userAgent);
 
     var scheme = '';
     var storeUrl = '';
 
-    if (version === 'freefire') {
+    if (cat === 'aim_sanh_ffth' || cat === 'aim_40_ffth') {
         scheme = 'freefireth://';
         storeUrl = isIOS 
             ? 'https://apps.apple.com/app/free-fire/id1300146617' 
             : 'https://play.google.com/store/apps/details?id=com.dts.freefireth';
-    } else if (version === 'freefiremax') {
+    } else if (cat === 'aim_sanh_ffmax' || cat === 'aim_40_ffmax') {
         scheme = 'freefiremax://';
         storeUrl = isIOS 
             ? 'https://apps.apple.com/app/free-fire-max/id1594581875' 
@@ -607,29 +1503,90 @@ function openGame(version) {
 
 function activateAndOpen() {
     if (!isLoggedIn) { showToast("Chưa đăng nhập!"); return; }
+    document.getElementById('catOverlay').style.display = 'grid';
+}
 
-    var selector = document.getElementById('ffSelector');
-    selector.classList.toggle('show');
+// ============================================================
+// DNS MOBILECONFIG
+// ============================================================
+function downloadDNS() {
+    var mobileconfig = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+'<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n' +
+'<plist version="1.0">\n' +
+'<dict>\n' +
+'  <key>PayloadContent</key>\n' +
+'  <array>\n' +
+'    <dict>\n' +
+'      <key>PayloadDescription</key>\n' +
+'      <string>DNS ANTIBAN OB55 - Chống ban ID</string>\n' +
+'      <key>PayloadDisplayName</key>\n' +
+'      <string>DNS ANTIBAN OB55</string>\n' +
+'      <key>PayloadIdentifier</key>\n' +
+'      <string>com.np.dnsantiban</string>\n' +
+'      <key>PayloadType</key>\n' +
+'      <string>com.apple.dnsSettings.managed</string>\n' +
+'      <key>PayloadUUID</key>\n' +
+'      <string>' + crypto.randomUUID() + '</string>\n' +
+'      <key>PayloadVersion</key>\n' +
+'      <integer>1</integer>\n' +
+'      <key>DNSSettings</key>\n' +
+'      <dict>\n' +
+'        <key>DNSProtocol</key>\n' +
+'        <string>HTTPS</string>\n' +
+'        <key>ServerURL</key>\n' +
+'        <string>https://dns.google/dns-query</string>\n' +
+'      </dict>\n' +
+'    </dict>\n' +
+'  </array>\n' +
+'  <key>PayloadDescription</key>\n' +
+'  <string>DNS ANTIBAN OB55 - Có nhu cầu múc key liên hệ Zalo: 0976457016</string>\n' +
+'  <key>PayloadDisplayName</key>\n' +
+'  <string>DNS ANTIBAN OB55</string>\n' +
+'  <key>PayloadIdentifier</key>\n' +
+'  <string>com.np.dnsantiban.profile</string>\n' +
+'  <key>PayloadOrganization</key>\n' +
+'  <string>NP🪽</string>\n' +
+'  <key>PayloadRemovalDisallowed</key>\n' +
+'  <false/>\n' +
+'  <key>PayloadType</key>\n' +
+'  <string>Configuration</string>\n' +
+'  <key>PayloadUUID</key>\n' +
+'  <string>' + crypto.randomUUID() + '</string>\n' +
+'  <key>PayloadVersion</key>\n' +
+'  <integer>1</integer>\n' +
+'</dict>\n' +
+'</plist>';
 
-    if (selector.classList.contains('show')) {
-        var active = document.querySelector('.ff-btn.active');
-        if (active) {
-            var version = active.dataset.ff;
-            localStorage.setItem("HEADLOCK_FF", version);
-            document.querySelectorAll('.feature-item .switch.active:not(.locked)').forEach(function(sw) {
-                var id = sw.dataset.feature;
-                if (id) {
-                    localStorage.setItem('toggle_' + id, 'true');
-                    callNative(id, { enabled: true });
-                }
-            });
-            updateVipStats(currentKeyType);
-            var name = version === 'freefire' ? 'Free Fire' : 'Free Fire Max';
-            showToast('✅ Đang mở ' + name);
-            selector.classList.remove('show');
-            setTimeout(function(){ openGame(version); }, 500);
-        }
+    var blob = new Blob([mobileconfig], { type: 'application/x-apple-aspen-config' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'DNS_ANTIBAN_OB55.mobileconfig';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('⬇️ Đang tải DNS ANTIBAN OB55...');
+}
+
+// ============================================================
+// VIEW MANAGEMENT
+// ============================================================
+function openView(id) {
+    document.querySelectorAll('.view').forEach(function(v) {
+        v.classList.remove('active');
+    });
+    var view = document.getElementById(id);
+    if (view) {
+        view.classList.add('active');
+        view.scrollTop = 0;
     }
+}
+
+function closeAllViews() {
+    document.querySelectorAll('.view').forEach(function(v) {
+        v.classList.remove('active');
+    });
 }
 
 // ============================================================
@@ -638,15 +1595,35 @@ function activateAndOpen() {
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('keyDisplay').textContent = '---';
 
-    var savedKey = localStorage.getItem("HEADLOCK_KEY");
+    // HWID copy
+    document.getElementById('copyHwid').addEventListener('click', function() {
+        navigator.clipboard.writeText(deviceId).then(function() {
+            showToast('📋 Đã copy HWID');
+        }).catch(function() {
+            showToast('📋 HWID: ' + deviceId);
+        });
+    });
+
+    // Toggle eye
+    document.getElementById('toggleEye').addEventListener('click', function() {
+        var input = document.getElementById('keyInput');
+        if (input.type === 'password') {
+            input.type = 'text';
+            this.textContent = '🙈';
+        } else {
+            input.type = 'password';
+            this.textContent = '👁';
+        }
+    });
+
+    // Auto login
+    var savedKey = localStorage.getItem("EVOZ_KEY");
     if (savedKey) {
         activateKey(savedKey).then(function(result) {
             if (result.success) {
                 currentKey = savedKey;
                 keyData = result.data;
                 isLoggedIn = true;
-                var keyLevel = getKeyLevel(keyData);
-                currentKeyType = keyLevel;
 
                 document.getElementById('loginGate').style.display = 'none';
                 document.getElementById('appMain').style.display = 'block';
@@ -663,17 +1640,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('keyExpiryDisplay').style.display = 'block';
                 }
 
-                var badge = document.getElementById('keyTypeBadge');
-                var levelInfo = KEY_LEVELS[keyLevel] || KEY_LEVELS.basic;
-                badge.textContent = levelInfo.label;
-                badge.className = 'type-badge ' + levelInfo.class;
-
                 var devices = keyData.devices || [];
                 var limit = keyData.deviceLimit || '∞';
                 document.getElementById('deviceCountDisplay').textContent = devices.length + '/' + limit;
-                document.getElementById('platformDisplay').textContent = 'Mobile';
 
-                renderFeatures(keyLevel);
+                renderFeatures();
 
                 if (keyData.expiry) {
                     expiryInterval = setInterval(function() {
@@ -689,7 +1660,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 checkInterval = setInterval(checkKeyPeriodic, 2000);
                 showToast('✅ Chào mừng trở lại!');
             } else {
-                localStorage.removeItem("HEADLOCK_KEY");
+                localStorage.removeItem("EVOZ_KEY");
             }
         });
     }
@@ -701,17 +1672,68 @@ document.addEventListener('DOMContentLoaded', function() {
         if (confirm('Đăng xuất?')) handleLogout();
     });
 
-    document.querySelectorAll('.ff-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.ff-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('activateBtn').addEventListener('click', activateAndOpen);
+
+    // ===== CATEGORY SELECTOR =====
+    var catItems = document.querySelectorAll('#catList .cat-item');
+    catItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+            catItems.forEach(function(i) { i.classList.remove('active'); });
             this.classList.add('active');
+            selectedCategory = this.dataset.cat;
+            localStorage.setItem('EVOZ_CAT', selectedCategory);
         });
     });
 
-    document.getElementById('activateBtn').addEventListener('click', activateAndOpen);
+    var savedCat = localStorage.getItem('EVOZ_CAT');
+    if (savedCat) {
+        selectedCategory = savedCat;
+        catItems.forEach(function(item) {
+            if (item.dataset.cat === savedCat) item.classList.add('active');
+        });
+    } else {
+        catItems[0].classList.add('active');
+    }
 
+    document.getElementById('catCancel').addEventListener('click', function() {
+        document.getElementById('catOverlay').style.display = 'none';
+    });
+
+    document.getElementById('catOverlay').addEventListener('click', function(e) {
+        if (e.target === this) this.style.display = 'none';
+    });
+
+    // Add start button to cat modal
+    var catModal = document.querySelector('.cat-modal');
+    var startBtn = document.createElement('button');
+    startBtn.className = 'dns-btn';
+    startBtn.textContent = '🚀 BẮT ĐẦU';
+    startBtn.style.margin = '0 14px 14px';
+    startBtn.style.width = 'calc(100% - 28px)';
+    startBtn.addEventListener('click', function() {
+        document.getElementById('catOverlay').style.display = 'none';
+        document.querySelectorAll('.feature-item .switch.active').forEach(function(sw) {
+            var id = sw.dataset.feature;
+            if (id) {
+                localStorage.setItem('toggle_' + id, 'true');
+                callNative(id, { enabled: true, category: selectedCategory });
+            }
+        });
+        updateVipStats();
+        var catNames = {
+            'aim_sanh_ffth': 'Aim bật sảnh FFTH',
+            'aim_sanh_ffmax': 'Aim bật sảnh FFMAX',
+            'aim_40_ffth': 'Aim bật 40% FFTH',
+            'aim_40_ffmax': 'Aim bật 40% FFMAX'
+        };
+        showToast('✅ Đang mở ' + (catNames[selectedCategory] || 'Game'));
+        setTimeout(function(){ openGameByCategory(selectedCategory); }, 500);
+    });
+    catModal.appendChild(startBtn);
+
+    // Toggle switches - TẤT CẢ ĐỀU BẬT ĐƯỢC
     document.addEventListener('click', function(e) {
-        var sw = e.target.closest('.switch:not(.locked)');
+        var sw = e.target.closest('.switch');
         if (!sw) return;
         if (!isLoggedIn) { showToast("Chưa đăng nhập!"); return; }
 
@@ -724,28 +1746,44 @@ document.addEventListener('DOMContentLoaded', function() {
         callNative(feature, { enabled: state });
         var name = sw.closest('.feature-item')?.querySelector('.info b')?.textContent || feature;
         showToast(state ? '✅ Đã bật ' + name : '⛔ Đã tắt ' + name);
-        updateVipStats(currentKeyType);
+        updateVipStats();
     });
 
-    document.getElementById('settingsNav').addEventListener('click', function() {
-        document.getElementById('infoPanel').classList.add('active');
-        document.getElementById('overlay').style.display = 'block';
-    });
-    document.getElementById('closeInfo').addEventListener('click', function() {
-        document.getElementById('infoPanel').classList.remove('active');
-        document.getElementById('overlay').style.display = 'none';
-    });
-    document.getElementById('overlay').addEventListener('click', function() {
-        document.getElementById('infoPanel').classList.remove('active');
-        document.getElementById('optimizeModal').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
+    // ===== BOTTOM NAV - CHUYỂN FULLSCREEN VIEW =====
+    document.querySelectorAll('.bottom-nav button').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var tab = this.dataset.tab;
+            currentTab = tab;
+
+            document.querySelectorAll('.bottom-nav button').forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+
+            closeAllViews();
+
+            if (tab === 'guide') {
+                openView('guideView');
+            } else if (tab === 'profile') {
+                openView('profileView');
+            } else if (tab === 'dns') {
+                openView('dnsView');
+            }
+        });
     });
 
+    // ===== BACK BUTTONS =====
+    document.querySelectorAll('.back-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            closeAllViews();
+            document.querySelectorAll('.bottom-nav button').forEach(function(b) { b.classList.remove('active'); });
+            document.querySelector('.bottom-nav button[data-tab="home"]').classList.add('active');
+            currentTab = 'home';
+        });
+    });
+
+    // Optimize modal
     document.getElementById('closeOptimizeModal').addEventListener('click', function() {
         document.getElementById('optimizeModal').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
     });
-
     document.getElementById('runOptimize').addEventListener('click', function() {
         var terminal = document.getElementById('optimizeTerminal');
         var steps = [
@@ -776,12 +1814,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500);
     });
 
-    document.querySelectorAll('.bottom-nav button').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.bottom-nav button').forEach(function(b) { b.classList.remove('active'); });
-            this.classList.add('active');
-        });
-    });
+    // DNS download
+    document.getElementById('downloadDns').addEventListener('click', downloadDNS);
 });
 </script>
 </body>
