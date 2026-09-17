@@ -151,22 +151,6 @@
             display:inline-block;margin-bottom:14px;letter-spacing:2px;
             box-shadow:0 0 20px rgba(56,189,248,.2);
         }
-        .security-badges{
-            display:flex;justify-content:center;gap:6px;margin-bottom:14px;flex-wrap:wrap;
-        }
-        .sec-badge{
-            display:inline-flex;align-items:center;gap:4px;
-            padding:4px 10px;border-radius:999px;
-            font-size:9px;font-weight:900;letter-spacing:.5px;
-            background:rgba(74,222,128,.12);
-            color:#4ade80;border:1px solid rgba(74,222,128,.3);
-            box-shadow:0 0 10px rgba(74,222,128,.15);
-        }
-        .sec-badge .tick{
-            width:12px;height:12px;border-radius:50%;
-            background:#4ade80;color:#03060c;
-            display:grid;place-items:center;font-size:9px;font-weight:950;
-        }
         .ios-version-warning{
             background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);
             border-radius:12px;padding:12px;margin:10px 0;display:none;
@@ -1108,12 +1092,6 @@
         </div>
         <h1>EVOZ<span>LOCK</span></h1>
         <div class="byline">KHAI PHÁ HỆ THỐNG</div>
-        <div class="security-badges">
-            <span class="sec-badge"><span class="tick">✓</span> SSL PINNED</span>
-            <span class="sec-badge"><span class="tick">✓</span> ANTI-TAMPER</span>
-            <span class="sec-badge"><span class="tick">✓</span> HWID LOCK</span>
-            <span class="sec-badge"><span class="tick">✓</span> JS LANDING</span>
-        </div>
         <div style="display:flex;justify-content:center;gap:10px;margin-bottom:8px;">
             <span class="platform-badge">⚡ MOBILE v6.5.0</span>
         </div>
@@ -1164,24 +1142,15 @@
         </div>
         <div class="admin-info">
             <div class="admin-name">👑 Ngọc phát x NP <span class="name-verified">✓</span></div>
-            <div class="admin-msg">📢 Bản Mobile v6.5.0 - Bảo mật cao</div>
+            <div class="admin-msg">📢 Bản Mobile v6.5.0</div>
         </div>
         <div class="admin-version">v6.5.0</div>
-    </div>
-
-    <div class="security-bar">
-        <div class="shield-icon">🛡️</div>
-        <div class="sec-info">
-            <div class="sec-title">HỆ THỐNG ĐƯỢC BẢO VỆ <span class="tick">✓</span></div>
-            <div class="sec-desc">SSL Pinning • Anti-Tamper • HWID Lock • JS Landing</div>
-        </div>
     </div>
 
     <div class="key-info">
         <div class="row"><span class="label">🔑 KEY</span><span class="value verified-value" id="keyDisplay">--- <span class="tick">✓</span></span></div>
         <div class="row"><span class="label">⏳ HẠN</span><span class="value" id="expiryDisplay">---</span></div>
         <div class="row"><span class="label">📱 THIẾT BỊ</span><span class="value" id="deviceCountDisplay">0/--</span></div>
-        <div class="row"><span class="label">🛡️ BẢO MẬT</span><span class="value verified-value">ACTIVE <span class="tick">✓</span></span></div>
     </div>
 
     <div class="vip-card">
@@ -1252,9 +1221,6 @@
         </div>
         <div class="info-item">
             <div><strong>Thiết bị <span class="tick-sm">✓</span></strong><p id="profileDevice">--</p></div><span>🔑</span>
-        </div>
-        <div class="info-item">
-            <div><strong>Bảo mật <span class="tick-sm">✓</span></strong><p>SSL Pinning + Anti-Tamper + HWID Lock + JS Landing</p></div><span>🛡️</span>
         </div>
         <button class="modal-btn success" id="logoutBtn" style="margin-top:14px;">🚪 Đăng xuất</button>
         <div style="text-align:center;color:#64748b;font-size:12px;margin-top:20px;">© 2026 NP</div>
@@ -1343,16 +1309,13 @@
     var _0xtrap = false;
     var _0xvalid = true;
 
-    // Hàm kiểm tra toàn vẹn chính nó
     function _0xchk() {
         try {
-            // Kiểm tra function toString có bị thay đổi không
             var fnStr = _0xchk.toString();
             if (fnStr.indexOf('_0xchk') === -1) {
                 _0xvalid = false;
                 return false;
             }
-            // Kiểm tra biến toàn cục
             if (typeof _0xsec !== 'string' || _0xsec.length < 10) {
                 _0xvalid = false;
                 return false;
@@ -1364,12 +1327,10 @@
         }
     }
 
-    // Tạo trap: nếu ai cố ghi đè function quan trọng → redirect
     function _0xtrapRedirect() {
         if (_0xtrap) return;
         _0xtrap = true;
         try {
-            // Chuyển hướng đến trang trắng để cracker mất thời gian
             var blank = 'about:blank';
             if (window.top && window.top !== window) {
                 window.top.location.href = blank;
@@ -1377,17 +1338,14 @@
                 window.location.href = blank;
             }
         } catch(e) {}
-        // Xoá toàn bộ DOM
         try {
             document.documentElement.innerHTML = '';
         } catch(e) {}
     }
 
-    // Expose trap cho các lớp khác
     window.__evozTrap = _0xtrapRedirect;
     window.__evozChk = _0xchk;
 
-    // Chạy check mỗi 2s — nếu fail → trap
     setInterval(function() {
         if (!_0xchk()) {
             _0xtrapRedirect();
@@ -1395,7 +1353,7 @@
     }, 2000);
 })();
 
-// Lớp 2: Function integrity — bảo vệ các function quan trọng
+// Lớp 2: Function integrity
 (function() {
     var protectedFns = ['activateKey', 'handleLogin', 'callNative', 'openGameByCategory', 'downloadDNS'];
 
@@ -1404,11 +1362,9 @@
             try {
                 var fn = window[name];
                 if (typeof fn !== 'function') {
-                    // Function bị xoá hoặc thay đổi → trap
                     if (window.__evozTrap) window.__evozTrap();
                     return;
                 }
-                // Kiểm tra source có bị thay đổi không
                 var src = fn.toString();
                 if (src.indexOf('function') === -1) {
                     if (window.__evozTrap) window.__evozTrap();
@@ -1420,24 +1376,18 @@
     setInterval(protect, 3000);
 })();
 
-// Lớp 3: DOM tamper detection — chống sửa DOM
+// Lớp 3: DOM tamper detection
 (function() {
-    var originalInnerHTML = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
-
-    // Bảo vệ các element quan trọng
     var protectedIds = ['loginGate', 'appMain', 'featureContainer', 'toast'];
 
     function checkDOM() {
         try {
-            // Kiểm tra các element bắt buộc
             for (var i = 0; i < protectedIds.length; i++) {
                 if (!document.getElementById(protectedIds[i])) {
-                    // Element bị xoá → trap
                     if (window.__evozTrap) window.__evozTrap();
                     return;
                 }
             }
-            // Kiểm tra title
             if (document.title !== "EVOZLOCK v6.5.0") {
                 if (window.__evozTrap) window.__evozTrap();
             }
@@ -1447,9 +1397,8 @@
     setInterval(checkDOM, 2500);
 })();
 
-// Lớp 4: Redirect trap — nếu phát hiện can thiệp, chuyển hướng
+// Lớp 4: Fetch guard + rate limit
 (function() {
-    // Đếm số lần fetch bất thường
     var fetchCount = 0;
     var maxFetch = 100;
 
@@ -1457,19 +1406,16 @@
     window.fetch = function(url, options) {
         fetchCount++;
         if (fetchCount > maxFetch) {
-            // Quá nhiều request → có thể đang bị tấn công
             if (window.__evozTrap) window.__evozTrap();
             return Promise.reject(new Error('Rate limited'));
         }
 
-        // Chặn domain lạ
         if (typeof url === 'string' && url.indexOf('http') === 0) {
             if (url.indexOf('firebaseio.com') === -1 && url.indexOf('dns.google') === -1) {
                 return Promise.reject(new Error('Blocked'));
             }
         }
 
-        // Thêm security headers
         options = options || {};
         options.headers = options.headers || {};
         options.headers['X-Client-Integrity'] = 'EVOZ_SECURE_V650';
@@ -1481,25 +1427,8 @@
     };
 })();
 
-// Lớp 5: Console trap — nếu ai mở console và chạy lệnh → trap
+// Lớp 5: Anti-clone fingerprint
 (function() {
-    var consoleOpened = false;
-    var devtools = /./;
-    devtools.toString = function() {
-        consoleOpened = true;
-        return '';
-    };
-
-    // Detect console
-    setInterval(function() {
-        consoleOpened = false;
-        // Chỉ log khi cần debug, không log trong production
-    }, 1000);
-})();
-
-// Lớp 6: Anti-clone — chống clone app
-(function() {
-    // Tạo fingerprint từ nhiều nguồn
     function getFingerprint() {
         var fp = [];
         fp.push(navigator.userAgent);
@@ -1511,26 +1440,23 @@
         return fp.join('|');
     }
 
-    // Lưu fingerprint vào sessionStorage
     var fp = getFingerprint();
     try {
         var storedFp = sessionStorage.getItem('_evoz_fp');
         if (!storedFp) {
             sessionStorage.setItem('_evoz_fp', fp);
         } else if (storedFp !== fp) {
-            // Fingerprint thay đổi bất thường → trap
             if (window.__evozTrap) window.__evozTrap();
         }
     } catch(e) {}
 })();
 
-// Lớp 7: Time-based trap — chống debugger
+// Lớp 6: Time-based trap
 (function() {
     var lastCheck = Date.now();
     setInterval(function() {
         var now = Date.now();
         var diff = now - lastCheck;
-        // Nếu thời gian chạy > 2000ms (bị pause bởi debugger) → trap
         if (diff > 2000) {
             if (window.__evozTrap) window.__evozTrap();
         }
@@ -1538,7 +1464,7 @@
     }, 1000);
 })();
 
-// Lớp 8: Anti-iframe
+// Lớp 7: Anti-iframe
 (function() {
     if (window.self !== window.top) {
         try {
@@ -1549,9 +1475,8 @@
     }
 })();
 
-// Lớp 9: Protect key functions with Object.defineProperty
+// Lớp 8: Protect window.fetch
 (function() {
-    // Bảo vệ window.fetch không cho ghi đè
     try {
         var originalFetch = window.fetch;
         Object.defineProperty(window, 'fetch', {
@@ -1562,7 +1487,7 @@
     } catch(e) {}
 })();
 
-// Lớp 10: Session token integrity
+// Lớp 9: Session token integrity
 (function() {
     var SESSION_TOKEN = "EVOZ_" + Date.now() + "_" + Math.random().toString(36).substr(2, 16);
     try {
