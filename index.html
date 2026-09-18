@@ -1,1 +1,2023 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>EVOZLOCK v6.5.0</title>
+    <style>
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        *{box-sizing:border-box;margin:0;padding:0}
+        html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#03060c;color:#e8eef5;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+        body{
+            background:
+                radial-gradient(circle at 20% 10%,rgba(56,189,248,.10),transparent 45%),
+                radial-gradient(circle at 80% 90%,rgba(168,85,247,.08),transparent 45%),
+                radial-gradient(circle at 50% -20%,rgba(34,211,238,.12),transparent 50%),
+                linear-gradient(180deg,#03060c 0%,#05080f 50%,#02040a 100%);
+            background-attachment:fixed;
+        }
+        button,input,select{font-family:inherit;-webkit-appearance:none;appearance:none;outline:none}
 
+        /* ============================================================
+           ANIMATED BACKGROUND
+           ============================================================ */
+        .bg-grid{
+            position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.35;
+            background-image:
+                linear-gradient(rgba(56,189,248,.06) 1px,transparent 1px),
+                linear-gradient(90deg,rgba(56,189,248,.06) 1px,transparent 1px);
+            background-size:44px 44px;
+            mask-image:radial-gradient(circle at 50% 30%,black 30%,transparent 75%);
+            -webkit-mask-image:radial-gradient(circle at 50% 30%,black 30%,transparent 75%);
+            animation:gridMove 22s linear infinite;
+        }
+        @keyframes gridMove{
+            0%{background-position:0 0,0 0}
+            100%{background-position:44px 44px,44px 44px}
+        }
+
+        .particles{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+        .particle{
+            position:absolute;width:2px;height:2px;border-radius:50%;
+            background:#38bdf8;box-shadow:0 0 8px #38bdf8,0 0 16px rgba(56,189,248,.5);
+            animation:floatUp linear infinite;opacity:0;
+        }
+        @keyframes floatUp{
+            0%{transform:translateY(100vh) scale(0);opacity:0}
+            10%{opacity:.9}
+            90%{opacity:.6}
+            100%{transform:translateY(-10vh) scale(1);opacity:0}
+        }
+
+        .orb{
+            position:fixed;border-radius:50%;filter:blur(80px);z-index:0;pointer-events:none;opacity:.4;
+        }
+        .orb.o1{width:340px;height:340px;background:radial-gradient(circle,#38bdf8,transparent 70%);top:-120px;left:-100px;animation:orbFloat 14s ease-in-out infinite}
+        .orb.o2{width:300px;height:300px;background:radial-gradient(circle,#a855f7,transparent 70%);bottom:-100px;right:-100px;animation:orbFloat 18s ease-in-out infinite reverse}
+        .orb.o3{width:240px;height:240px;background:radial-gradient(circle,#22d3ee,transparent 70%);top:40%;left:60%;animation:orbFloat 20s ease-in-out infinite}
+        @keyframes orbFloat{
+            0%,100%{transform:translate(0,0) scale(1)}
+            33%{transform:translate(30px,-30px) scale(1.1)}
+            66%{transform:translate(-20px,20px) scale(.9)}
+        }
+
+        /* ============================================================
+           LOGIN GATE
+           ============================================================ */
+        .gate{
+            position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:18px;
+            background:rgba(3,6,12,.85);
+            backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+            overflow-y:auto;
+        }
+        .gate-card{
+            width:min(440px,94vw);padding:30px 26px;
+            border:1px solid rgba(56,189,248,.25);
+            border-radius:32px;
+            background:linear-gradient(145deg,rgba(10,16,26,.95),rgba(6,10,18,.98));
+            box-shadow:
+                0 26px 70px rgba(0,0,0,.8),
+                inset 0 1px 0 rgba(56,189,248,.15),
+                0 0 60px rgba(56,189,248,.08);
+            text-align:center;position:relative;overflow:hidden;
+        }
+        .gate-card::before{
+            content:"";position:absolute;top:-2px;left:-2px;right:-2px;height:2px;
+            background:linear-gradient(90deg,transparent,#38bdf8,#a855f7,transparent);
+            background-size:200% 100%;
+            animation:borderScan 3s linear infinite;
+        }
+        @keyframes borderScan{
+            0%{background-position:200% 0}
+            100%{background-position:-200% 0}
+        }
+
+        .brand-logo{
+            position:relative;width:170px;height:170px;margin:0 auto 8px;
+            display:grid;place-items:center;
+        }
+        .brand-logo .ring-outer{
+            position:absolute;inset:0;border-radius:50%;
+            border:2px dashed rgba(56,189,248,.4);
+            animation:ringRotate 12s linear infinite;
+        }
+        .brand-logo .ring-mid{
+            position:absolute;inset:12px;border-radius:50%;
+            border:1px solid rgba(168,85,247,.35);
+            animation:ringRotate 8s linear infinite reverse;
+        }
+        .brand-logo .ring-inner{
+            position:absolute;inset:26px;border-radius:50%;
+            border:1px solid rgba(34,211,238,.3);
+            animation:ringRotate 16s linear infinite;
+        }
+        .brand-logo .ring-glow{
+            position:absolute;inset:-8px;border-radius:50%;
+            background:conic-gradient(from 0deg,transparent,rgba(56,189,248,.5),transparent 40%);
+            animation:ringRotate 4s linear infinite;
+            filter:blur(6px);opacity:.7;
+        }
+        .brand-logo img{
+            position:relative;width:110px;height:110px;object-fit:contain;border-radius:50%;
+            filter:drop-shadow(0 0 24px rgba(56,189,248,.6));
+            z-index:2;
+            border:2px solid rgba(56,189,248,.5);
+            padding:4px;background:rgba(3,6,12,.8);
+        }
+        @keyframes ringRotate{
+            0%{transform:rotate(0deg)}
+            100%{transform:rotate(360deg)}
+        }
+
+        .gate h1{
+            font-size:38px;letter-spacing:1.5px;margin:8px 0 2px;
+            color:#e8eef5;font-weight:950;
+            text-shadow:0 0 20px rgba(56,189,248,.5);
+        }
+        .gate h1 span{
+            color:#38bdf8;
+            text-shadow:0 0 24px rgba(56,189,248,.8),0 0 48px rgba(56,189,248,.4);
+        }
+        .byline{
+            color:#38bdf8;font-weight:900;letter-spacing:3px;margin-bottom:16px;font-size:12px;
+            text-transform:uppercase;opacity:.85;
+        }
+        .platform-badge{
+            background:linear-gradient(135deg,rgba(56,189,248,.15),rgba(168,85,247,.15));
+            color:#38bdf8;border:1px solid rgba(56,189,248,.4);
+            padding:6px 18px;border-radius:999px;font-size:11px;font-weight:900;
+            display:inline-block;margin-bottom:14px;letter-spacing:2px;
+            box-shadow:0 0 20px rgba(56,189,248,.2);
+        }
+        .ios-version-warning{
+            background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);
+            border-radius:12px;padding:12px;margin:10px 0;display:none;
+            color:#f87171;font-size:13px;font-weight:800;
+        }
+        .ios-version-warning.show{display:block}
+
+        .activation-box{
+            border:1px solid rgba(56,189,248,.2);border-radius:20px;
+            padding:18px;margin:14px 0;
+            background:linear-gradient(145deg,rgba(15,22,34,.9),rgba(8,12,20,.95));
+            text-align:left;position:relative;overflow:hidden;
+        }
+        .activation-box::after{
+            content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;
+            background:linear-gradient(90deg,transparent,rgba(56,189,248,.06),transparent);
+            animation:shine 4s ease-in-out infinite;
+        }
+        @keyframes shine{
+            0%{left:-100%}
+            50%{left:100%}
+            100%{left:100%}
+        }
+        .activation-box .act-title{
+            display:flex;align-items:center;gap:8px;font-size:14px;font-weight:950;
+            color:#e8eef5;margin-bottom:4px;position:relative;z-index:1;
+        }
+        .activation-box .act-title .dot{
+            width:8px;height:8px;background:#38bdf8;border-radius:50%;
+            box-shadow:0 0 12px #38bdf8;animation:pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse{
+            0%,100%{transform:scale(1);opacity:1}
+            50%{transform:scale(1.4);opacity:.6}
+        }
+        .activation-box .act-sub{color:#64748b;font-size:12px;margin-bottom:12px;position:relative;z-index:1}
+        .activation-box .act-label{
+            color:#94a3b8;font-size:10px;font-weight:800;letter-spacing:2px;
+            margin-bottom:6px;text-transform:uppercase;position:relative;z-index:1;
+        }
+        .activation-box .act-input-wrap{
+            display:flex;align-items:center;border:1px solid rgba(56,189,248,.25);
+            background:rgba(3,6,12,.7);border-radius:12px;padding:0 14px;height:52px;
+            margin-bottom:12px;position:relative;z-index:1;transition:.2s;
+        }
+        .activation-box .act-input-wrap:focus-within{
+            border-color:#38bdf8;box-shadow:0 0 20px rgba(56,189,248,.25);
+        }
+        .activation-box .act-input-wrap input{
+            flex:1;background:transparent;border:0;color:#e8eef5;font-size:15px;
+            outline:none;height:100%;letter-spacing:.5px;
+        }
+        .activation-box .act-input-wrap .eye{
+            color:#64748b;font-size:18px;cursor:pointer;padding:4px;transition:.2s;
+        }
+        .activation-box .act-input-wrap .eye:hover{color:#38bdf8}
+        .activation-box .hwid-row{
+            display:flex;align-items:center;justify-content:space-between;
+            background:rgba(3,6,12,.6);border:1px solid rgba(255,255,255,.05);
+            border-radius:10px;padding:10px 12px;margin-bottom:14px;
+            position:relative;z-index:1;
+        }
+        .activation-box .hwid-label{
+            color:#64748b;font-size:9px;font-weight:800;letter-spacing:2px;
+        }
+        .activation-box .hwid-value{
+            color:#38bdf8;font-size:12px;font-family:'SF Mono',monospace;
+            margin-top:2px;word-break:break-all;letter-spacing:.5px;
+        }
+        .activation-box .copy-btn{
+            background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.35);
+            color:#38bdf8;border-radius:8px;padding:6px 10px;font-size:14px;
+            cursor:pointer;flex-shrink:0;transition:.2s;
+        }
+        .activation-box .copy-btn:hover{background:rgba(56,189,248,.25)}
+
+        .primary-btn{
+            width:100%;height:54px;border:0;border-radius:14px;color:#03060c;
+            font-size:16px;font-weight:950;
+            background:linear-gradient(135deg,#38bdf8,#2563eb,#7c3aed);
+            background-size:200% 100%;
+            cursor:pointer;letter-spacing:1.5px;
+            box-shadow:0 8px 28px rgba(56,189,248,.35),inset 0 1px 0 rgba(255,255,255,.2);
+            transition:.3s;position:relative;overflow:hidden;
+        }
+        .primary-btn:hover{
+            background-position:100% 0;
+            box-shadow:0 12px 36px rgba(56,189,248,.5);
+            transform:translateY(-1px);
+        }
+        .primary-btn:active{transform:translateY(0)}
+
+        #keyExpiryDisplay{
+            color:#38bdf8;font-size:13px;font-weight:900;padding:10px;
+            border-radius:12px;background:rgba(56,189,248,.08);
+            border:1px solid rgba(56,189,248,.25);margin:10px 0;text-align:center;
+        }
+        .message{min-height:22px;margin:8px 0;text-align:center;font-size:13px;font-weight:700}
+        .message.err{color:#f87171}
+        .message.ok{color:#4ade80}
+
+        /* ============================================================
+           TOAST
+           ============================================================ */
+        .toast{
+            position:fixed;left:50%;bottom:96px;z-index:90;
+            transform:translate(-50%,20px);opacity:0;
+            padding:13px 20px;border-radius:999px;
+            background:linear-gradient(145deg,rgba(15,22,34,.98),rgba(8,12,20,.98));
+            color:#e8eef5;border:1px solid rgba(56,189,248,.4);
+            transition:.3s cubic-bezier(.4,0,.2,1);white-space:nowrap;
+            pointer-events:none;font-size:13px;font-weight:800;
+            box-shadow:0 12px 32px rgba(0,0,0,.6),0 0 24px rgba(56,189,248,.2);
+            letter-spacing:.3px;
+        }
+        .toast.active{opacity:1;transform:translate(-50%,0)}
+
+        /* ============================================================
+           APP MAIN
+           ============================================================ */
+        .app{
+            max-width:540px;margin:0 auto;padding:16px 14px 100px;
+            min-height:100vh;display:none;position:relative;z-index:1;
+        }
+
+        /* ============================================================
+           TOP BAR
+           ============================================================ */
+        .topbar{
+            display:flex;justify-content:space-between;align-items:center;
+            padding:12px 0;position:relative;
+        }
+        .topbar h2{
+            font-size:22px;font-weight:950;letter-spacing:1px;color:#e8eef5;
+            text-shadow:0 0 20px rgba(56,189,248,.4);
+            display:flex;align-items:center;gap:6px;
+        }
+        .topbar h2 span{color:#38bdf8;text-shadow:0 0 24px rgba(56,189,248,.8)}
+        .topbar h2 .verified{
+            display:inline-flex;align-items:center;justify-content:center;
+            width:18px;height:18px;border-radius:50%;
+            background:linear-gradient(135deg,#38bdf8,#2563eb);
+            color:#fff;font-size:11px;font-weight:950;
+            box-shadow:0 0 10px rgba(56,189,248,.6);
+        }
+        .topbar .badge{
+            color:#4ade80;font-weight:900;font-size:11px;
+            display:flex;align-items:center;gap:6px;
+            padding:6px 12px;border-radius:999px;
+            background:rgba(74,222,128,.08);
+            border:1px solid rgba(74,222,128,.25);
+            letter-spacing:1px;
+        }
+        .topbar .badge i{
+            width:7px;height:7px;background:#4ade80;border-radius:50%;
+            display:inline-block;box-shadow:0 0 10px #4ade80;
+            animation:pulse 1.5s ease-in-out infinite;
+        }
+
+        /* ============================================================
+           ADMIN BANNER
+           ============================================================ */
+        .admin-banner{
+            background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(168,85,247,.05),rgba(15,22,34,.95));
+            border-radius:18px;padding:14px 16px;
+            border:1px solid rgba(56,189,248,.25);
+            margin:10px 0;display:flex;align-items:center;gap:12px;
+            position:relative;overflow:hidden;
+            box-shadow:0 4px 20px rgba(0,0,0,.3),inset 0 1px 0 rgba(56,189,248,.1);
+        }
+        .admin-banner::before{
+            content:"";position:absolute;top:0;left:0;width:3px;height:100%;
+            background:linear-gradient(180deg,#38bdf8,#a855f7);
+            box-shadow:0 0 12px #38bdf8;
+        }
+        .admin-banner .admin-avatar-wrap{
+            position:relative;flex-shrink:0;
+        }
+        .admin-banner .admin-avatar{
+            width:46px;height:46px;border-radius:50%;
+            border:2px solid #38bdf8;object-fit:cover;
+            box-shadow:0 0 16px rgba(56,189,248,.5);
+        }
+        .admin-banner .admin-verified{
+            position:absolute;bottom:-2px;right:-2px;
+            width:18px;height:18px;border-radius:50%;
+            background:linear-gradient(135deg,#38bdf8,#2563eb);
+            border:2px solid #0a1018;
+            display:grid;place-items:center;
+            color:#fff;font-size:9px;font-weight:950;
+            box-shadow:0 0 10px rgba(56,189,248,.8);
+        }
+        .admin-banner .admin-info{flex:1;min-width:0}
+        .admin-banner .admin-name{
+            color:#38bdf8;font-weight:950;font-size:14px;letter-spacing:.3px;
+            display:flex;align-items:center;gap:6px;
+        }
+        .admin-banner .admin-name .name-verified{
+            display:inline-flex;align-items:center;justify-content:center;
+            width:14px;height:14px;border-radius:50%;
+            background:linear-gradient(135deg,#38bdf8,#2563eb);
+            color:#fff;font-size:8px;font-weight:950;
+            box-shadow:0 0 8px rgba(56,189,248,.6);
+        }
+        .admin-banner .admin-msg{
+            color:#94a3b8;font-size:11px;line-height:1.4;margin-top:2px;
+            overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+        }
+        .admin-banner .admin-version{
+            color:#38bdf8;font-weight:900;font-size:11px;
+            background:rgba(56,189,248,.12);padding:4px 10px;
+            border-radius:999px;border:1px solid rgba(56,189,248,.3);
+            flex-shrink:0;letter-spacing:.5px;
+            box-shadow:0 0 12px rgba(56,189,248,.15);
+        }
+
+        /* ============================================================
+           KEY INFO
+           ============================================================ */
+        .key-info{
+            background:linear-gradient(145deg,rgba(15,22,34,.95),rgba(8,12,20,.98));
+            border-radius:20px;padding:18px 20px;
+            border:1px solid rgba(56,189,248,.2);
+            margin:10px 0;position:relative;overflow:hidden;
+            box-shadow:0 4px 24px rgba(0,0,0,.35),inset 0 1px 0 rgba(56,189,248,.08);
+        }
+        .key-info::before{
+            content:"";position:absolute;top:0;right:0;width:120px;height:120px;
+            background:radial-gradient(circle,rgba(56,189,248,.1),transparent 70%);
+            pointer-events:none;
+        }
+        .key-info .row{
+            display:flex;justify-content:space-between;align-items:center;
+            padding:7px 0;position:relative;z-index:1;
+        }
+        .key-info .label{color:#64748b;font-size:12px;font-weight:800;letter-spacing:.5px}
+        .key-info .value{color:#38bdf8;font-weight:950;font-size:14px;letter-spacing:.3px}
+        .key-info .value.verified-value{
+            display:flex;align-items:center;gap:6px;
+        }
+        .key-info .value.verified-value .tick{
+            display:inline-flex;align-items:center;justify-content:center;
+            width:14px;height:14px;border-radius:50%;
+            background:#4ade80;color:#03060c;
+            font-size:9px;font-weight:950;
+            box-shadow:0 0 8px rgba(74,222,128,.6);
+        }
+
+        /* ============================================================
+           VIP CARD
+           ============================================================ */
+        .vip-card{
+            background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(168,85,247,.06),rgba(15,22,34,.98));
+            border-radius:22px;padding:22px 20px;
+            border:1px solid rgba(56,189,248,.25);
+            margin:14px 0;text-align:center;position:relative;overflow:hidden;
+            box-shadow:0 8px 32px rgba(0,0,0,.4),inset 0 1px 0 rgba(56,189,248,.1);
+        }
+        .vip-card::before{
+            content:"";position:absolute;inset:-1px;border-radius:22px;
+            background:linear-gradient(135deg,rgba(56,189,248,.3),transparent 40%,transparent 60%,rgba(168,85,247,.3));
+            z-index:-1;opacity:.5;
+        }
+        .vip-card::after{
+            content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+            background:conic-gradient(from 0deg,transparent,rgba(56,189,248,.15),transparent 25%);
+            animation:ringRotate 8s linear infinite;
+            pointer-events:none;
+        }
+        .vip-card .vip-title{
+            font-size:22px;font-weight:950;letter-spacing:4px;position:relative;z-index:1;
+            background:linear-gradient(135deg,#38bdf8,#a855f7,#38bdf8);
+            background-size:200% 100%;
+            -webkit-background-clip:text;background-clip:text;
+            -webkit-text-fill-color:transparent;
+            animation:gradientShift 3s linear infinite;
+            filter:drop-shadow(0 0 12px rgba(56,189,248,.4));
+        }
+        .vip-card .vip-title .verified-inline{
+            display:inline-flex;align-items:center;justify-content:center;
+            width:18px;height:18px;border-radius:50%;
+            background:linear-gradient(135deg,#38bdf8,#2563eb);
+            color:#fff;font-size:11px;font-weight:950;
+            -webkit-text-fill-color:#fff;
+            box-shadow:0 0 10px rgba(56,189,248,.6);
+            vertical-align:middle;margin-left:6px;
+        }
+        @keyframes gradientShift{
+            0%{background-position:0% 50%}
+            100%{background-position:200% 50%}
+        }
+        .vip-card .vip-sub{
+            color:#64748b;font-size:12px;font-weight:800;margin:6px 0 14px;
+            letter-spacing:2px;position:relative;z-index:1;
+        }
+        .vip-card .vip-stats{
+            display:grid;grid-template-columns:1fr 1fr;gap:12px;
+            margin:12px 0;position:relative;z-index:1;
+        }
+        .vip-card .stat-item{
+            background:linear-gradient(145deg,rgba(3,6,12,.7),rgba(10,16,26,.9));
+            border-radius:16px;padding:16px 12px;
+            border:1px solid rgba(56,189,248,.2);
+            box-shadow:inset 0 1px 0 rgba(56,189,248,.08);
+            transition:.3s;
+        }
+        .vip-card .stat-item:hover{
+            border-color:rgba(56,189,248,.5);
+            box-shadow:0 0 20px rgba(56,189,248,.2),inset 0 1px 0 rgba(56,189,248,.15);
+        }
+        .vip-card .stat-item .num{
+            font-size:26px;font-weight:950;
+            background:linear-gradient(135deg,#38bdf8,#7c3aed);
+            -webkit-background-clip:text;background-clip:text;
+            -webkit-text-fill-color:transparent;
+            filter:drop-shadow(0 0 8px rgba(56,189,248,.3));
+        }
+        .vip-card .stat-item .lbl{
+            font-size:10px;color:#64748b;font-weight:800;margin-top:4px;
+            letter-spacing:1.5px;
+        }
+
+        /* ============================================================
+           FEATURE GROUP
+           ============================================================ */
+        .feature-group{
+            background:linear-gradient(145deg,rgba(15,22,34,.92),rgba(8,12,20,.96));
+            border-radius:20px;border:1px solid rgba(56,189,248,.15);
+            margin:12px 0;overflow:hidden;
+            box-shadow:0 4px 24px rgba(0,0,0,.35);
+            position:relative;
+        }
+        .feature-group::before{
+            content:"";position:absolute;top:0;left:0;right:0;height:1px;
+            background:linear-gradient(90deg,transparent,rgba(56,189,248,.5),transparent);
+        }
+        .group-header{
+            padding:14px 18px;
+            background:linear-gradient(90deg,rgba(56,189,248,.10),rgba(168,85,247,.05),transparent);
+            border-bottom:1px solid rgba(56,189,248,.12);
+            font-weight:950;font-size:14px;
+            display:flex;justify-content:space-between;align-items:center;
+            color:#e8eef5;letter-spacing:1px;position:relative;
+        }
+        .group-header .group-count{
+            font-size:10px;color:#64748b;font-weight:800;
+            background:rgba(56,189,248,.08);
+            padding:3px 10px;border-radius:999px;
+            border:1px solid rgba(56,189,248,.2);
+            letter-spacing:1px;
+        }
+
+        .feature-item{
+            display:grid;grid-template-columns:46px 1fr 52px;
+            align-items:center;padding:13px 16px;
+            border-bottom:1px solid rgba(255,255,255,.04);
+            gap:12px;transition:.2s;position:relative;
+        }
+        .feature-item:last-child{border-bottom:0}
+        .feature-item:hover{
+            background:rgba(56,189,248,.04);
+        }
+        .feature-item .icon{
+            font-size:22px;text-align:center;
+            width:42px;height:42px;border-radius:12px;
+            display:grid;place-items:center;
+            background:linear-gradient(145deg,rgba(56,189,248,.12),rgba(168,85,247,.08));
+            border:1px solid rgba(56,189,248,.15);
+            box-shadow:inset 0 1px 0 rgba(56,189,248,.1);
+        }
+        .feature-item .info b{
+            display:block;font-size:14px;font-weight:950;color:#e8eef5;
+            letter-spacing:.3px;
+            display:flex;align-items:center;gap:6px;
+        }
+        .feature-item .info b .tick-sm{
+            display:inline-flex;align-items:center;justify-content:center;
+            width:13px;height:13px;border-radius:50%;
+            background:linear-gradient(135deg,#4ade80,#22c55e);
+            color:#03060c;font-size:8px;font-weight:950;
+            box-shadow:0 0 6px rgba(74,222,128,.6);
+        }
+        .feature-item .info small{
+            color:#64748b;font-size:11px;font-weight:700;
+            display:block;margin-top:2px;letter-spacing:.3px;
+        }
+
+        /* ============================================================
+           SWITCH
+           ============================================================ */
+        .switch{
+            width:48px;height:28px;border-radius:999px;
+            background:linear-gradient(145deg,#1a2332,#0f1620);
+            position:relative;cursor:pointer;transition:.3s;
+            flex-shrink:0;-webkit-tap-highlight-color:transparent;
+            border:1px solid rgba(56,189,248,.15);
+            box-shadow:inset 0 2px 4px rgba(0,0,0,.4);
+        }
+        .switch:before{
+            content:"";width:22px;height:22px;border-radius:50%;
+            background:linear-gradient(145deg,#64748b,#475569);
+            position:absolute;top:2px;left:2px;
+            transition:.3s cubic-bezier(.4,0,.2,1);
+            box-shadow:0 2px 6px rgba(0,0,0,.5);
+        }
+        .switch.active{
+            background:linear-gradient(135deg,#38bdf8,#2563eb);
+            border-color:rgba(56,189,248,.6);
+            box-shadow:
+                0 0 16px rgba(56,189,248,.5),
+                inset 0 2px 4px rgba(0,0,0,.2);
+        }
+        .switch.active:before{
+            left:24px;
+            background:linear-gradient(145deg,#ffffff,#e0f2fe);
+            box-shadow:0 0 12px rgba(255,255,255,.8);
+        }
+
+        /* ============================================================
+           ACTIVATE BTN
+           ============================================================ */
+        .activate-btn{
+            width:100%;padding:18px;border:0;border-radius:18px;
+            background:linear-gradient(135deg,#38bdf8,#2563eb,#7c3aed);
+            background-size:200% 100%;
+            color:#fff;font-weight:950;font-size:16px;cursor:pointer;
+            margin:14px 0;-webkit-tap-highlight-color:transparent;
+            letter-spacing:2px;position:relative;overflow:hidden;
+            box-shadow:0 12px 36px rgba(56,189,248,.35),inset 0 1px 0 rgba(255,255,255,.2);
+            transition:.3s;
+            animation:gradientShift 4s linear infinite;
+            text-shadow:0 0 12px rgba(255,255,255,.5);
+        }
+        .activate-btn:hover{
+            box-shadow:0 16px 44px rgba(56,189,248,.55);
+            transform:translateY(-2px);
+        }
+        .activate-btn:active{transform:translateY(0)}
+
+        /* ============================================================
+           BOTTOM NAV
+           ============================================================ */
+        .bottom-nav{
+            position:fixed;left:50%;bottom:10px;transform:translateX(-50%);
+            width:min(500px,94vw);height:68px;
+            border:1px solid rgba(56,189,248,.25);
+            background:linear-gradient(145deg,rgba(10,16,26,.96),rgba(6,10,18,.98));
+            backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+            border-radius:22px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;
+            z-index:30;box-shadow:
+                0 12px 40px rgba(0,0,0,.6),
+                0 0 40px rgba(56,189,248,.08),
+                inset 0 1px 0 rgba(56,189,248,.15);
+            overflow:hidden;
+        }
+        .bottom-nav::before{
+            content:"";position:absolute;top:0;left:0;right:0;height:1px;
+            background:linear-gradient(90deg,transparent,rgba(56,189,248,.6),transparent);
+        }
+        .bottom-nav button{
+            border:0;background:transparent;color:#64748b;
+            font-size:20px;font-weight:900;
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            gap:3px;cursor:pointer;-webkit-tap-highlight-color:transparent;
+            padding:4px;transition:.3s;position:relative;
+        }
+        .bottom-nav button span{font-size:10px;font-weight:800;letter-spacing:.5px}
+        .bottom-nav button span:first-child{font-size:22px;transition:.3s}
+        .bottom-nav .active{color:#38bdf8}
+        .bottom-nav .active span:first-child{
+            filter:drop-shadow(0 0 10px rgba(56,189,248,.8));
+            transform:scale(1.1);
+        }
+        .bottom-nav .active::after{
+            content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+            width:24px;height:2px;border-radius:0 0 4px 4px;
+            background:linear-gradient(90deg,#38bdf8,#a855f7);
+            box-shadow:0 0 12px #38bdf8;
+        }
+
+        /* ============================================================
+           FULLSCREEN VIEWS
+           ============================================================ */
+        .view{
+            position:fixed;inset:0;z-index:60;
+            background:linear-gradient(145deg,rgba(3,6,12,.98),rgba(5,8,14,.99));
+            overflow-y:auto;
+            transform:translateX(100%);
+            transition:.4s cubic-bezier(.4,0,.2,1);
+            display:none;
+        }
+        .view.active{
+            transform:translateX(0);
+            display:block;
+        }
+        .view::before{
+            content:"";position:fixed;top:0;left:0;width:1px;height:100%;
+            background:linear-gradient(180deg,transparent,#38bdf8,#a855f7,transparent);
+        }
+
+        .view-header{
+            display:flex;justify-content:space-between;align-items:center;
+            padding:18px 20px;
+            background:linear-gradient(90deg,rgba(56,189,248,.08),rgba(168,85,247,.05),transparent);
+            border-bottom:1px solid rgba(56,189,248,.15);
+            position:sticky;top:0;z-index:2;
+            backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+        }
+        .view-header .back-btn{
+            width:40px;height:40px;border-radius:12px;
+            background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);
+            color:#38bdf8;font-size:18px;font-weight:900;cursor:pointer;
+            display:grid;place-items:center;transition:.2s;
+            -webkit-tap-highlight-color:transparent;
+        }
+        .view-header .back-btn:hover{background:rgba(56,189,248,.25);transform:translateX(-2px)}
+        .view-header h2{
+            font-size:17px;margin:0;color:#e8eef5;font-weight:950;
+            letter-spacing:1px;display:flex;align-items:center;gap:10px;
+            flex:1;justify-content:center;
+        }
+        .view-header h2 .p-icon{
+            font-size:20px;
+            filter:drop-shadow(0 0 8px rgba(56,189,248,.6));
+        }
+        .view-header .spacer{width:40px}
+
+        .view-content{
+            padding:20px;
+            max-width:600px;margin:0 auto;
+            padding-bottom:40px;
+        }
+
+        /* ============================================================
+           ADMIN INFO (PROFILE)
+           ============================================================ */
+        #adminInfo{
+            display:flex;flex-direction:column;align-items:center;
+            padding:26px 16px;border-radius:22px;
+            background:linear-gradient(145deg,rgba(56,189,248,.08),rgba(168,85,247,.05));
+            border:1px solid rgba(56,189,248,.25);
+            margin:10px 0;position:relative;overflow:hidden;
+        }
+        #adminInfo::before{
+            content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+            background:conic-gradient(from 0deg,transparent,rgba(56,189,248,.1),transparent 30%);
+            animation:ringRotate 10s linear infinite;
+            pointer-events:none;
+        }
+        #adminInfo .avatar-wrap{
+            position:relative;z-index:1;
+        }
+        #adminInfo img{
+            width:90px;height:90px;border-radius:50%;
+            border:3px solid #38bdf8;position:relative;z-index:1;
+            box-shadow:0 0 30px rgba(56,189,248,.6);
+            animation:pulse 3s ease-in-out infinite;
+        }
+        #adminInfo .verified-big{
+            position:absolute;bottom:2px;right:2px;
+            width:26px;height:26px;border-radius:50%;
+            background:linear-gradient(135deg,#38bdf8,#2563eb);
+            border:3px solid #0a1018;
+            display:grid;place-items:center;
+            color:#fff;font-size:13px;font-weight:950;
+            box-shadow:0 0 14px rgba(56,189,248,.8);
+        }
+        #adminInfo .name{
+            color:#38bdf8;font-weight:950;font-size:20px;
+            margin:12px 0 4px;position:relative;z-index:1;
+            text-shadow:0 0 20px rgba(56,189,248,.6);
+            letter-spacing:.5px;
+            display:flex;align-items:center;gap:8px;
+        }
+        #adminInfo .name .tick-name{
+            display:inline-flex;align-items:center;justify-content:center;
+            width:18px;height:18px;border-radius:50%;
+            background:linear-gradient(135deg,#38bdf8,#2563eb);
+            color:#fff;font-size:10px;font-weight:950;
+            box-shadow:0 0 10px rgba(56,189,248,.6);
+        }
+        #adminInfo .zalo{
+            color:#94a3b8;font-size:13px;letter-spacing:2px;
+            position:relative;z-index:1;
+        }
+        #adminInfo .sec-verified-line{
+            display:inline-flex;align-items:center;gap:6px;
+            margin-top:10px;padding:5px 12px;border-radius:999px;
+            background:rgba(74,222,128,.1);
+            border:1px solid rgba(74,222,128,.3);
+            color:#4ade80;font-size:10px;font-weight:900;
+            letter-spacing:1px;position:relative;z-index:1;
+        }
+        #adminInfo .sec-verified-line .tick{
+            display:inline-flex;align-items:center;justify-content:center;
+            width:12px;height:12px;border-radius:50%;
+            background:#4ade80;color:#03060c;
+            font-size:8px;font-weight:950;
+        }
+
+        .info-item{
+            display:flex;justify-content:space-between;align-items:center;
+            padding:16px;border-radius:16px;
+            background:linear-gradient(145deg,rgba(15,22,34,.8),rgba(8,12,20,.9));
+            border:1px solid rgba(56,189,248,.15);
+            margin:10px 0;cursor:pointer;transition:.2s;
+        }
+        .info-item:hover{
+            border-color:rgba(56,189,248,.4);
+            box-shadow:0 0 16px rgba(56,189,248,.15);
+            transform:translateX(4px);
+        }
+        .info-item strong{font-size:14px;color:#e8eef5;display:flex;align-items:center;gap:6px}
+        .info-item strong .tick-sm{
+            display:inline-flex;align-items:center;justify-content:center;
+            width:13px;height:13px;border-radius:50%;
+            background:linear-gradient(135deg,#4ade80,#22c55e);
+            color:#03060c;font-size:8px;font-weight:950;
+            box-shadow:0 0 6px rgba(74,222,128,.6);
+        }
+        .info-item p{color:#64748b;font-size:11px;margin:2px 0 0}
+        .info-item span{color:#38bdf8;font-size:20px}
+
+        /* ============================================================
+           MODALS
+           ============================================================ */
+        .modal{
+            position:fixed;inset:0;z-index:70;display:none;place-items:center;
+            padding:18px;background:rgba(3,6,12,.85);
+            backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+        }
+        .modal-card{
+            width:min(440px,94vw);border-radius:26px;padding:24px;
+            background:linear-gradient(145deg,rgba(10,16,26,.98),rgba(5,8,14,.99));
+            border:1px solid rgba(56,189,248,.3);
+            max-height:90vh;overflow-y:auto;position:relative;
+            box-shadow:
+                0 26px 80px rgba(0,0,0,.8),
+                0 0 60px rgba(56,189,248,.15),
+                inset 0 1px 0 rgba(56,189,248,.15);
+            animation:modalIn .3s cubic-bezier(.4,0,.2,1);
+        }
+        @keyframes modalIn{
+            from{opacity:0;transform:translateY(20px) scale(.95)}
+            to{opacity:1;transform:translateY(0) scale(1)}
+        }
+        .modal-card::before{
+            content:"";position:absolute;top:-1px;left:10%;right:10%;height:1px;
+            background:linear-gradient(90deg,transparent,#38bdf8,#a855f7,transparent);
+        }
+        .modal-title{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+        .modal-title h3{font-size:20px;margin:0;color:#e8eef5;font-weight:950}
+        .modal-title p{color:#64748b;margin:3px 0 0;font-size:12px}
+        .close{
+            position:absolute;right:14px;top:12px;border:0;
+            width:38px;height:38px;border-radius:50%;
+            background:rgba(56,189,248,.12);color:#38bdf8;
+            font-size:20px;cursor:pointer;
+            -webkit-tap-highlight-color:transparent;
+            border:1px solid rgba(56,189,248,.25);
+            transition:.2s;
+        }
+        .close:hover{background:rgba(56,189,248,.25);transform:rotate(90deg)}
+        .modal-btn{
+            width:100%;padding:14px;border:0;border-radius:14px;
+            font-weight:900;font-size:14px;cursor:pointer;margin:6px 0;
+            -webkit-tap-highlight-color:transparent;letter-spacing:1px;
+            transition:.2s;
+        }
+        .modal-btn.success{
+            background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;
+            box-shadow:0 8px 24px rgba(34,197,94,.3);
+        }
+        .modal-btn.danger{
+            background:linear-gradient(135deg,#ef4444,#991b1b);color:#fff;
+            box-shadow:0 8px 24px rgba(239,68,68,.3);
+        }
+        .modal-btn.primary{
+            background:linear-gradient(135deg,#38bdf8,#2563eb);color:#03060c;
+            box-shadow:0 8px 24px rgba(56,189,248,.35);
+        }
+        .terminal{
+            background:#03060c;border-radius:14px;padding:16px;
+            color:#4ade80;font-size:12px;line-height:1.8;
+            min-height:160px;white-space:pre-wrap;
+            border:1px solid rgba(74,222,128,.2);
+            margin:12px 0;font-family:'SF Mono',monospace;
+            box-shadow:inset 0 0 30px rgba(74,222,128,.05);
+        }
+
+        /* ============================================================
+           CATEGORY MODAL
+           ============================================================ */
+        .cat-overlay{
+            position:fixed;inset:0;z-index:80;display:none;
+            place-items:center;padding:18px;background:rgba(3,6,12,.88);
+            backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+        }
+        .cat-modal{
+            width:min(420px,94vw);border-radius:26px;
+            background:linear-gradient(145deg,rgba(10,16,26,.98),rgba(5,8,14,.99));
+            border:1px solid rgba(56,189,248,.3);
+            padding:0;overflow:hidden;
+            box-shadow:
+                0 26px 80px rgba(0,0,0,.8),
+                0 0 80px rgba(56,189,248,.15);
+            animation:modalIn .3s cubic-bezier(.4,0,.2,1);
+        }
+        .cat-header{
+            padding:20px;text-align:center;
+            border-bottom:1px solid rgba(56,189,248,.15);
+            background:linear-gradient(90deg,rgba(56,189,248,.08),rgba(168,85,247,.06),rgba(56,189,248,.08));
+            position:relative;
+        }
+        .cat-header::before{
+            content:"";position:absolute;top:0;left:0;right:0;height:2px;
+            background:linear-gradient(90deg,transparent,#38bdf8,#a855f7,transparent);
+            background-size:200% 100%;
+            animation:borderScan 3s linear infinite;
+        }
+        .cat-header h3{
+            margin:0;font-size:18px;color:#e8eef5;font-weight:950;
+            letter-spacing:1px;
+            text-shadow:0 0 16px rgba(56,189,248,.4);
+        }
+        .cat-list{padding:12px}
+        .cat-item{
+            display:flex;align-items:center;gap:14px;
+            padding:14px;border-radius:16px;
+            border:1px solid rgba(255,255,255,.06);
+            background:linear-gradient(145deg,rgba(15,22,34,.6),rgba(8,12,20,.7));
+            margin-bottom:8px;cursor:pointer;transition:.25s;
+            position:relative;overflow:hidden;
+        }
+        .cat-item:hover{
+            border-color:rgba(56,189,248,.3);
+            transform:translateX(4px);
+        }
+        .cat-item.active{
+            border-color:#38bdf8;
+            background:linear-gradient(135deg,rgba(56,189,248,.15),rgba(37,99,235,.10));
+            box-shadow:
+                0 0 24px rgba(56,189,248,.25),
+                inset 0 1px 0 rgba(56,189,248,.2);
+        }
+        .cat-item.active::before{
+            content:"";position:absolute;left:0;top:0;width:3px;height:100%;
+            background:linear-gradient(180deg,#38bdf8,#a855f7);
+            box-shadow:0 0 12px #38bdf8;
+        }
+        .cat-item .cat-icon{
+            width:48px;height:48px;border-radius:14px;
+            background:linear-gradient(145deg,rgba(56,189,248,.15),rgba(168,85,247,.1));
+            display:grid;place-items:center;font-size:24px;
+            flex-shrink:0;overflow:hidden;
+            border:1px solid rgba(56,189,248,.2);
+        }
+        .cat-item .cat-name{
+            flex:1;font-size:15px;font-weight:950;color:#e8eef5;
+            letter-spacing:.3px;
+        }
+        .cat-item .cat-radio{
+            width:22px;height:22px;border-radius:50%;
+            border:2px solid #475569;flex-shrink:0;
+            display:grid;place-items:center;transition:.25s;
+        }
+        .cat-item.active .cat-radio{
+            border-color:#38bdf8;
+            box-shadow:0 0 12px rgba(56,189,248,.5);
+        }
+        .cat-item.active .cat-radio:after{
+            content:"";width:12px;height:12px;border-radius:50%;
+            background:linear-gradient(135deg,#38bdf8,#2563eb);
+            box-shadow:0 0 10px #38bdf8;
+            animation:pulse 1.5s ease-in-out infinite;
+        }
+        .cat-footer{
+            padding:14px;border-top:1px solid rgba(56,189,248,.12);
+            text-align:center;
+            background:rgba(3,6,12,.4);
+        }
+        .cat-footer button{
+            width:100%;padding:14px;border:0;border-radius:14px;
+            background:linear-gradient(145deg,rgba(56,189,248,.1),rgba(168,85,247,.08));
+            color:#e8eef5;font-weight:950;font-size:15px;cursor:pointer;
+            -webkit-tap-highlight-color:transparent;letter-spacing:1px;
+            border:1px solid rgba(56,189,248,.25);
+            transition:.2s;
+        }
+        .cat-footer button:hover{
+            background:linear-gradient(145deg,rgba(56,189,248,.2),rgba(168,85,247,.15));
+        }
+
+        /* ============================================================
+           GUIDE / DNS
+           ============================================================ */
+        .guide-step{
+            display:flex;gap:14px;padding:14px 0;
+            border-bottom:1px solid rgba(255,255,255,.04);
+        }
+        .guide-step:last-child{border-bottom:0}
+        .guide-step .num{
+            width:34px;height:34px;border-radius:50%;
+            background:linear-gradient(135deg,rgba(56,189,248,.2),rgba(168,85,247,.15));
+            color:#38bdf8;font-weight:950;font-size:14px;
+            display:grid;place-items:center;flex-shrink:0;
+            border:1px solid rgba(56,189,248,.3);
+            box-shadow:0 0 12px rgba(56,189,248,.2);
+        }
+        .guide-step .text{
+            color:#cbd5e1;font-size:14px;line-height:1.6;
+            padding-top:6px;font-weight:600;
+        }
+        .note-box{
+            background:linear-gradient(145deg,rgba(250,204,21,.08),rgba(250,204,21,.04));
+            border:1px solid rgba(250,204,21,.3);
+            border-radius:14px;padding:16px;margin:16px 0;
+            color:#fbbf24;font-size:13px;line-height:1.8;font-weight:700;
+            box-shadow:0 0 20px rgba(250,204,21,.08);
+        }
+        .dns-btn{
+            width:100%;padding:16px;border:0;border-radius:14px;
+            background:linear-gradient(135deg,#22c55e,#15803d);
+            color:#fff;font-weight:950;font-size:15px;cursor:pointer;
+            margin:12px 0;-webkit-tap-highlight-color:transparent;
+            letter-spacing:1.5px;
+            box-shadow:0 8px 28px rgba(34,197,94,.35);
+            transition:.2s;
+        }
+        .dns-btn:hover{
+            box-shadow:0 12px 36px rgba(34,197,94,.5);
+            transform:translateY(-2px);
+        }
+        .dns-warn{
+            background:linear-gradient(145deg,rgba(239,68,68,.1),rgba(239,68,68,.05));
+            border:1px solid rgba(239,68,68,.3);
+            border-radius:14px;padding:16px;margin:14px 0;
+            color:#f87171;font-size:13px;line-height:1.8;
+            font-weight:800;text-align:center;
+            box-shadow:0 0 20px rgba(239,68,68,.08);
+        }
+        .dns-hero{
+            text-align:center;margin:16px 0 20px;
+            padding:24px 16px;border-radius:20px;
+            background:linear-gradient(145deg,rgba(56,189,248,.06),rgba(168,85,247,.04));
+            border:1px solid rgba(56,189,248,.2);
+        }
+        .dns-hero .dns-icon{
+            font-size:64px;filter:drop-shadow(0 0 24px rgba(56,189,248,.6));
+            animation:pulse 3s ease-in-out infinite;
+        }
+        .dns-hero .dns-name{
+            color:#38bdf8;font-weight:950;font-size:19px;margin-top:12px;
+            text-shadow:0 0 20px rgba(56,189,248,.6);letter-spacing:1px;
+        }
+        .dns-hero .dns-copyright{
+            color:#64748b;font-size:12px;margin-top:6px;letter-spacing:2px;
+        }
+        .dns-info{
+            color:#64748b;font-size:12px;line-height:1.9;margin-top:14px;
+        }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media(max-width:430px){
+            .gate-card{padding:20px 18px}
+            .brand-logo{width:140px;height:140px}
+            .brand-logo img{width:90px;height:90px}
+            .gate h1{font-size:30px}
+            .bottom-nav span{font-size:9px}
+            .bottom-nav button span:first-child{font-size:20px}
+            .vip-card .vip-title{font-size:18px;letter-spacing:2px}
+            .feature-item{grid-template-columns:42px 1fr 48px;padding:12px 14px}
+            .feature-item .icon{width:38px;height:38px;font-size:20px}
+        }
+
+        ::-webkit-scrollbar{width:6px;height:6px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{
+            background:linear-gradient(180deg,#38bdf8,#7c3aed);
+            border-radius:3px;
+        }
+        ::-webkit-scrollbar-thumb:hover{background:#38bdf8}
+    </style>
+</head>
+<body>
+
+<!-- ===== BACKGROUND EFFECTS ===== -->
+<div class="bg-grid"></div>
+<div class="orb o1"></div>
+<div class="orb o2"></div>
+<div class="orb o3"></div>
+<div class="particles" id="particles"></div>
+
+<!-- ===== LOGIN / ACTIVATION ===== -->
+<div class="gate" id="loginGate">
+    <div class="gate-card">
+        <div class="brand-logo">
+            <div class="ring-glow"></div>
+            <div class="ring-outer"></div>
+            <div class="ring-mid"></div>
+            <div class="ring-inner"></div>
+            <img src="https://i.postimg.cc/hvZhTsJg/34A8D783-BBFA-4F7C-BDF4-D83194E0DB48.png" alt="EVOZLOCK">
+        </div>
+        <h1>EVOZ<span>LOCK</span></h1>
+        <div class="byline">KHAI PHÁ HỆ THỐNG</div>
+        <div style="display:flex;justify-content:center;gap:10px;margin-bottom:8px;">
+            <span class="platform-badge">⚡ MOBILE v6.5.0</span>
+        </div>
+        <div id="iosVersionWarning" class="ios-version-warning">
+            ⚠️ Thiết bị không được hỗ trợ! Vui lòng sử dụng thiết bị khác.
+        </div>
+
+        <div class="activation-box">
+            <div class="act-title"><span class="dot"></span> KÍCH HOẠT HỆ THỐNG</div>
+            <div class="act-sub">Nhập license key để bắt đầu</div>
+
+            <div class="act-label">MÃ KÍCH HOẠT</div>
+            <div class="act-input-wrap">
+                <input type="text" id="keyInput" placeholder="Nhập license key" autocomplete="off">
+                <span class="eye" id="toggleEye">👁</span>
+            </div>
+
+            <div class="hwid-row">
+                <div>
+                    <div class="hwid-label">HWID</div>
+                    <div class="hwid-value" id="hwidDisplay">--</div>
+                </div>
+                <button class="copy-btn" id="copyHwid">📋</button>
+            </div>
+
+            <div id="keyExpiryDisplay" style="display:none;">🔑 Còn: --</div>
+            <div class="message" id="loginMessage"></div>
+            <button class="primary-btn" id="loginBtnFull">⚡ XÁC THỰC NGAY</button>
+        </div>
+
+        <div style="margin-top:14px;font-size:12px;color:#64748b;">
+            Liên hệ: <span style="color:#38bdf8;font-weight:900;cursor:pointer;" onclick="window.open('https://zalo.me/976457016','_blank')">0976457016</span>
+        </div>
+    </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div class="app" id="appMain">
+    <div class="topbar">
+        <h2>EVOZ<span>LOCK</span> <span class="verified">✓</span></h2>
+        <div class="badge"><i></i> SECURED</div>
+    </div>
+
+    <div class="admin-banner">
+        <div class="admin-avatar-wrap">
+            <img class="admin-avatar" src="https://i.postimg.cc/hvZhTsJg/34A8D783-BBFA-4F7C-BDF4-D83194E0DB48.png" alt="Admin">
+            <div class="admin-verified">✓</div>
+        </div>
+        <div class="admin-info">
+            <div class="admin-name">👑 Ngọc phát x NP <span class="name-verified">✓</span></div>
+            <div class="admin-msg">📢 Bản Mobile v6.5.0</div>
+        </div>
+        <div class="admin-version">v6.5.0</div>
+    </div>
+
+    <div class="key-info">
+        <div class="row"><span class="label">🔑 KEY</span><span class="value verified-value" id="keyDisplay">--- <span class="tick">✓</span></span></div>
+        <div class="row"><span class="label">⏳ HẠN</span><span class="value" id="expiryDisplay">---</span></div>
+        <div class="row"><span class="label">📱 THIẾT BỊ</span><span class="value" id="deviceCountDisplay">0/--</span></div>
+    </div>
+
+    <div class="vip-card">
+        <div class="vip-title">✦ VIP PREMIUM ✦ <span class="verified-inline">✓</span></div>
+        <div class="vip-sub">10/10 - VERIFIED</div>
+        <div class="vip-stats">
+            <div class="stat-item"><div class="num" id="sensiDisplay">x10.0</div><div class="lbl">SENSITIVITY</div></div>
+            <div class="stat-item"><div class="num" id="activePatches">0/0</div><div class="lbl">ACTIVE PATCHES</div></div>
+        </div>
+    </div>
+
+    <div id="featureContainer"></div>
+
+    <button class="activate-btn" id="activateBtn">🚀 KÍCH HOẠT & MỞ GAME</button>
+
+    <div class="bottom-nav">
+        <button class="active" data-tab="home"><span>🎮</span><span>Chức năng</span></button>
+        <button data-tab="guide"><span>📖</span><span>Hướng dẫn</span></button>
+        <button data-tab="profile"><span>👤</span><span>Hồ sơ</span></button>
+        <button data-tab="dns"><span>🛡️</span><span>DNS</span></button>
+    </div>
+</div>
+
+<!-- ===== FULLSCREEN VIEW: HƯỚNG DẪN ===== -->
+<div class="view" id="guideView">
+    <div class="view-header">
+        <button class="back-btn" data-back="guide">←</button>
+        <h2><span class="p-icon">📖</span> Hướng dẫn</h2>
+        <div class="spacer"></div>
+    </div>
+    <div class="view-content">
+        <div style="color:#94a3b8;font-size:13px;margin-bottom:14px;">Cách log chức năng:</div>
+        <div class="guide-step"><div class="num">1</div><div class="text">Vào game</div></div>
+        <div class="guide-step"><div class="num">2</div><div class="text">Ở sảnh bật chức năng</div></div>
+        <div class="guide-step"><div class="num">3</div><div class="text">Vào huấn luyện đứng đó 10 giây</div></div>
+        <div class="guide-step"><div class="num">4</div><div class="text">Thoát game bật chức năng</div></div>
+        <div class="guide-step"><div class="num">5</div><div class="text">Chiến đến khi nghỉ</div></div>
+        <div class="note-box">
+            ⚠️ Lưu ý: Tuỳ theo trường hợp máy sẽ nhận code<br><br>
+            🚀 <b>Máy nhanh:</b> tác dụng có ngay lập tức và tác dụng mạnh<br>
+            🐢 <b>Máy chập:</b> sẽ vào từ từ tác dụng tăng dần
+        </div>
+    </div>
+</div>
+
+<!-- ===== FULLSCREEN VIEW: HỒ SƠ ===== -->
+<div class="view" id="profileView">
+    <div class="view-header">
+        <button class="back-btn" data-back="profile">←</button>
+        <h2><span class="p-icon">👤</span> Hồ sơ</h2>
+        <div class="spacer"></div>
+    </div>
+    <div class="view-content">
+        <div id="adminInfo">
+            <div class="avatar-wrap">
+                <img src="https://i.postimg.cc/hvZhTsJg/34A8D783-BBFA-4F7C-BDF4-D83194E0DB48.png" alt="Admin">
+                <div class="verified-big">✓</div>
+            </div>
+            <div class="name">Ngọc phát x NP <span class="tick-name">✓</span></div>
+            <div class="zalo">📱 ZALO: 0976457016</div>
+            <div class="sec-verified-line"><span class="tick">✓</span> TÀI KHOẢN ĐÃ XÁC THỰC</div>
+        </div>
+        <div class="info-item" onclick="window.open('https://zalo.me/976457016','_blank')">
+            <div><strong>Zalo <span class="tick-sm">✓</span></strong><p>0976457016</p></div><span>💬</span>
+        </div>
+        <div class="info-item">
+            <div><strong>Phiên bản <span class="tick-sm">✓</span></strong><p>v6.5.0 - Mobile</p></div><span>📱</span>
+        </div>
+        <div class="info-item">
+            <div><strong>Thiết bị <span class="tick-sm">✓</span></strong><p id="profileDevice">--</p></div><span>🔑</span>
+        </div>
+        <button class="modal-btn success" id="logoutBtn" style="margin-top:14px;">🚪 Đăng xuất</button>
+        <div style="text-align:center;color:#64748b;font-size:12px;margin-top:20px;">© 2026 NP</div>
+    </div>
+</div>
+
+<!-- ===== FULLSCREEN VIEW: DNS ===== -->
+<div class="view" id="dnsView">
+    <div class="view-header">
+        <button class="back-btn" data-back="dns">←</button>
+        <h2><span class="p-icon">🛡️</span> DNS</h2>
+        <div class="spacer"></div>
+    </div>
+    <div class="view-content">
+        <div class="dns-hero">
+            <div class="dns-icon">🛡️</div>
+            <div class="dns-name">DNS ANTIBAN OB55</div>
+            <div class="dns-copyright">Bản quyền: NP🪽</div>
+        </div>
+        <button class="dns-btn" id="downloadDns">⬇️ TẢI DNS</button>
+        <div class="dns-warn">
+            ⚠️ LUÔN BẬT DNS TRONG QUÁ TRÌNH CHƠI ĐỂ CHÁNH BAN ID<br><br>
+            KHI NGHỈ XOÁ TAB GAME ĐỢI 3 PHÚT SAU ĐÓ MỚI TẮT DNS
+        </div>
+        <div class="dns-info">
+            📌 Mô tả: DNS ANTIBAN OB55<br>
+            📌 Có nhu cầu múc key liên hệ Zalo: 0976457016<br>
+            📌 DNS tên: DNS ANTIBAN OB55
+        </div>
+    </div>
+</div>
+
+<!-- ===== CATEGORY SELECTOR ===== -->
+<div class="cat-overlay" id="catOverlay">
+    <div class="cat-modal">
+        <div class="cat-header"><h3>Chọn danh mục</h3></div>
+        <div class="cat-list" id="catList">
+            <div class="cat-item" data-cat="aim_sanh_ffth">
+                <div class="cat-icon">🔥</div>
+                <div class="cat-name">Aim bật sảnh FFTH</div>
+                <div class="cat-radio"></div>
+            </div>
+            <div class="cat-item" data-cat="aim_sanh_ffmax">
+                <div class="cat-icon">⚡</div>
+                <div class="cat-name">Aim bật sảnh FFMAX</div>
+                <div class="cat-radio"></div>
+            </div>
+            <div class="cat-item" data-cat="aim_40_ffth">
+                <div class="cat-icon">🎯</div>
+                <div class="cat-name">Aim bật 40% FFTH</div>
+                <div class="cat-radio"></div>
+            </div>
+            <div class="cat-item" data-cat="aim_40_ffmax">
+                <div class="cat-icon">💧</div>
+                <div class="cat-name">Aim bật 40% FFMAX</div>
+                <div class="cat-radio"></div>
+            </div>
+        </div>
+        <div class="cat-footer">
+            <button id="catCancel">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL OPTIMIZE ===== -->
+<div class="modal" id="optimizeModal">
+    <div class="modal-card">
+        <button class="close" id="closeOptimizeModal">✕</button>
+        <div class="modal-title"><span>⚡</span><div><h3>Tối ưu thiết bị</h3><p>Chạy để tối ưu</p></div></div>
+        <div class="terminal" id="optimizeTerminal">🚀 Đang tối ưu thiết bị...\n🔍 Đang quét hệ thống...</div>
+        <button class="modal-btn primary" id="runOptimize">▶ Chạy tối ưu</button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// BẢO MẬT - JS LANDING (CHỈ CHẠY KHI LOGIN SAI/THIẾU)
+// Không trap toàn bộ app, chỉ chuyển hướng khi phát hiện bypass
+// ============================================================
+
+// Lớp 1: Anti-tamper token (không auto trap - chỉ đánh dấu)
+(function() {
+    var _0xsec = "EVOZ_SELF_DEFEND_2026_V650";
+    var _0xvalid = true;
+
+    function _0xchk() {
+        try {
+            var fnStr = _0xchk.toString();
+            if (fnStr.indexOf('_0xchk') === -1) {
+                _0xvalid = false;
+                return false;
+            }
+            if (typeof _0xsec !== 'string' || _0xsec.length < 10) {
+                _0xvalid = false;
+                return false;
+            }
+            return true;
+        } catch(e) {
+            _0xvalid = false;
+            return false;
+        }
+    }
+
+    // Chỉ đánh dấu, KHÔNG auto trap
+    window.__evozChk = _0xchk;
+    window.__evozValid = function() { return _0xvalid; };
+})();
+
+// Lớp 2: Fetch guard + rate limit (CHỈ chặn domain lạ)
+(function() {
+    var fetchCount = 0;
+    var maxFetch = 100;
+
+    var originalFetch = window.fetch;
+    window.fetch = function(url, options) {
+        fetchCount++;
+
+        if (typeof url === 'string' && url.indexOf('http') === 0) {
+            if (url.indexOf('firebaseio.com') === -1 && url.indexOf('dns.google') === -1) {
+                return Promise.reject(new Error('Blocked'));
+            }
+        }
+
+        options = options || {};
+        options.headers = options.headers || {};
+        options.headers['X-Client-Integrity'] = 'EVOZ_SECURE_V650';
+        options.headers['X-Device-ID'] = (typeof deviceId !== 'undefined') ? deviceId : 'unknown';
+        options.headers['X-Timestamp'] = Date.now().toString();
+        options.headers['X-App-Version'] = '6.5.0';
+
+        return originalFetch.apply(this, arguments);
+    };
+})();
+
+// Lớp 3: Anti-iframe (chỉ thoát iframe)
+(function() {
+    if (window.self !== window.top) {
+        try {
+            window.top.location = window.self.location;
+        } catch(e) {
+            document.body.innerHTML = '<div style="display:grid;place-items:center;height:100vh;background:#03060c;color:#ef4444;font-family:sans-serif;font-size:20px;font-weight:900;text-align:center;padding:20px;">🔒 KHÔNG CHO PHÉP NHÚNG IFRAME</div>';
+        }
+    }
+})();
+
+// Lớp 4: Protect window.fetch (không cho ghi đè)
+(function() {
+    try {
+        var originalFetch = window.fetch;
+        Object.defineProperty(window, 'fetch', {
+            value: originalFetch,
+            writable: false,
+            configurable: false
+        });
+    } catch(e) {}
+})();
+
+// ============================================================
+// FIREBASE CONFIG
+// ============================================================
+var FIREBASE_URL = "https://aimlock-key-default-rtdb.firebaseio.com";
+
+// ============================================================
+// DEVICE ID
+// ============================================================
+var deviceId = localStorage.getItem("EVOZ_DEVICE_ID");
+if (!deviceId) {
+    deviceId = "EVOZ-" + Date.now().toString(16) + "-" + Math.random().toString(36).substr(2, 8);
+    localStorage.setItem("EVOZ_DEVICE_ID", deviceId);
+}
+document.getElementById('hwidDisplay').textContent = deviceId.substring(0, 16);
+var profileDevEl = document.getElementById('profileDevice');
+if (profileDevEl) profileDevEl.textContent = deviceId.substring(0, 16);
+
+// ============================================================
+// GLOBAL STATE
+// ============================================================
+var currentKey = "";
+var keyData = null;
+var isLoggedIn = false;
+var checkInterval = null;
+var expiryInterval = null;
+var selectedCategory = 'aim_sanh_ffth';
+var currentTab = 'home';
+var loginAttempts = 0;
+var lastAttemptTime = 0;
+
+// ============================================================
+// FEATURES - 10 CHỨC NĂNG
+// ============================================================
+var ALL_FEATURES = [
+    { id: 'room_bam_dau', icon: '🎯', name: 'BÁM ĐẦU', desc: 'Bám Đầu Tự Động', group: 'room' },
+    { id: 'room_nhay_man', icon: '📱', name: 'NHẠY MÀN', desc: 'Tăng Độ Nhạy Màn Hình', group: 'room' },
+    { id: 'room_nhe_tam_ban', icon: '💆', name: 'NHẸ TÂM BẮN', desc: 'Giảm Căng Thẳng Khi Bắn', group: 'room' },
+
+    { id: 'rank_fix_rung_tam', icon: '🎯', name: 'FIX RUNG TÂM', desc: 'Khử Rung Tâm', group: 'rank' },
+    { id: 'rank_fix_lo_tam', icon: '🎯', name: 'FIX LỒ TÂM', desc: 'Khử Lồ Tâm', group: 'rank' },
+    { id: 'rank_em_tam', icon: '💆', name: 'ÊM TÂM', desc: 'Tâm Êm Không Giật', group: 'rank' },
+    { id: 'rank_toi_uu', icon: '⚡', name: 'TỐI ƯU', desc: 'Tối Ưu Hiệu Năng', group: 'rank' },
+
+    { id: 'hl_aimlock', icon: '🔒', name: 'AIMLOCK', desc: 'Khóa Tâm Tự Động', group: 'highlight' },
+    { id: 'hl_fix_nang_tam', icon: '⚙️', name: 'FIX NẶNG TÂM', desc: 'Khử Nặng Tâm', group: 'highlight' },
+    { id: 'hl_tang_nhay_cam_ung', icon: '🖱️', name: 'TĂNG NHẠY CẢM ỨNG', desc: 'Tăng Độ Nhạy Cảm Ứng', group: 'highlight' },
+    { id: 'hl_toi_uu', icon: '⚡', name: 'TỐI ƯU', desc: 'Tối Ưu Hiệu Năng', group: 'highlight' }
+];
+
+var GROUP_NAMES = {
+    room: '🏠 PHÒNG',
+    rank: '🏆 RANK',
+    highlight: '✨ HIGHLIGHT'
+};
+
+// ============================================================
+// PARTICLE BACKGROUND
+// ============================================================
+(function createParticles() {
+    var container = document.getElementById('particles');
+    var count = 24;
+    for (var i = 0; i < count; i++) {
+        var p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.animationDuration = (8 + Math.random() * 12) + 's';
+        p.style.animationDelay = (Math.random() * 10) + 's';
+        var size = 1 + Math.random() * 2;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        var colors = ['#38bdf8','#a855f7','#22d3ee'];
+        var c = colors[Math.floor(Math.random()*colors.length)];
+        p.style.background = c;
+        p.style.boxShadow = '0 0 8px ' + c + ', 0 0 16px ' + c;
+        container.appendChild(p);
+    }
+})();
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg) {
+    var t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('active');
+    clearTimeout(window.toastTimeout);
+    window.toastTimeout = setTimeout(function(){ t.classList.remove('active'); }, 2500);
+}
+
+// ============================================================
+// FIREBASE
+// ============================================================
+async function activateKey(key) {
+    try {
+        var url = FIREBASE_URL + "/keys/" + key + ".json";
+        var res = await fetch(url);
+        if (!res.ok) return { success: false, message: "Lỗi kết nối Firebase!" };
+        var data = await res.json();
+        if (!data) return { success: false, message: "Key không tồn tại!" };
+
+        var now = Date.now();
+        if (data.expiry && data.expiry < now) {
+            return { success: false, message: "Key đã hết hạn!", expired: true };
+        }
+
+        if (data.deviceLimit) {
+            var devices = data.devices || [];
+            if (devices.length >= data.deviceLimit && !devices.includes(deviceId)) {
+                return { success: false, message: "Giới hạn thiết bị đã đạt!" };
+            }
+        }
+
+        if (!data.devices || !data.devices.includes(deviceId)) {
+            var devices = data.devices || [];
+            devices.push(deviceId);
+            await fetch(FIREBASE_URL + "/keys/" + key + "/devices.json", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(devices)
+            });
+            data.devices = devices;
+        }
+
+        return { success: true, data: data };
+    } catch (err) {
+        return { success: false, message: "Không kết nối được Firebase!" };
+    }
+}
+
+function getDaysLeft(expiry) {
+    if (!expiry) return "vĩnh viễn";
+    var diff = expiry - Date.now();
+    if (diff <= 0) return "ĐÃ HẾT HẠN";
+    return Math.ceil(diff / (1000 * 60 * 60 * 24)) + " ngày";
+}
+
+// ============================================================
+// CALL NATIVE
+// ============================================================
+function callNative(action, data) {
+    if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers[action]) {
+        try {
+            window.webkit.messageHandlers[action].postMessage(data || {});
+            return true;
+        } catch(e) {}
+    }
+    if (window.Android && window.Android[action]) {
+        try {
+            window.Android[action](JSON.stringify(data || {}));
+            return true;
+        } catch(e) {}
+    }
+    return false;
+}
+
+// ============================================================
+// RENDER FEATURES
+// ============================================================
+function renderFeatures() {
+    var container = document.getElementById('featureContainer');
+    var groups = { room: [], rank: [], highlight: [] };
+    for (var i = 0; i < ALL_FEATURES.length; i++) {
+        var f = ALL_FEATURES[i];
+        if (groups[f.group]) groups[f.group].push(f);
+        else groups.room.push(f);
+    }
+
+    var html = '';
+    var groupKeys = ['room', 'rank', 'highlight'];
+    for (var gi = 0; gi < groupKeys.length; gi++) {
+        var g = groupKeys[gi];
+        var features = groups[g];
+        if (!features || features.length === 0) continue;
+
+        html += '<div class="feature-group">';
+        html += '<div class="group-header"><span>' + (GROUP_NAMES[g] || g.toUpperCase()) + '</span><span class="group-count">' + features.length + ' chức năng</span></div>';
+
+        for (var fi = 0; fi < features.length; fi++) {
+            var f = features[fi];
+            html += '<div class="feature-item" data-feature="' + f.id + '">' +
+                '<div class="icon">' + f.icon + '</div>' +
+                '<div class="info"><b>' + f.name + ' <span class="tick-sm">✓</span></b><small>' + f.desc + '</small></div>' +
+                '<div class="switch" data-feature="' + f.id + '"></div>' +
+            '</div>';
+        }
+        html += '</div>';
+    }
+
+    container.innerHTML = html;
+    updateVipStats();
+}
+
+function updateVipStats() {
+    document.getElementById('sensiDisplay').textContent = 'x10.0';
+    var activeCount = document.querySelectorAll('.feature-item .switch.active').length;
+    var total = document.querySelectorAll('.feature-item .switch').length;
+    document.getElementById('activePatches').textContent = activeCount + '/' + total;
+}
+
+// ============================================================
+// CHECK KEY PERIODIC
+// ============================================================
+async function checkKeyPeriodic() {
+    if (!isLoggedIn || !currentKey) return;
+    var result = await activateKey(currentKey);
+    if (!result.success) {
+        showToast(result.message || "Key không hợp lệ!");
+        handleLogout();
+    }
+}
+
+// ============================================================
+// LOGIN
+// ============================================================
+async function handleLogin() {
+    var input = document.getElementById('keyInput');
+    var key = input.value.trim();
+
+    // Anti-spam: 5s giữa các lần thử
+    var now = Date.now();
+    if (now - lastAttemptTime < 5000) {
+        showToast("⏳ Vui lòng đợi " + Math.ceil((5000 - (now - lastAttemptTime))/1000) + "s");
+        return;
+    }
+    lastAttemptTime = now;
+
+    if (!key) { 
+        showToast("❌ Vui lòng nhập key!");
+        return; 
+    }
+
+    if (key.length < 4 || key.length > 64) {
+        showToast("❌ Key không hợp lệ!");
+        return;
+    }
+
+    var msg = document.getElementById('loginMessage');
+    msg.textContent = "⏳ Đang kiểm tra...";
+    msg.className = "message";
+
+    var result = await activateKey(key);
+    if (!result.success) {
+        loginAttempts++;
+        msg.textContent = "❌ " + result.message;
+        msg.className = "message err";
+        showToast("❌ " + result.message);
+        return;
+    }
+
+    // Login thành công
+    loginAttempts = 0;
+    currentKey = key;
+    keyData = result.data;
+    isLoggedIn = true;
+    localStorage.setItem("EVOZ_KEY", key);
+
+    document.getElementById('loginGate').style.display = 'none';
+    document.getElementById('appMain').style.display = 'block';
+
+    document.getElementById('keyDisplay').innerHTML = key.substring(0, 8) + '... <span class="tick">✓</span>';
+
+    if (keyData.expiry) {
+        var days = getDaysLeft(keyData.expiry);
+        document.getElementById('expiryDisplay').textContent = days;
+        document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: ' + days;
+        document.getElementById('keyExpiryDisplay').style.display = 'block';
+    } else {
+        document.getElementById('expiryDisplay').textContent = 'vĩnh viễn';
+        document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: vĩnh viễn';
+        document.getElementById('keyExpiryDisplay').style.display = 'block';
+    }
+
+    var devices = keyData.devices || [];
+    var limit = keyData.deviceLimit || '∞';
+    document.getElementById('deviceCountDisplay').textContent = devices.length + '/' + limit;
+
+    msg.textContent = "✅ Đăng nhập thành công!";
+    msg.className = "message ok";
+    showToast('✅ Đăng nhập thành công!');
+
+    renderFeatures();
+
+    if (expiryInterval) clearInterval(expiryInterval);
+    if (keyData.expiry) {
+        expiryInterval = setInterval(function() {
+            var days = getDaysLeft(keyData.expiry);
+            document.getElementById('expiryDisplay').textContent = days;
+            document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: ' + days;
+            if (days === "ĐÃ HẾT HẠN") {
+                clearInterval(expiryInterval);
+                handleLogout();
+            }
+        }, 1000);
+    }
+
+    if (checkInterval) clearInterval(checkInterval);
+    checkInterval = setInterval(checkKeyPeriodic, 2000);
+}
+
+function handleLogout() {
+    localStorage.removeItem("EVOZ_KEY");
+    isLoggedIn = false;
+    currentKey = "";
+    keyData = null;
+    if (checkInterval) clearInterval(checkInterval);
+    if (expiryInterval) clearInterval(expiryInterval);
+    document.getElementById('loginGate').style.display = 'grid';
+    document.getElementById('appMain').style.display = 'none';
+    document.getElementById('keyExpiryDisplay').style.display = 'none';
+    showToast('🚪 Đã đăng xuất');
+}
+
+// ============================================================
+// OPEN GAME
+// ============================================================
+function openGameByCategory(cat) {
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var isAndroid = /Android/.test(navigator.userAgent);
+
+    var scheme = '';
+    var storeUrl = '';
+
+    if (cat === 'aim_sanh_ffth' || cat === 'aim_40_ffth') {
+        scheme = 'freefireth://';
+        storeUrl = isIOS 
+            ? 'https://apps.apple.com/app/free-fire/id1300146617' 
+            : 'https://play.google.com/store/apps/details?id=com.dts.freefireth';
+    } else if (cat === 'aim_sanh_ffmax' || cat === 'aim_40_ffmax') {
+        scheme = 'freefiremax://';
+        storeUrl = isIOS 
+            ? 'https://apps.apple.com/app/free-fire-max/id1594581875' 
+            : 'https://play.google.com/store/apps/details?id=com.dts.freefiremax';
+    } else {
+        scheme = 'freefireth://';
+        storeUrl = isIOS 
+            ? 'https://apps.apple.com/app/free-fire/id1300146617' 
+            : 'https://play.google.com/store/apps/details?id=com.dts.freefireth';
+    }
+
+    var start = Date.now();
+    var iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    iframe.src = scheme;
+    document.body.appendChild(iframe);
+
+    window.location.href = scheme;
+
+    setTimeout(function() {
+        if (Date.now() - start < 1800) {
+            window.location.href = storeUrl;
+        }
+        if (iframe.parentNode) iframe.remove();
+    }, 1500);
+}
+
+function activateAndOpen() {
+    if (!isLoggedIn) { showToast("Chưa đăng nhập!"); return; }
+    document.getElementById('catOverlay').style.display = 'grid';
+}
+
+// ============================================================
+// DNS MOBILECONFIG
+// ============================================================
+function downloadDNS() {
+    var mobileconfig = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+'<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n' +
+'<plist version="1.0">\n' +
+'<dict>\n' +
+'  <key>PayloadContent</key>\n' +
+'  <array>\n' +
+'    <dict>\n' +
+'      <key>PayloadDescription</key>\n' +
+'      <string>DNS ANTIBAN OB55 - Chống ban ID</string>\n' +
+'      <key>PayloadDisplayName</key>\n' +
+'      <string>DNS ANTIBAN OB55</string>\n' +
+'      <key>PayloadIdentifier</key>\n' +
+'      <string>com.np.dnsantiban</string>\n' +
+'      <key>PayloadType</key>\n' +
+'      <string>com.apple.dnsSettings.managed</string>\n' +
+'      <key>PayloadUUID</key>\n' +
+'      <string>' + crypto.randomUUID() + '</string>\n' +
+'      <key>PayloadVersion</key>\n' +
+'      <integer>1</integer>\n' +
+'      <key>DNSSettings</key>\n' +
+'      <dict>\n' +
+'        <key>DNSProtocol</key>\n' +
+'        <string>HTTPS</string>\n' +
+'        <key>ServerURL</key>\n' +
+'        <string>https://dns.google/dns-query</string>\n' +
+'      </dict>\n' +
+'    </dict>\n' +
+'  </array>\n' +
+'  <key>PayloadDescription</key>\n' +
+'  <string>DNS ANTIBAN OB55 - Có nhu cầu múc key liên hệ Zalo: 0976457016</string>\n' +
+'  <key>PayloadDisplayName</key>\n' +
+'  <string>DNS ANTIBAN OB55</string>\n' +
+'  <key>PayloadIdentifier</key>\n' +
+'  <string>com.np.dnsantiban.profile</string>\n' +
+'  <key>PayloadOrganization</key>\n' +
+'  <string>NP🪽</string>\n' +
+'  <key>PayloadRemovalDisallowed</key>\n' +
+'  <false/>\n' +
+'  <key>PayloadType</key>\n' +
+'  <string>Configuration</string>\n' +
+'  <key>PayloadUUID</key>\n' +
+'  <string>' + crypto.randomUUID() + '</string>\n' +
+'  <key>PayloadVersion</key>\n' +
+'  <integer>1</integer>\n' +
+'</dict>\n' +
+'</plist>';
+
+    var blob = new Blob([mobileconfig], { type: 'application/x-apple-aspen-config' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'DNS_ANTIBAN_OB55.mobileconfig';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('⬇️ Đang tải DNS ANTIBAN OB55...');
+}
+
+// ============================================================
+// VIEW MANAGEMENT
+// ============================================================
+function openView(id) {
+    document.querySelectorAll('.view').forEach(function(v) {
+        v.classList.remove('active');
+    });
+    var view = document.getElementById(id);
+    if (view) {
+        view.classList.add('active');
+        view.scrollTop = 0;
+    }
+}
+
+function closeAllViews() {
+    document.querySelectorAll('.view').forEach(function(v) {
+        v.classList.remove('active');
+    });
+}
+
+// ============================================================
+// DOM EVENTS
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('keyDisplay').innerHTML = '--- <span class="tick">✓</span>';
+
+    // HWID copy
+    document.getElementById('copyHwid').addEventListener('click', function() {
+        navigator.clipboard.writeText(deviceId).then(function() {
+            showToast('📋 Đã copy HWID');
+        }).catch(function() {
+            showToast('📋 HWID: ' + deviceId);
+        });
+    });
+
+    // Toggle eye
+    document.getElementById('toggleEye').addEventListener('click', function() {
+        var input = document.getElementById('keyInput');
+        if (input.type === 'password') {
+            input.type = 'text';
+            this.textContent = '🙈';
+        } else {
+            input.type = 'password';
+            this.textContent = '👁';
+        }
+    });
+
+    // Auto login
+    var savedKey = localStorage.getItem("EVOZ_KEY");
+    if (savedKey) {
+        activateKey(savedKey).then(function(result) {
+            if (result.success) {
+                currentKey = savedKey;
+                keyData = result.data;
+                isLoggedIn = true;
+
+                document.getElementById('loginGate').style.display = 'none';
+                document.getElementById('appMain').style.display = 'block';
+                document.getElementById('keyDisplay').innerHTML = savedKey.substring(0, 8) + '... <span class="tick">✓</span>';
+
+                if (keyData.expiry) {
+                    var days = getDaysLeft(keyData.expiry);
+                    document.getElementById('expiryDisplay').textContent = days;
+                    document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: ' + days;
+                    document.getElementById('keyExpiryDisplay').style.display = 'block';
+                } else {
+                    document.getElementById('expiryDisplay').textContent = 'vĩnh viễn';
+                    document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: vĩnh viễn';
+                    document.getElementById('keyExpiryDisplay').style.display = 'block';
+                }
+
+                var devices = keyData.devices || [];
+                var limit = keyData.deviceLimit || '∞';
+                document.getElementById('deviceCountDisplay').textContent = devices.length + '/' + limit;
+
+                renderFeatures();
+
+                if (keyData.expiry) {
+                    expiryInterval = setInterval(function() {
+                        var days = getDaysLeft(keyData.expiry);
+                        document.getElementById('expiryDisplay').textContent = days;
+                        document.getElementById('keyExpiryDisplay').textContent = '🔑 Còn: ' + days;
+                        if (days === "ĐÃ HẾT HẠN") {
+                            clearInterval(expiryInterval);
+                            handleLogout();
+                        }
+                    }, 1000);
+                }
+                checkInterval = setInterval(checkKeyPeriodic, 2000);
+                showToast('✅ Chào mừng trở lại!');
+            } else {
+                localStorage.removeItem("EVOZ_KEY");
+            }
+        });
+    }
+
+    document.getElementById('loginBtnFull').addEventListener('click', handleLogin);
+    document.getElementById('keyInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') handleLogin(); });
+
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+        if (confirm('Đăng xuất?')) handleLogout();
+    });
+
+    document.getElementById('activateBtn').addEventListener('click', activateAndOpen);
+
+    // ===== CATEGORY SELECTOR =====
+    var catItems = document.querySelectorAll('#catList .cat-item');
+    catItems.forEach(function(item) {
+        item.addEventListener('click', function() {
+            catItems.forEach(function(i) { i.classList.remove('active'); });
+            this.classList.add('active');
+            selectedCategory = this.dataset.cat;
+            localStorage.setItem('EVOZ_CAT', selectedCategory);
+        });
+    });
+
+    var savedCat = localStorage.getItem('EVOZ_CAT');
+    if (savedCat) {
+        selectedCategory = savedCat;
+        catItems.forEach(function(item) {
+            if (item.dataset.cat === savedCat) item.classList.add('active');
+        });
+    } else {
+        catItems[0].classList.add('active');
+    }
+
+    document.getElementById('catCancel').addEventListener('click', function() {
+        document.getElementById('catOverlay').style.display = 'none';
+    });
+
+    document.getElementById('catOverlay').addEventListener('click', function(e) {
+        if (e.target === this) this.style.display = 'none';
+    });
+
+    // Add start button to cat modal
+    var catModal = document.querySelector('.cat-modal');
+    var startBtn = document.createElement('button');
+    startBtn.className = 'dns-btn';
+    startBtn.textContent = '🚀 BẮT ĐẦU';
+    startBtn.style.margin = '0 14px 14px';
+    startBtn.style.width = 'calc(100% - 28px)';
+    startBtn.addEventListener('click', function() {
+        document.getElementById('catOverlay').style.display = 'none';
+        document.querySelectorAll('.feature-item .switch.active').forEach(function(sw) {
+            var id = sw.dataset.feature;
+            if (id) {
+                localStorage.setItem('toggle_' + id, 'true');
+                callNative(id, { enabled: true, category: selectedCategory });
+            }
+        });
+        updateVipStats();
+        var catNames = {
+            'aim_sanh_ffth': 'Aim bật sảnh FFTH',
+            'aim_sanh_ffmax': 'Aim bật sảnh FFMAX',
+            'aim_40_ffth': 'Aim bật 40% FFTH',
+            'aim_40_ffmax': 'Aim bật 40% FFMAX'
+        };
+        showToast('✅ Đang mở ' + (catNames[selectedCategory] || 'Game'));
+        setTimeout(function(){ openGameByCategory(selectedCategory); }, 500);
+    });
+    catModal.appendChild(startBtn);
+
+    // Toggle switches
+    document.addEventListener('click', function(e) {
+        var sw = e.target.closest('.switch');
+        if (!sw) return;
+        if (!isLoggedIn) { showToast("Chưa đăng nhập!"); return; }
+
+        var feature = sw.dataset.feature;
+        if (!feature) return;
+
+        sw.classList.toggle('active');
+        var state = sw.classList.contains('active');
+        localStorage.setItem('toggle_' + feature, state);
+        callNative(feature, { enabled: state });
+        var name = sw.closest('.feature-item')?.querySelector('.info b')?.textContent || feature;
+        showToast(state ? '✅ Đã bật ' + name : '⛔ Đã tắt ' + name);
+        updateVipStats();
+    });
+
+    // ===== BOTTOM NAV =====
+    document.querySelectorAll('.bottom-nav button').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var tab = this.dataset.tab;
+            currentTab = tab;
+
+            document.querySelectorAll('.bottom-nav button').forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+
+            closeAllViews();
+
+            if (tab === 'guide') {
+                openView('guideView');
+            } else if (tab === 'profile') {
+                openView('profileView');
+            } else if (tab === 'dns') {
+                openView('dnsView');
+            }
+        });
+    });
+
+    // ===== BACK BUTTONS =====
+    document.querySelectorAll('.back-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            closeAllViews();
+            document.querySelectorAll('.bottom-nav button').forEach(function(b) { b.classList.remove('active'); });
+            document.querySelector('.bottom-nav button[data-tab="home"]').classList.add('active');
+            currentTab = 'home';
+        });
+    });
+
+    // Optimize modal
+    document.getElementById('closeOptimizeModal').addEventListener('click', function() {
+        document.getElementById('optimizeModal').style.display = 'none';
+    });
+    document.getElementById('runOptimize').addEventListener('click', function() {
+        var terminal = document.getElementById('optimizeTerminal');
+        var steps = [
+            '🧹 Đang dọn cache hệ thống...',
+            '💾 Giải phóng RAM...',
+            '⚡ Tăng hiệu năng CPU...',
+            '🎮 Tối ưu đồ họa game...',
+            '📱 Giảm độ trễ cảm ứng...',
+            '✅ Tối ưu hoàn tất 100%!'
+        ];
+        var i = 0;
+        terminal.textContent = '🚀 Đang tối ưu thiết bị...\n';
+        var interval = setInterval(function() {
+            if (i < steps.length) {
+                terminal.textContent += steps[i] + '\n';
+                i++;
+            } else {
+                clearInterval(interval);
+                callNative('fullOptimize', {});
+                document.getElementById('runOptimize').disabled = true;
+                document.getElementById('runOptimize').textContent = '✅ Hoàn tất';
+                showToast('✅ Tối ưu thiết bị thành công 100%!');
+                setTimeout(function() {
+                    document.getElementById('runOptimize').disabled = false;
+                    document.getElementById('runOptimize').textContent = '▶ Chạy tối ưu';
+                }, 3000);
+            }
+        }, 500);
+    });
+
+    // DNS download
+    document.getElementById('downloadDns').addEventListener('click', downloadDNS);
+});
+</script>
+</body>
+</html>
